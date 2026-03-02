@@ -4,55 +4,283 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>宝宝任务奖励</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- 引入Font Awesome图标库，用于美化界面 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入Vant UI库的样式 (轻量移动端组件库) -->
+    <link rel="stylesheet" href="https://unpkg.com/vant@2.12/lib/index.css" />
+    <!-- 引入Supabase JavaScript客户端库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="manifest" href="manifest.json">
-    <script src="app.js" defer></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        .app-container {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.02);
+            padding: 24px 16px;
+        }
+        .mode-switch {
+            display: flex;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 40px;
+            margin-bottom: 24px;
+        }
+        .mode-switch button {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 30px;
+            background: transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mode-switch button.active {
+            background: white;
+            color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+        }
+        .stats-card p {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 16px 0 8px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h2 i {
+            color: #3b82f6;
+            font-size: 20px;
+        }
+        .list-card {
+            background: white;
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid #e2e8f0;
+        }
+        .task-item, .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .task-item:last-child, .shop-item:last-child {
+            border-bottom: none;
+        }
+        .task-name {
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .task-points {
+            background: #dbeafe;
+            color: #2563eb;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .shop-item-info strong {
+            font-size: 16px;
+        }
+        .shop-item-info p {
+            color: #3b82f6;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        button.danger-btn {
+            background: #ef4444;
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+        }
+        button.danger-btn:hover {
+            background: #dc2626;
+        }
+        .online-pick-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .link-input-group {
+            display: flex;
+            gap: 8px;
+        }
+        .link-input-group input {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 30px;
+            font-size: 14px;
+        }
+        .small-btn {
+            width: auto;
+            padding: 10px 20px;
+            margin: 0;
+            font-size: 14px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 30px;
+            font-size: 16px;
+        }
+        .close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        #childView .task-item {
+            background: #f8fafc;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+        }
+        .history-list {
+            font-size: 14px;
+            color: #64748b;
+            padding: 8px 0;
+        }
+        .shop-actions button {
+            width: auto;
+            margin: 0 0 0 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        .fa-star { color: #fbbf24; margin-right: 4px; }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <!-- 家长模式开关 -->
+    <div class="app-container">
         <div class="mode-switch">
-            <button id="parentModeBtn" class="active">家长模式</button>
-            <button id="childModeBtn">孩子模式</button>
+            <button id="parentModeBtn" class="active"><i class="fas fa-user-tie"></i> 家长模式</button>
+            <button id="childModeBtn"><i class="fas fa-child"></i> 孩子模式</button>
         </div>
 
-        <!-- 家长模式界面 -->
+        <!-- 家长视图 -->
         <div id="parentView" class="view active">
-            <h1>👨‍👩‍👧 家长控制台</h1>
-            <div class="stats">
-                <p>💰 宝宝总积分：<span id="totalPoints">0</span></p>
+            <div class="stats-card">
+                <i class="fas fa-piggy-bank" style="font-size: 24px;"></i>
+                <p>💰 宝宝总积分: <span id="totalPoints">0</span></p>
             </div>
 
-            <h2>📋 今日任务</h2>
-            <div id="taskList" class="task-list"></div>
-            <button id="addTaskBtn">➕ 添加新任务</button>
+            <h2><i class="fas fa-tasks"></i> 今日任务</h2>
+            <div id="taskList" class="list-card"></div>
+            <button id="addTaskBtn"><i class="fas fa-plus-circle"></i> 添加新任务</button>
 
-            <h2>🎁 奖励商店</h2>
-            <div id="shopList" class="shop-list"></div>
-            <button id="addShopBtn">➕ 添加商品</button>
+            <h2 style="margin-top: 32px;"><i class="fas fa-gift"></i> 奖励商店</h2>
+            <div id="shopList" class="list-card"></div>
 
-            <h2>📦 兑换记录</h2>
-            <div id="historyList"></div>
+            <!-- 在线选品区域 -->
+            <div class="online-pick-area">
+                <button id="onlineSearchBtn" class="danger-btn"><i class="fas fa-search"></i> 🔍 在线选品（赚佣金）</button>
+                <div id="linkPasteArea" style="display: none;">
+                    <div class="link-input-group">
+                        <input type="text" id="itemLink" placeholder="粘贴淘宝/京东商品链接">
+                        <button id="convertLinkBtn" class="small-btn">生成链接</button>
+                    </div>
+                </div>
+            </div>
+
+            <button id="addShopBtn"><i class="fas fa-plus-circle"></i> 手动添加商品</button>
+
+            <h2 style="margin-top: 32px;"><i class="fas fa-history"></i> 兑换记录</h2>
+            <div id="historyList" class="history-list"></div>
         </div>
 
-        <!-- 孩子模式界面 -->
+        <!-- 孩子视图 -->
         <div id="childView" class="view">
-            <h1>👦 宝宝的任务</h1>
-            <div class="stats">
-                <p>💰 我的积分：<span id="childPoints">0</span></p>
+            <div class="stats-card">
+                <i class="fas fa-star"></i>
+                <p>⭐ 我的积分: <span id="childPoints">0</span></p>
             </div>
-            <h2>📋 今日任务</h2>
-            <div id="childTaskList" class="task-list"></div>
-            <h2>🎁 可以换的礼物</h2>
-            <div id="childShopList" class="shop-list"></div>
+            <h2><i class="fas fa-tasks"></i> 今天要做的事</h2>
+            <div id="childTaskList" class="list-card"></div>
+            <h2 style="margin-top: 24px;"><i class="fas fa-gift"></i> 可以换的礼物</h2>
+            <div id="childShopList" class="list-card"></div>
         </div>
     </div>
 
-    <!-- 添加任务弹窗 (隐藏) -->
+    <!-- 添加任务弹窗 -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3>新建任务</h3>
+            <h3><i class="fas fa-plus-circle"></i> 新建任务</h3>
             <input type="text" id="taskName" placeholder="任务名称（如：自己刷牙）">
             <input type="number" id="taskPoints" placeholder="奖励积分（如：2）">
             <button id="saveTaskBtn">保存</button>
@@ -63,7 +291,7 @@
     <div id="shopModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3>添加商品</h3>
+            <h3><i class="fas fa-gift"></i> 添加商品</h3>
             <input type="text" id="shopName" placeholder="商品名称（如：玩具车）">
             <input type="number" id="shopPoints" placeholder="所需积分">
             <input type="url" id="shopLink" placeholder="购买链接（淘宝/京东推广链接）">
@@ -71,5 +299,354 @@
             <button id="saveShopBtn">保存</button>
         </div>
     </div>
+
+    <script>
+        // 初始化 Supabase 客户端
+        const SUPABASE_URL = 'https://hgmjwcpvhaacgzsmvtkp.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_kUGFH7AVvRBWT90iT-R5iQ_ngyHOmx0';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 应用状态
+        let state = {
+            tasks: [],
+            totalPoints: 0,
+            shop: [],
+            history: []
+        };
+
+        // 从云端加载数据
+        async function loadFromCloud() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('baby_reward')
+                    .select('*')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('云端加载失败', error);
+                    return;
+                }
+                if (data) {
+                    state = { ...state, ...data.data };
+                    localStorage.setItem('babyReward', JSON.stringify(state));
+                    updateUI();
+                    console.log('已从云端加载数据');
+                } else {
+                    loadFromLocal();
+                }
+            } catch (e) {
+                console.error('云端加载异常', e);
+                loadFromLocal();
+            }
+        }
+
+        // 从本地存储加载（无云端数据时使用默认任务）
+        function loadFromLocal() {
+            const saved = localStorage.getItem('babyReward');
+            if (saved) {
+                state = JSON.parse(saved);
+            } else {
+                // 丰富的默认任务列表（根据你提供的表格）
+                state = {
+                    tasks: [
+                        { id: 1001, name: '准时起床且没有起床气', points: 2, completed: false },
+                        { id: 1002, name: '自己刷牙、洗脸', points: 1, completed: false },
+                        { id: 1003, name: '自己吃饭（20分钟完成）', points: 2, completed: false },
+                        { id: 1004, name: '在家不光脚', points: 5, completed: false },
+                        { id: 1005, name: '电视单次不超过20分钟，不超3次', points: 2, completed: false },
+                        { id: 1006, name: '不吃糖', points: 1, completed: false },
+                        { id: 1007, name: '打扫卫生', points: 1, completed: false },
+                        { id: 1008, name: '自己把玩好的玩具放回原位', points: 1, completed: false },
+                        { id: 1009, name: '熄灯后30分钟入睡', points: 2, completed: false },
+                        { id: 1010, name: '大人讲话捣乱和插嘴', points: 1, completed: false },
+                        { id: 1011, name: '撒谎或欺骗', points: 2, completed: false },
+                        { id: 1012, name: '不讲卫生', points: 1, completed: false },
+                        { id: 1013, name: '出尔反尔说话', points: 2, completed: false },
+                        { id: 1014, name: '电子产品超过30分钟但仍不肯离开', points: 1, completed: false },
+                        { id: 1015, name: '其他', points: 1, completed: false }
+                    ],
+                    totalPoints: 0,
+                    shop: [],
+                    history: []
+                };
+            }
+            updateUI();
+        }
+
+        // 保存到云端
+        async function saveToCloud() {
+            try {
+                const { error } = await supabaseClient
+                    .from('baby_reward')
+                    .upsert({ id: 1, data: state });
+
+                if (error) {
+                    console.error('云端保存失败', error);
+                } else {
+                    console.log('数据已同步到云端');
+                }
+            } catch (e) {
+                console.error('云端保存异常', e);
+            }
+        }
+
+        // 保存状态（本地 + 云端）
+        function saveState() {
+            localStorage.setItem('babyReward', JSON.stringify(state));
+            saveToCloud();
+            updateUI();
+        }
+
+        // 更新所有UI
+        function updateUI() {
+            document.getElementById('totalPoints').innerText = state.totalPoints;
+            document.getElementById('childPoints').innerText = state.totalPoints;
+            renderTaskList();
+            renderShopList();
+            renderHistory();
+            renderChildTasks();
+            renderChildShop();
+        }
+
+        // 家长端任务列表
+        function renderTaskList() {
+            const container = document.getElementById('taskList');
+            container.innerHTML = '';
+            state.tasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.innerHTML = `
+                    <span class="task-name"><i class="fas ${task.completed ? 'fa-check-circle' : 'fa-circle'}" style="color:${task.completed ? '#22c55e' : '#94a3b8'}"></i> ${task.name}</span>
+                    <span class="task-points">+${task.points}</span>
+                    <div class="shop-actions">
+                        ${!task.completed ? `<button onclick="completeTask(${task.id})" class="small-btn" style="background:#22c55e"><i class="fas fa-check"></i></button>` : ''}
+                        <button onclick="deleteTask(${task.id})" class="small-btn" style="background:#ef4444"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 孩子端任务列表
+        function renderChildTasks() {
+            const container = document.getElementById('childTaskList');
+            container.innerHTML = '';
+            state.tasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.innerHTML = `
+                    <span class="task-name"><i class="fas ${task.completed ? 'fa-check-circle' : 'fa-circle'}" style="color:${task.completed ? '#22c55e' : '#94a3b8'}"></i> ${task.name}</span>
+                    <span class="task-points">+${task.points}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 家长端商店列表
+        function renderShopList() {
+            const container = document.getElementById('shopList');
+            container.innerHTML = '';
+            state.shop.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <strong>${item.name}</strong>
+                        <p>需要 ${item.points} 积分</p>
+                    </div>
+                    <div class="shop-actions">
+                        <button onclick="deleteShopItem(${item.id})" class="small-btn" style="background:#ef4444"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 孩子端商店列表
+        function renderChildShop() {
+            const container = document.getElementById('childShopList');
+            container.innerHTML = '';
+            state.shop.forEach(item => {
+                const canBuy = state.totalPoints >= item.points;
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <strong>${item.name}</strong>
+                        <p>需要 ${item.points} 积分</p>
+                    </div>
+                    <button class="small-btn" style="background:${canBuy ? '#22c55e' : '#94a3b8'}" onclick="buyItem(${item.id})" ${!canBuy ? 'disabled' : ''}>
+                        ${canBuy ? '<i class="fas fa-shopping-cart"></i> 购买' : '积分不够'}
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 历史记录
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            if (state.history.length === 0) {
+                container.innerHTML = '<p style="color:#94a3b8;"><i class="fas fa-info-circle"></i> 暂无兑换记录</p>';
+                return;
+            }
+            container.innerHTML = state.history.map(h => `<div><i class="fas fa-history"></i> ${h.date} 兑换 ${h.item} 消耗 ${h.points} 积分</div>`).join('');
+        }
+
+        // 完成任务
+        window.completeTask = function(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task && !task.completed) {
+                task.completed = true;
+                state.totalPoints += task.points;
+                saveState();
+            }
+        };
+
+        // 删除任务
+        window.deleteTask = function(id) {
+            if (confirm('确定删除该任务吗？')) {
+                state.tasks = state.tasks.filter(t => t.id !== id);
+                saveState();
+            }
+        };
+
+        // 删除商品
+        window.deleteShopItem = function(id) {
+            if (confirm('确定删除该商品吗？')) {
+                state.shop = state.shop.filter(i => i.id !== id);
+                saveState();
+            }
+        };
+
+        // 购买商品
+        window.buyItem = function(id) {
+            const item = state.shop.find(i => i.id === id);
+            if (!item) return;
+            if (state.totalPoints < item.points) {
+                alert('积分不够哦');
+                return;
+            }
+            if (confirm(`确定用 ${item.points} 积分兑换 ${item.name} 吗？`)) {
+                state.totalPoints -= item.points;
+                state.history.push({
+                    item: item.name,
+                    points: item.points,
+                    date: new Date().toLocaleString()
+                });
+                if (item.link) {
+                    window.open(item.link, '_blank');
+                }
+                saveState();
+            }
+        };
+
+        // 弹窗逻辑
+        const taskModal = document.getElementById('taskModal');
+        const shopModal = document.getElementById('shopModal');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const addShopBtn = document.getElementById('addShopBtn');
+        const closeButtons = document.querySelectorAll('.close');
+
+        addTaskBtn.onclick = () => {
+            taskModal.style.display = 'flex';
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskPoints').value = '';
+        };
+        addShopBtn.onclick = () => {
+            shopModal.style.display = 'flex';
+            document.getElementById('shopName').value = '';
+            document.getElementById('shopPoints').value = '';
+            document.getElementById('shopLink').value = '';
+            document.getElementById('shopImage').value = '';
+        };
+        closeButtons.forEach(btn => btn.onclick = () => {
+            taskModal.style.display = 'none';
+            shopModal.style.display = 'none';
+        });
+        window.onclick = (e) => {
+            if (e.target === taskModal) taskModal.style.display = 'none';
+            if (e.target === shopModal) shopModal.style.display = 'none';
+        };
+
+        document.getElementById('saveTaskBtn').onclick = () => {
+            const name = document.getElementById('taskName').value.trim();
+            const points = parseInt(document.getElementById('taskPoints').value);
+            if (!name || isNaN(points) || points <= 0) {
+                alert('请填写任务名称和有效积分');
+                return;
+            }
+            state.tasks.push({
+                id: Date.now(),
+                name,
+                points,
+                completed: false
+            });
+            saveState();
+            taskModal.style.display = 'none';
+        };
+
+        document.getElementById('saveShopBtn').onclick = () => {
+            const name = document.getElementById('shopName').value.trim();
+            const points = parseInt(document.getElementById('shopPoints').value);
+            const link = document.getElementById('shopLink').value.trim();
+            if (!name || isNaN(points) || points <= 0) {
+                alert('请填写商品名称和有效积分');
+                return;
+            }
+            state.shop.push({
+                id: Date.now(),
+                name,
+                points,
+                link: link || '',
+                image: document.getElementById('shopImage').value.trim() || ''
+            });
+            saveState();
+            shopModal.style.display = 'none';
+        };
+
+        // 在线选品功能
+        const onlineSearchBtn = document.getElementById('onlineSearchBtn');
+        const linkPasteArea = document.getElementById('linkPasteArea');
+        const itemLink = document.getElementById('itemLink');
+        const convertLinkBtn = document.getElementById('convertLinkBtn');
+
+        onlineSearchBtn.onclick = () => {
+            window.open('https://s.taobao.com', '_blank');
+            linkPasteArea.style.display = 'block';
+        };
+
+        convertLinkBtn.onclick = async () => {
+            const link = itemLink.value.trim();
+            if (!link) {
+                alert('请输入链接');
+                return;
+            }
+            alert('推广链接已生成（模拟），请手动填入下方购买链接');
+            document.getElementById('shopLink').value = link;
+            linkPasteArea.style.display = 'none';
+            itemLink.value = '';
+        };
+
+        // 模式切换
+        document.getElementById('parentModeBtn').onclick = () => {
+            document.getElementById('parentModeBtn').classList.add('active');
+            document.getElementById('childModeBtn').classList.remove('active');
+            document.getElementById('parentView').classList.add('active');
+            document.getElementById('childView').classList.remove('active');
+        };
+        document.getElementById('childModeBtn').onclick = () => {
+            document.getElementById('childModeBtn').classList.add('active');
+            document.getElementById('parentModeBtn').classList.remove('active');
+            document.getElementById('childView').classList.add('active');
+            document.getElementById('parentView').classList.remove('active');
+            renderChildTasks();
+            renderChildShop();
+        };
+
+        // 初始化加载
+        loadFromCloud();
+    </script>
 </body>
 </html>
