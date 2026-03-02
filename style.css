@@ -1,0 +1,176 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f7f9fc;
+    color: #333;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.mode-switch {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #e0e7ff;
+    padding: 8px;
+    border-radius: 40px;
+}
+
+.mode-switch button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 30px;
+    background: transparent;
+    font-size: 16px;
+    font-weight: 600;
+    color: #4b5563;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.mode-switch button.active {
+    background: white;
+    color: #2563eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+}
+
+.stats {
+    background: white;
+    border-radius: 24px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.stats p {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+h2 {
+    font-size: 18px;
+    margin: 16px 0 8px;
+    color: #374151;
+}
+
+.task-list, .shop-list {
+    background: white;
+    border-radius: 20px;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.task-item, .shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.task-item:last-child, .shop-item:last-child {
+    border-bottom: none;
+}
+
+.task-name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.task-points {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.task-actions button, .shop-actions button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+/* 弹窗样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 32px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 16px;
+}
+
+.close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* 孩子模式特殊样式 */
+#childView .task-item {
+    background: #f3f4f6;
+    border-radius: 16px;
+    margin-bottom: 8px;
+    padding: 16px;
+}
+
+#childView .task-points {
+    font-size: 18px;
+}

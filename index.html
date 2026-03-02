@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宝宝任务奖励</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 家长模式开关 -->
+        <div class="mode-switch">
+            <button id="parentModeBtn" class="active">家长模式</button>
+            <button id="childModeBtn">孩子模式</button>
+        </div>
+
+        <!-- 家长模式界面 -->
+        <div id="parentView" class="view active">
+            <h1>👨‍👩‍👧 家长控制台</h1>
+            <div class="stats">
+                <p>💰 宝宝总积分：<span id="totalPoints">0</span></p>
+            </div>
+
+            <h2>📋 今日任务</h2>
+            <div id="taskList" class="task-list"></div>
+            <button id="addTaskBtn">➕ 添加新任务</button>
+
+            <h2>🎁 奖励商店</h2>
+            <div id="shopList" class="shop-list"></div>
+            <button id="addShopBtn">➕ 添加商品</button>
+
+            <h2>📦 兑换记录</h2>
+            <div id="historyList"></div>
+        </div>
+
+        <!-- 孩子模式界面 -->
+        <div id="childView" class="view">
+            <h1>👦 宝宝的任务</h1>
+            <div class="stats">
+                <p>💰 我的积分：<span id="childPoints">0</span></p>
+            </div>
+            <h2>📋 今日任务</h2>
+            <div id="childTaskList" class="task-list"></div>
+            <h2>🎁 可以换的礼物</h2>
+            <div id="childShopList" class="shop-list"></div>
+        </div>
+    </div>
+
+    <!-- 添加任务弹窗 (隐藏) -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>新建任务</h3>
+            <input type="text" id="taskName" placeholder="任务名称（如：自己刷牙）">
+            <input type="number" id="taskPoints" placeholder="奖励积分（如：2）">
+            <button id="saveTaskBtn">保存</button>
+        </div>
+    </div>
+
+    <!-- 添加商品弹窗 -->
+    <div id="shopModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>添加商品</h3>
+            <input type="text" id="shopName" placeholder="商品名称（如：玩具车）">
+            <input type="number" id="shopPoints" placeholder="所需积分">
+            <input type="url" id="shopLink" placeholder="购买链接（淘宝/京东推广链接）">
+            <input type="url" id="shopImage" placeholder="图片URL（可选）">
+            <button id="saveShopBtn">保存</button>
+        </div>
+    </div>
+</body>
+</html>
