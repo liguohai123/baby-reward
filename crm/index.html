@@ -496,21 +496,34 @@
         await loadFromCloud();
         showToast('已刷新');
     };
-    // 标签切换
-    document.querySelectorAll('.tab').forEach(tab => {
+
+    // 面板切换函数 (统一处理)
+    function switchPanel(tabName) {
+        // 移除所有面板的active类
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        // 激活对应面板
+        document.getElementById(tabName + 'Panel').classList.add('active');
+        // 更新菜单激活状态
+        document.querySelectorAll('.sidebar-menu .menu-item, .tabs .tab').forEach(el => {
+            if (el.dataset.tab === tabName) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        });
+    }
+
+    // 手机端标签点击
+    document.querySelectorAll('.tabs .tab').forEach(tab => {
         tab.onclick = () => {
-            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-            tab.classList.add('active');
-            document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-            document.getElementById(tab.dataset.tab + 'Panel').classList.add('active');
+            switchPanel(tab.dataset.tab);
         };
     });
+
+    // 电脑端菜单点击
     document.querySelectorAll('.sidebar-menu .menu-item').forEach(item => {
         item.onclick = () => {
-            document.querySelectorAll('.sidebar-menu .menu-item').forEach(m=>m.classList.remove('active'));
-            item.classList.add('active');
-            document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-            document.getElementById(item.dataset.tab + 'Panel').classList.add('active');
+            switchPanel(item.dataset.tab);
         };
     });
 
