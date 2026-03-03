@@ -2,651 +2,631 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>宝宝任务奖励</title>
-    <!-- 引入Font Awesome图标库，用于美化界面 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>瑞喆CRM · 智能工作台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- 引入Vant UI库的样式 (轻量移动端组件库) -->
-    <link rel="stylesheet" href="https://unpkg.com/vant@2.12/lib/index.css" />
-    <!-- 引入Supabase JavaScript客户端库 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="manifest" href="manifest.json">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; padding: 16px; }
+        .app-card { background: white; border-radius: 32px; padding: 24px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 500px; margin: 0 auto; }
+
+        /* 手机端默认样式 */
+        .sidebar-menu { display: none; }
+        .tabs { display: flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 40px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab { flex: 1; min-width: 70px; padding: 12px 8px; text-align: center; border-radius: 30px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
+        .tab.active { background: white; color: #3b82f6; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #e2e8f0; }
+        .btn-primary { background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; width: 100%; margin-top: 16px; cursor: pointer; }
+        .btn-outline { background: white; border: 1px solid #cbd5e1; padding: 10px 14px; border-radius: 30px; color: #1e293b; cursor: pointer; font-size: 14px; }
+        .btn-icon { background: white; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 30px; color: #1e293b; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
+        .modal { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 32px; padding: 24px; max-height: 70vh; overflow-y: auto; }
+        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 14px; margin: 8px 0 16px; border: 1px solid #cbd5e1; border-radius: 30px; font-size: 16px; }
+        .close { float: right; font-size: 24px; cursor: pointer; }
+        .refresh-btn { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 40px; font-size: 14px; z-index: 2000; display: none; }
+
+        /* 电脑端样式 (min-width: 1024px) */
+        @media (min-width: 1024px) {
+            body { padding: 24px; background: #e2e8f0; }
+            .app-card { max-width: 1600px; padding: 32px; border-radius: 24px; }
+            .tabs { display: none; }
+            .sidebar-menu {
+                display: flex;
+                flex-direction: column;
+                width: 240px;
+                background: #f8fafc;
+                border-radius: 24px;
+                padding: 20px 12px;
+                margin-right: 24px;
+                flex-shrink: 0;
+            }
+            .sidebar-menu .menu-item {
+                padding: 14px 16px;
+                border-radius: 16px;
+                font-weight: 600;
+                color: #334155;
+                cursor: pointer;
+                margin-bottom: 8px;
+                transition: 0.2s;
+            }
+            .sidebar-menu .menu-item:hover { background: #e2e8f0; }
+            .sidebar-menu .menu-item.active { background: #3b82f6; color: white; }
+            .desktop-layout {
+                display: flex;
+                gap: 24px;
+            }
+            .desktop-content {
+                flex: 1;
+                background: white;
+                border-radius: 24px;
+                padding: 28px;
+                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            }
+            .panel { display: none; }
+            .panel.active { display: block; }
+
+            /* 工作台网格 */
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 24px;
+            }
+            .dashboard-card {
+                background: #f8fafc;
+                border-radius: 20px;
+                padding: 20px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+            .dashboard-card h3 {
+                font-size: 16px;
+                font-weight: 600;
+                color: #475569;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .dashboard-card h3 i { color: #3b82f6; }
+            .stats-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 16px 0;
+            }
+            .stat-number {
+                font-size: 32px;
+                font-weight: 700;
+                color: #0f172a;
+                line-height: 1.2;
+            }
+            .stat-label { font-size: 13px; color: #64748b; }
+
+            /* 表格样式 */
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 16px;
+            }
+            .data-table th {
+                text-align: left;
+                padding: 12px 8px;
+                border-bottom: 2px solid #e2e8f0;
+                color: #475569;
+                font-weight: 600;
+            }
+            .data-table td {
+                padding: 12px 8px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .data-table tr:hover { background: #f8fafc; }
+            .action-buttons {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .filter-bar {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 20px;
+                align-items: center;
+            }
+            .filter-bar select, .filter-bar input {
+                padding: 8px 12px;
+                border: 1px solid #cbd5e1;
+                border-radius: 20px;
+                font-size: 14px;
+            }
+            .batch-bar {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 1px solid #e2e8f0;
+                margin-bottom: 16px;
+            }
         }
-        body {
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 16px;
-        }
-        .app-container {
-            background: white;
-            border-radius: 32px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.02);
-            padding: 24px 16px;
-        }
-        .mode-switch {
-            display: flex;
-            gap: 8px;
-            background: #f1f5f9;
-            padding: 6px;
-            border-radius: 40px;
-            margin-bottom: 24px;
-        }
-        .mode-switch button {
-            flex: 1;
-            padding: 12px 8px;
-            border: none;
-            border-radius: 30px;
-            background: transparent;
-            font-size: 16px;
-            font-weight: 600;
-            color: #64748b;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .mode-switch button.active {
-            background: white;
-            color: #3b82f6;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .view {
-            display: none;
-        }
-        .view.active {
-            display: block;
-        }
-        .stats-card {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
-        }
-        .stats-card p {
-            font-size: 28px;
-            font-weight: 700;
-            margin-top: 8px;
-        }
-        h2 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 16px 0 8px;
-            color: #334155;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        h2 i {
-            color: #3b82f6;
-            font-size: 20px;
-        }
-        .list-card {
-            background: white;
-            border-radius: 20px;
-            padding: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            border: 1px solid #e2e8f0;
-        }
-        .task-item, .shop-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 16px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        .task-item:last-child, .shop-item:last-child {
-            border-bottom: none;
-        }
-        .task-name {
-            font-size: 16px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .task-points {
-            background: #dbeafe;
-            color: #2563eb;
-            padding: 4px 10px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .shop-item-info strong {
-            font-size: 16px;
-        }
-        .shop-item-info p {
-            color: #3b82f6;
-            font-weight: 600;
-            margin-top: 4px;
-        }
-        button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 40px;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-        }
-        button:hover {
-            background: #2563eb;
-        }
-        button.danger-btn {
-            background: #ef4444;
-            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
-        }
-        button.danger-btn:hover {
-            background: #dc2626;
-        }
-        .online-pick-area {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 16px 0;
-        }
-        .link-input-group {
-            display: flex;
-            gap: 8px;
-        }
-        .link-input-group input {
-            flex: 1;
-            padding: 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 30px;
-            font-size: 14px;
-        }
-        .small-btn {
-            width: auto;
-            padding: 10px 20px;
-            margin: 0;
-            font-size: 14px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: white;
-            padding: 24px;
-            border-radius: 32px;
-            width: 90%;
-            max-width: 400px;
-        }
-        .modal-content input {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 30px;
-            font-size: 16px;
-        }
-        .close {
-            float: right;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        #childView .task-item {
-            background: #f8fafc;
-            border-radius: 16px;
-            margin-bottom: 8px;
-            padding: 16px;
-            border: 1px solid #e2e8f0;
-        }
-        .history-list {
-            font-size: 14px;
-            color: #64748b;
-            padding: 8px 0;
-        }
-        .shop-actions button {
-            width: auto;
-            margin: 0 0 0 8px;
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-        .fa-star { color: #fbbf24; margin-right: 4px; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="mode-switch">
-            <button id="parentModeBtn" class="active"><i class="fas fa-user-tie"></i> 家长模式</button>
-            <button id="childModeBtn"><i class="fas fa-child"></i> 孩子模式</button>
+<div class="app-card">
+    <div class="header">
+        <h1>瑞喆CRM</h1>
+        <i class="fas fa-user-circle"></i>
+    </div>
+
+    <div class="refresh-btn">
+        <button class="btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> 刷新数据</button>
+    </div>
+
+    <!-- 统计卡片 (手机/电脑均可见) -->
+    <div class="stats">
+        <div class="stats-item" id="statsCustomer">
+            <span class="num" id="customerCount">0</span><div class="label">客户</div>
         </div>
+        <div class="stats-item" id="statsPool">
+            <span class="num" id="poolCount">0</span><div class="label">公海</div>
+        </div>
+        <div class="stats-item" id="statsFollow">
+            <span class="num" id="todayFollow">0</span><div class="label">今日跟进</div>
+        </div>
+    </div>
 
-        <!-- 家长视图 -->
-        <div id="parentView" class="view active">
-            <div class="stats-card">
-                <i class="fas fa-piggy-bank" style="font-size: 24px;"></i>
-                <p>💰 宝宝总积分: <span id="totalPoints">0</span></p>
-            </div>
+    <!-- 手机端标签导航 -->
+    <div class="tabs">
+        <div class="tab" data-tab="dashboard">工作台</div>
+        <div class="tab" data-tab="customer">客户管理</div>
+        <div class="tab" data-tab="pool">公海池</div>
+        <div class="tab" data-tab="closed">成交客户</div>
+        <div class="tab" data-tab="profile">我的</div>
+    </div>
 
-            <h2><i class="fas fa-tasks"></i> 今日任务</h2>
-            <div id="taskList" class="list-card"></div>
-            <button id="addTaskBtn"><i class="fas fa-plus-circle"></i> 添加新任务</button>
-
-            <h2 style="margin-top: 32px;"><i class="fas fa-gift"></i> 奖励商店</h2>
-            <div id="shopList" class="list-card"></div>
-
-            <!-- 在线选品区域 -->
-            <div class="online-pick-area">
-                <button id="onlineSearchBtn" class="danger-btn"><i class="fas fa-search"></i> 🔍 在线选品（赚佣金）</button>
-                <div id="linkPasteArea" style="display: none;">
-                    <div class="link-input-group">
-                        <input type="text" id="itemLink" placeholder="粘贴淘宝/京东商品链接">
-                        <button id="convertLinkBtn" class="small-btn">生成链接</button>
+    <!-- 电脑端左侧菜单 -->
+    <div class="desktop-layout">
+        <div class="sidebar-menu">
+            <div class="menu-item active" data-tab="dashboard">工作台</div>
+            <div class="menu-item" data-tab="customer">客户管理</div>
+            <div class="menu-item" data-tab="pool">公海池</div>
+            <div class="menu-item" data-tab="closed">成交客户</div>
+            <div class="menu-item" data-tab="profile">我的</div>
+        </div>
+        <div class="desktop-content">
+            <!-- 工作台面板 -->
+            <div id="dashboardPanel" class="panel active">
+                <div class="dashboard-grid">
+                    <!-- 销售简报 -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-chart-line"></i> 销售简报</h3>
+                        <div class="stats-row">
+                            <div class="stat-item"><span class="stat-number" id="dashboardCustomerCount">0</span><div class="stat-label">客户数</div></div>
+                            <div class="stat-item"><span class="stat-number" id="dashboardContactCount">0</span><div class="stat-label">联系人</div></div>
+                            <div class="stat-item"><span class="stat-number" id="dashboardFollowCount">0</span><div class="stat-label">跟进</div></div>
+                        </div>
+                    </div>
+                    <!-- 日历 (简化) -->
+                    <div class="dashboard-card">
+                        <h3><i class="far fa-calendar-alt"></i> 2026年3月</h3>
+                        <div>今日日期：2026-03-03</div>
+                        <div style="margin-top:12px;">
+                            <div>过期任务：<span id="overdueTask">0</span></div>
+                            <div>今日新增客户：<span id="todayNewCustomer">0</span></div>
+                        </div>
+                    </div>
+                    <!-- 跟进行为分析 -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-chart-bar"></i> 跟进行为</h3>
+                        <div class="stats-row">
+                            <div class="stat-item"><span class="stat-number" id="followTotal">0</span><div class="stat-label">跟进总次数</div></div>
+                            <div class="stat-item"><span class="stat-number" id="followCustomerTotal">0</span><div class="stat-label">跟进对象</div></div>
+                        </div>
+                        <div>环比：<span id="followMom">-42.67%</span></div>
+                    </div>
+                    <!-- 预警卡片 -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-exclamation-triangle"></i> 需要关注</h3>
+                        <div>超过7天未跟进：<span id="overdue7">0</span></div>
+                        <div>预计30天内签单：<span id="opp30">0</span></div>
+                        <div>7天内需回款：<span id="pay7">0</span></div>
+                        <div>30天内到期合同：<span id="contract30">0</span></div>
+                    </div>
+                    <!-- 个人目标完成度 -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-bullseye"></i> 个人目标</h3>
+                        <div><span id="targetCompleted">0</span>/<span id="targetTotal">0</span></div>
+                        <div style="background:#e2e8f0; height:10px; border-radius:5px; margin:10px 0;"><div id="targetProgress" style="width:0%; height:10px; background:#22c55e; border-radius:5px;"></div></div>
+                        <div>拜访计划本月：<span id="visitPlan">0</span></div>
+                    </div>
+                    <!-- 部门荣誉榜 -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-trophy"></i> 部门荣誉榜</h3>
+                        <ul id="rankList"></ul>
                     </div>
                 </div>
             </div>
 
-            <button id="addShopBtn"><i class="fas fa-plus-circle"></i> 手动添加商品</button>
-
-            <h2 style="margin-top: 32px;"><i class="fas fa-history"></i> 兑换记录</h2>
-            <div id="historyList" class="history-list"></div>
-        </div>
-
-        <!-- 孩子视图 -->
-        <div id="childView" class="view">
-            <div class="stats-card">
-                <i class="fas fa-star"></i>
-                <p>⭐ 我的积分: <span id="childPoints">0</span></p>
+            <!-- 客户管理面板 -->
+            <div id="customerPanel" class="panel">
+                <div class="filter-bar">
+                    <select id="filterStatus"><option value="all">全部跟进状态</option><option value="意向">有意向</option><option value="无意向">无意向</option></select>
+                    <select id="filterDept"><option value="all">全部部门</option><option value="销售一部">销售一部</option><option value="销售二部">销售二部</option></select>
+                    <select id="filterOwner"><option value="all">全部负责人</option><option value="邹裕">邹裕</option><option value="张三">张三</option></select>
+                    <input type="text" id="searchCustomer" placeholder="搜索客户名称或手机">
+                </div>
+                <div class="batch-bar">
+                    <input type="checkbox" id="selectAll"> 全选
+                    <button class="btn-outline" id="batchEdit">编辑</button>
+                    <button class="btn-outline" id="batchTransfer">转移</button>
+                    <button class="btn-outline" id="batchSms">发送短信</button>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>选择</th><th>客户名称</th><th>审批状态</th><th>联系人</th><th>跟进状态</th><th>手机</th><th>创建时间</th><th>负责人</th><th>最新跟进</th><th>操作</th></tr></thead>
+                    <tbody id="customerTableBody"></tbody>
+                </table>
+                <div id="customerList" class="list-container" style="display:none;"></div>
             </div>
-            <h2><i class="fas fa-tasks"></i> 今天要做的事</h2>
-            <div id="childTaskList" class="list-card"></div>
-            <h2 style="margin-top: 24px;"><i class="fas fa-gift"></i> 可以换的礼物</h2>
-            <div id="childShopList" class="list-card"></div>
+
+            <!-- 公海池面板 -->
+            <div id="poolPanel" class="panel">
+                <table class="data-table">
+                    <thead><tr><th>客户名称</th><th>手机号</th><th>操作</th></tr></thead>
+                    <tbody id="poolTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 成交客户面板 -->
+            <div id="closedPanel" class="panel">
+                <div style="margin-bottom:16px;"><button class="btn-outline" id="addClosedBtn">新增成交</button></div>
+                <table class="data-table">
+                    <thead><tr><th>客户名称</th><th>手机号</th><th>物流单号</th><th>物流状态</th><th>操作</th></tr></thead>
+                    <tbody id="closedTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 我的面板 (手机号绑定 + 跟进记录) -->
+            <div id="profilePanel" class="panel">
+                <h3>绑定手机号</h3>
+                <div id="phoneList"></div>
+                <button class="btn-outline" id="addPhoneBtn">+ 添加手机号</button>
+                <hr>
+                <h3>跟进记录</h3>
+                <div id="followList"></div>
+                <hr>
+                <h3>回收规则</h3>
+                <div>7天未跟进自动回收</div>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- 添加任务弹窗 -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3><i class="fas fa-plus-circle"></i> 新建任务</h3>
-            <input type="text" id="taskName" placeholder="任务名称（如：自己刷牙）">
-            <input type="number" id="taskPoints" placeholder="奖励积分（如：2）">
-            <button id="saveTaskBtn">保存</button>
-        </div>
-    </div>
+<!-- 各种弹窗 -->
+<div id="customerModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建客户</h3><input id="custName" placeholder="客户姓名"><input id="custPhone" placeholder="手机号"><button id="saveCustomerBtn">保存</button></div></div>
+<div id="closedModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建成交客户</h3><input id="closedName" placeholder="客户姓名"><input id="closedPhone" placeholder="手机号"><button id="saveClosedBtn">保存</button></div></div>
+<div id="closedDetailModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>成交客户详情</h3><input type="hidden" id="detailClosedId"><div><strong>姓名：</strong><span id="detailClosedName"></span></div><div><strong>手机：</strong><span id="detailClosedPhone"></span></div><label>物流单号：</label><input id="detailTrackingNumber"><button id="updateTrackingBtn">更新</button><button id="refreshTrackingBtn">刷新物流</button><div id="trackingInfo">暂无物流信息</div></div></div>
+<div id="moveModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>移动客户</h3><button id="moveToPoolBtn">移入公海</button><button id="moveToClosedBtn">移入成交客户</button></div></div>
+<div id="phoneModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>绑定手机号</h3><input id="phoneNumber" placeholder="手机号"><input id="phoneDesc" placeholder="备注（卡1）"><button id="savePhoneBtn">保存</button></div></div>
+<div id="followModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>记录跟进</h3><input type="hidden" id="followCustomerId"><input id="followContent" placeholder="跟进内容"><button id="saveFollowBtn">保存</button></div></div>
+<div id="followHistoryModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>跟进历史</h3><div id="followHistoryList"></div></div></div>
+<div id="smsModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>发送短信</h3>
+    <select id="smsPhoneSelect"></select>
+    <select id="smsTemplateSelect"><option value="">选择模板</option></select>
+    <textarea id="smsContent" placeholder="短信内容，可用{尊称}"></textarea>
+    <button id="saveSmsBtn">发送</button>
+</div></div>
+<div id="templateModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>编辑模板</h3><input id="templateName" placeholder="模板名称"><textarea id="templateContent" placeholder="模板内容，可用{尊称}"></textarea><button id="saveTemplateBtn">保存</button></div></div>
+<div id="toast" class="toast"></div>
 
-    <!-- 添加商品弹窗 -->
-    <div id="shopModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3><i class="fas fa-gift"></i> 添加商品</h3>
-            <input type="text" id="shopName" placeholder="商品名称（如：玩具车）">
-            <input type="number" id="shopPoints" placeholder="所需积分">
-            <input type="url" id="shopLink" placeholder="购买链接（淘宝/京东推广链接）">
-            <input type="url" id="shopImage" placeholder="图片URL（可选）">
-            <button id="saveShopBtn">保存</button>
-        </div>
-    </div>
+<script>
+    const SUPABASE_URL = 'https://hgmjwcpvhaacgzsmvtkp.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_kUGFH7AVvRBWT90iT-R5iQ_ngyHOmx0';
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    <script>
-        // 初始化 Supabase 客户端
-        const SUPABASE_URL = 'https://hgmjwcpvhaacgzsmvtkp.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_kUGFH7AVvRBWT90iT-R5iQ_ngyHOmx0';
-        const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let state = {
+        customers: [],
+        pool: [],
+        phones: [],
+        followups: [],
+        closedCustomers: [],
+        smsTemplates: [
+            { id: 1, name: '初次问候', content: '{尊称}您好，我是瑞喆科技的李四，很高兴认识您。' },
+            { id: 2, name: '跟进提醒', content: '{尊称}上次和您沟通的产品还有印象吗？方便再聊聊吗？' }
+        ],
+        selectedCustomers: []
+    };
+    let movingCustomerId = null;
 
-        // 应用状态
-        let state = {
-            tasks: [],
-            totalPoints: 0,
-            shop: [],
-            history: []
-        };
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        t.innerText = msg;
+        setTimeout(() => t.style.display = 'none', 2000);
+    }
 
-        // 从云端加载数据
-        async function loadFromCloud() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('baby_reward')
-                    .select('*')
-                    .single();
+    async function loadFromCloud() {
+        try {
+            const { data, error } = await supabaseClient.from('crm_data').select('*').single();
+            if (!error && data) state = { ...state, ...data.data };
+        } catch (e) { console.warn(e); }
+        renderAll();
+    }
+    async function saveToCloud() {
+        try { await supabaseClient.from('crm_data').upsert({ id: 1, data: state }); }
+        catch (e) { console.warn(e); }
+    }
+    function saveState() { renderAll(); saveToCloud(); }
 
-                if (error && error.code !== 'PGRST116') {
-                    console.error('云端加载失败', error);
-                    return;
-                }
-                if (data) {
-                    state = { ...state, ...data.data };
-                    localStorage.setItem('babyReward', JSON.stringify(state));
-                    updateUI();
-                    console.log('已从云端加载数据');
-                } else {
-                    loadFromLocal();
-                }
-            } catch (e) {
-                console.error('云端加载异常', e);
-                loadFromLocal();
+    function maskPhone(phone) {
+        if (!phone || phone.length < 11) return phone;
+        return phone.substring(0,3) + '****' + phone.substring(7);
+    }
+
+    function renderAll() {
+        // 更新统计数字
+        document.getElementById('customerCount').innerText = state.customers.length;
+        document.getElementById('poolCount').innerText = state.pool.length;
+        const todayFollow = state.followups.filter(f => new Date(f.time).toDateString() === new Date().toDateString()).length;
+        document.getElementById('todayFollow').innerText = todayFollow;
+        // 工作台卡片
+        document.getElementById('dashboardCustomerCount').innerText = state.customers.length;
+        document.getElementById('dashboardContactCount').innerText = state.customers.reduce((a,c)=>a + (c.contact?1:0),0);
+        document.getElementById('dashboardFollowCount').innerText = state.followups.length;
+        document.getElementById('overdueTask').innerText = state.followups.filter(f => {
+            const days = (new Date() - new Date(f.time)) / (1000*60*60*24);
+            return days > 7 && !f.completed;
+        }).length;
+        document.getElementById('todayNewCustomer').innerText = state.customers.filter(c => {
+            return new Date(c.createdAt || Date.now()).toDateString() === new Date().toDateString();
+        }).length;
+        document.getElementById('followTotal').innerText = state.followups.length;
+        document.getElementById('followCustomerTotal').innerText = new Set(state.followups.map(f => f.customerId)).size;
+        document.getElementById('overdue7').innerText = state.customers.filter(c => {
+            const last = state.followups.filter(f => f.customerId === c.id).sort((a,b)=>new Date(b.time)-new Date(a.time))[0];
+            return !last || (new Date() - new Date(last.time)) / (1000*60*60*24) > 7;
+        }).length;
+        // 部门荣誉榜模拟数据
+        const rankList = document.getElementById('rankList');
+        if (rankList) rankList.innerHTML = '<li class="rank-item"><span class="rank">1</span><span class="name">张三</span><span class="profit">+124</span></li><li class="rank-item"><span class="rank">2</span><span class="name">李四</span><span class="profit">+89</span></li><li class="rank-item"><span class="rank">3</span><span class="name">王五</span><span class="profit">+45</span></li>';
+        // 客户表格
+        const tbody = document.getElementById('customerTableBody');
+        if (tbody) {
+            tbody.innerHTML = state.customers.map(c => `
+                <tr>
+                    <td><input type="checkbox" class="customer-checkbox" value="${c.id}" onchange="updateSelected(${c.id}, this.checked)"></td>
+                    <td><span onclick="showFollowHistory(${c.id})" style="cursor:pointer;color:#2563eb;">${c.name}</span></td>
+                    <td>已通过</td><td></td><td>${c.status || '有意向'}</td>
+                    <td>${maskPhone(c.phone)}</td><td>${c.createdAt || '2026/03/03 09:35'}</td><td>邹裕</td>
+                    <td>${c.lastFollow || '-'}</td>
+                    <td class="action-buttons">
+                        <button class="btn-icon" onclick="callCustomer('${c.phone}')"><i class="fas fa-phone"></i></button>
+                        <button class="btn-icon" onclick="openSmsModal(${c.id})"><i class="fas fa-envelope"></i></button>
+                        <button class="btn-icon" onclick="openMoveModal(${c.id})"><i class="fas fa-arrows-alt"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        // 公海表格
+        const poolTbody = document.getElementById('poolTableBody');
+        if (poolTbody) {
+            poolTbody.innerHTML = state.pool.map(p => `
+                <tr><td>${p.name}</td><td>${maskPhone(p.phone)}</td><td><button class="btn-outline" onclick="claimCustomer(${p.id})">领取</button></td></tr>
+            `).join('');
+        }
+        // 成交客户表格
+        const closedTbody = document.getElementById('closedTableBody');
+        if (closedTbody) {
+            closedTbody.innerHTML = state.closedCustomers.map(c => `
+                <tr>
+                    <td><span onclick="openClosedDetail(${c.id})" style="color:#2563eb;cursor:pointer;">${c.name}</span></td>
+                    <td>${maskPhone(c.phone)}</td>
+                    <td>${c.trackingNumber || ''}</td><td>${c.trackingStatus || '未发货'}</td>
+                    <td><button onclick="deleteClosed(${c.id})"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+        // 手机号列表
+        const phoneList = document.getElementById('phoneList');
+        if (phoneList) {
+            phoneList.innerHTML = state.phones.map(p => `
+                <div class="list-item"><span>${p.desc || '默认'} · ${maskPhone(p.number)}</span> <i class="fas fa-trash" onclick="deletePhone('${p.number}')"></i></div>
+            `).join('');
+        }
+        // 跟进记录列表
+        const followList = document.getElementById('followList');
+        if (followList) {
+            if (state.followups.length === 0) followList.innerHTML = '暂无跟进记录';
+            else {
+                followList.innerHTML = state.followups.slice(-10).reverse().map(f => {
+                    const cust = state.customers.find(c => c.id === f.customerId) || {name:'未知'};
+                    return `<div class="list-item"><div><strong>${cust.name}</strong> ${f.content}</div><div>${new Date(f.time).toLocaleString()}</div></div>`;
+                }).join('');
             }
         }
+    }
 
-        // 从本地存储加载（无云端数据时使用默认任务）
-        function loadFromLocal() {
-            const saved = localStorage.getItem('babyReward');
-            if (saved) {
-                state = JSON.parse(saved);
-            } else {
-                // 丰富的默认任务列表（根据你提供的表格）
-                state = {
-                    tasks: [
-                        { id: 1001, name: '准时起床且没有起床气', points: 2, completed: false },
-                        { id: 1002, name: '自己刷牙、洗脸', points: 1, completed: false },
-                        { id: 1003, name: '自己吃饭（20分钟完成）', points: 2, completed: false },
-                        { id: 1004, name: '在家不光脚', points: 5, completed: false },
-                        { id: 1005, name: '电视单次不超过20分钟，不超3次', points: 2, completed: false },
-                        { id: 1006, name: '不吃糖', points: 1, completed: false },
-                        { id: 1007, name: '打扫卫生', points: 1, completed: false },
-                        { id: 1008, name: '自己把玩好的玩具放回原位', points: 1, completed: false },
-                        { id: 1009, name: '熄灯后30分钟入睡', points: 2, completed: false },
-                        { id: 1010, name: '大人讲话捣乱和插嘴', points: 1, completed: false },
-                        { id: 1011, name: '撒谎或欺骗', points: 2, completed: false },
-                        { id: 1012, name: '不讲卫生', points: 1, completed: false },
-                        { id: 1013, name: '出尔反尔说话', points: 2, completed: false },
-                        { id: 1014, name: '电子产品超过30分钟但仍不肯离开', points: 1, completed: false },
-                        { id: 1015, name: '其他', points: 1, completed: false }
-                    ],
-                    totalPoints: 0,
-                    shop: [],
-                    history: []
-                };
-            }
-            updateUI();
+    window.callCustomer = (phone) => window.location.href = 'tel:' + phone;
+    window.claimCustomer = (id) => {
+        const cust = state.pool.find(c => c.id === id);
+        if (cust) { state.pool = state.pool.filter(c => c.id !== id); state.customers.push(cust); saveState(); }
+    };
+    window.deletePhone = (num) => { state.phones = state.phones.filter(p => p.number !== num); saveState(); };
+    window.openMoveModal = (id) => { movingCustomerId = id; moveModal.style.display = 'flex'; };
+    document.getElementById('moveToPoolBtn').onclick = () => {
+        if (movingCustomerId) {
+            const cust = state.customers.find(c => c.id === movingCustomerId);
+            if (cust) { state.customers = state.customers.filter(c => c.id !== movingCustomerId); state.pool.push(cust); saveState(); }
+            moveModal.style.display = 'none';
         }
-
-        // 保存到云端
-        async function saveToCloud() {
-            try {
-                const { error } = await supabaseClient
-                    .from('baby_reward')
-                    .upsert({ id: 1, data: state });
-
-                if (error) {
-                    console.error('云端保存失败', error);
-                } else {
-                    console.log('数据已同步到云端');
-                }
-            } catch (e) {
-                console.error('云端保存异常', e);
-            }
-        }
-
-        // 保存状态（本地 + 云端）
-        function saveState() {
-            localStorage.setItem('babyReward', JSON.stringify(state));
-            saveToCloud();
-            updateUI();
-        }
-
-        // 更新所有UI
-        function updateUI() {
-            document.getElementById('totalPoints').innerText = state.totalPoints;
-            document.getElementById('childPoints').innerText = state.totalPoints;
-            renderTaskList();
-            renderShopList();
-            renderHistory();
-            renderChildTasks();
-            renderChildShop();
-        }
-
-        // 家长端任务列表
-        function renderTaskList() {
-            const container = document.getElementById('taskList');
-            container.innerHTML = '';
-            state.tasks.forEach(task => {
-                const div = document.createElement('div');
-                div.className = 'task-item';
-                div.innerHTML = `
-                    <span class="task-name"><i class="fas ${task.completed ? 'fa-check-circle' : 'fa-circle'}" style="color:${task.completed ? '#22c55e' : '#94a3b8'}"></i> ${task.name}</span>
-                    <span class="task-points">+${task.points}</span>
-                    <div class="shop-actions">
-                        ${!task.completed ? `<button onclick="completeTask(${task.id})" class="small-btn" style="background:#22c55e"><i class="fas fa-check"></i></button>` : ''}
-                        <button onclick="deleteTask(${task.id})" class="small-btn" style="background:#ef4444"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // 孩子端任务列表
-        function renderChildTasks() {
-            const container = document.getElementById('childTaskList');
-            container.innerHTML = '';
-            state.tasks.forEach(task => {
-                const div = document.createElement('div');
-                div.className = 'task-item';
-                div.innerHTML = `
-                    <span class="task-name"><i class="fas ${task.completed ? 'fa-check-circle' : 'fa-circle'}" style="color:${task.completed ? '#22c55e' : '#94a3b8'}"></i> ${task.name}</span>
-                    <span class="task-points">+${task.points}</span>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // 家长端商店列表
-        function renderShopList() {
-            const container = document.getElementById('shopList');
-            container.innerHTML = '';
-            state.shop.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'shop-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <strong>${item.name}</strong>
-                        <p>需要 ${item.points} 积分</p>
-                    </div>
-                    <div class="shop-actions">
-                        <button onclick="deleteShopItem(${item.id})" class="small-btn" style="background:#ef4444"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // 孩子端商店列表
-        function renderChildShop() {
-            const container = document.getElementById('childShopList');
-            container.innerHTML = '';
-            state.shop.forEach(item => {
-                const canBuy = state.totalPoints >= item.points;
-                const div = document.createElement('div');
-                div.className = 'shop-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <strong>${item.name}</strong>
-                        <p>需要 ${item.points} 积分</p>
-                    </div>
-                    <button class="small-btn" style="background:${canBuy ? '#22c55e' : '#94a3b8'}" onclick="buyItem(${item.id})" ${!canBuy ? 'disabled' : ''}>
-                        ${canBuy ? '<i class="fas fa-shopping-cart"></i> 购买' : '积分不够'}
-                    </button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // 历史记录
-        function renderHistory() {
-            const container = document.getElementById('historyList');
-            if (state.history.length === 0) {
-                container.innerHTML = '<p style="color:#94a3b8;"><i class="fas fa-info-circle"></i> 暂无兑换记录</p>';
-                return;
-            }
-            container.innerHTML = state.history.map(h => `<div><i class="fas fa-history"></i> ${h.date} 兑换 ${h.item} 消耗 ${h.points} 积分</div>`).join('');
-        }
-
-        // 完成任务
-        window.completeTask = function(id) {
-            const task = state.tasks.find(t => t.id === id);
-            if (task && !task.completed) {
-                task.completed = true;
-                state.totalPoints += task.points;
+    };
+    document.getElementById('moveToClosedBtn').onclick = () => {
+        if (movingCustomerId) {
+            const cust = state.customers.find(c => c.id === movingCustomerId);
+            if (cust) {
+                state.customers = state.customers.filter(c => c.id !== movingCustomerId);
+                state.closedCustomers.push({ ...cust, trackingNumber: '', trackingStatus: '' });
                 saveState();
             }
-        };
-
-        // 删除任务
-        window.deleteTask = function(id) {
-            if (confirm('确定删除该任务吗？')) {
-                state.tasks = state.tasks.filter(t => t.id !== id);
-                saveState();
-            }
-        };
-
-        // 删除商品
-        window.deleteShopItem = function(id) {
-            if (confirm('确定删除该商品吗？')) {
-                state.shop = state.shop.filter(i => i.id !== id);
-                saveState();
-            }
-        };
-
-        // 购买商品
-        window.buyItem = function(id) {
-            const item = state.shop.find(i => i.id === id);
-            if (!item) return;
-            if (state.totalPoints < item.points) {
-                alert('积分不够哦');
-                return;
-            }
-            if (confirm(`确定用 ${item.points} 积分兑换 ${item.name} 吗？`)) {
-                state.totalPoints -= item.points;
-                state.history.push({
-                    item: item.name,
-                    points: item.points,
-                    date: new Date().toLocaleString()
-                });
-                if (item.link) {
-                    window.open(item.link, '_blank');
-                }
-                saveState();
-            }
-        };
-
-        // 弹窗逻辑
-        const taskModal = document.getElementById('taskModal');
-        const shopModal = document.getElementById('shopModal');
-        const addTaskBtn = document.getElementById('addTaskBtn');
-        const addShopBtn = document.getElementById('addShopBtn');
-        const closeButtons = document.querySelectorAll('.close');
-
-        addTaskBtn.onclick = () => {
-            taskModal.style.display = 'flex';
-            document.getElementById('taskName').value = '';
-            document.getElementById('taskPoints').value = '';
-        };
-        addShopBtn.onclick = () => {
-            shopModal.style.display = 'flex';
-            document.getElementById('shopName').value = '';
-            document.getElementById('shopPoints').value = '';
-            document.getElementById('shopLink').value = '';
-            document.getElementById('shopImage').value = '';
-        };
-        closeButtons.forEach(btn => btn.onclick = () => {
-            taskModal.style.display = 'none';
-            shopModal.style.display = 'none';
-        });
-        window.onclick = (e) => {
-            if (e.target === taskModal) taskModal.style.display = 'none';
-            if (e.target === shopModal) shopModal.style.display = 'none';
-        };
-
-        document.getElementById('saveTaskBtn').onclick = () => {
-            const name = document.getElementById('taskName').value.trim();
-            const points = parseInt(document.getElementById('taskPoints').value);
-            if (!name || isNaN(points) || points <= 0) {
-                alert('请填写任务名称和有效积分');
-                return;
-            }
-            state.tasks.push({
-                id: Date.now(),
-                name,
-                points,
-                completed: false
-            });
+            moveModal.style.display = 'none';
+        }
+    };
+    window.showFollowHistory = (id) => {
+        const history = state.followups.filter(f => f.customerId === id).map(f => `<div>${f.content} - ${new Date(f.time).toLocaleString()}</div>`).join('');
+        document.getElementById('followHistoryList').innerHTML = history || '无记录';
+        followHistoryModal.style.display = 'flex';
+    };
+    window.followCustomer = (id) => {
+        document.getElementById('followCustomerId').value = id;
+        document.getElementById('followContent').value = '';
+        followModal.style.display = 'flex';
+    };
+    document.getElementById('saveFollowBtn').onclick = () => {
+        const id = parseInt(document.getElementById('followCustomerId').value);
+        const content = document.getElementById('followContent').value.trim();
+        if (!content) return alert('请输入内容');
+        const cust = state.customers.find(c => c.id === id);
+        if (cust) {
+            state.followups.push({ customerId: id, customerName: cust.name, content, time: new Date().toISOString() });
             saveState();
-            taskModal.style.display = 'none';
-        };
-
-        document.getElementById('saveShopBtn').onclick = () => {
-            const name = document.getElementById('shopName').value.trim();
-            const points = parseInt(document.getElementById('shopPoints').value);
-            const link = document.getElementById('shopLink').value.trim();
-            if (!name || isNaN(points) || points <= 0) {
-                alert('请填写商品名称和有效积分');
-                return;
+            followModal.style.display = 'none';
+        }
+    };
+    // 短信相关
+    function openSmsModal(customerId) {
+        const cust = state.customers.find(c => c.id === customerId);
+        if (!cust) return;
+        // 填充发送号码选择
+        const select = document.getElementById('smsPhoneSelect');
+        select.innerHTML = state.phones.map(p => `<option value="${p.number}">${p.desc || '默认'}: ${p.number}</option>`).join('');
+        if (select.options.length === 0) select.innerHTML = '<option value="">请先绑定手机号</option>';
+        // 模板选择
+        const tmplSelect = document.getElementById('smsTemplateSelect');
+        tmplSelect.innerHTML = '<option value="">选择模板</option>' + state.smsTemplates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+        tmplSelect.onchange = () => {
+            const tid = tmplSelect.value;
+            const tpl = state.smsTemplates.find(t => t.id == tid);
+            if (tpl) {
+                const content = tpl.content.replace(/{尊称}/g, cust.name + '先生');
+                document.getElementById('smsContent').value = content;
             }
-            state.shop.push({
-                id: Date.now(),
-                name,
-                points,
-                link: link || '',
-                image: document.getElementById('shopImage').value.trim() || ''
-            });
+        };
+        document.getElementById('smsContent').value = '';
+        document.getElementById('smsModal').dataset.cid = customerId;
+        smsModal.style.display = 'flex';
+    }
+    document.getElementById('saveSmsBtn').onclick = () => {
+        const cid = parseInt(smsModal.dataset.cid);
+        const content = document.getElementById('smsContent').value.trim();
+        const phone = document.getElementById('smsPhoneSelect').value;
+        if (!content) return alert('内容不能为空');
+        if (!phone) return alert('请选择发送号码');
+        const cust = state.customers.find(c => c.id === cid);
+        if (cust) {
+            state.followups.push({ customerId: cid, customerName: cust.name, content: '短信: ' + content, time: new Date().toISOString() });
             saveState();
-            shopModal.style.display = 'none';
-        };
+            alert('短信已发送（模拟）');
+            smsModal.style.display = 'none';
+        }
+    };
+    // 批量操作
+    function updateSelected(id, checked) {
+        if (checked) state.selectedCustomers.push(id);
+        else state.selectedCustomers = state.selectedCustomers.filter(i => i !== id);
+    }
+    document.getElementById('batchSms').onclick = () => {
+        if (state.selectedCustomers.length === 0) return alert('请先选择客户');
+        // 简化为给第一个客户发送短信
+        openSmsModal(state.selectedCustomers[0]);
+    };
+    // 弹窗关闭
+    document.querySelectorAll('.close').forEach(btn => btn.onclick = () => btn.closest('.modal').style.display = 'none');
+    window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 
-        // 在线选品功能
-        const onlineSearchBtn = document.getElementById('onlineSearchBtn');
-        const linkPasteArea = document.getElementById('linkPasteArea');
-        const itemLink = document.getElementById('itemLink');
-        const convertLinkBtn = document.getElementById('convertLinkBtn');
+    // 新增客户
+    document.getElementById('addCustomerBtn').onclick = () => customerModal.style.display = 'flex';
+    document.getElementById('saveCustomerBtn').onclick = () => {
+        const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
+        if (name && phone) {
+            state.pool.push({ name, phone, id: Date.now(), createdAt: new Date().toISOString() });
+            saveState();
+            customerModal.style.display = 'none';
+            document.getElementById('custName').value = ''; document.getElementById('custPhone').value = '';
+        } else alert('请填写完整');
+    };
+    document.getElementById('addClosedBtn').onclick = () => closedModal.style.display = 'flex';
+    document.getElementById('saveClosedBtn').onclick = () => {
+        const name = document.getElementById('closedName').value.trim();
+        const phone = document.getElementById('closedPhone').value.trim();
+        if (name && phone) {
+            state.closedCustomers.push({ id: Date.now(), name, phone, trackingNumber: '', trackingStatus: '' });
+            saveState();
+            closedModal.style.display = 'none';
+            document.getElementById('closedName').value = ''; document.getElementById('closedPhone').value = '';
+        } else alert('请填写完整');
+    };
+    document.getElementById('addPhoneBtn').onclick = () => phoneModal.style.display = 'flex';
+    document.getElementById('savePhoneBtn').onclick = () => {
+        const num = document.getElementById('phoneNumber').value.trim();
+        const desc = document.getElementById('phoneDesc').value.trim() || '默认';
+        if (num) {
+            state.phones.push({ number: num, desc });
+            saveState();
+            phoneModal.style.display = 'none';
+            document.getElementById('phoneNumber').value = ''; document.getElementById('phoneDesc').value = '';
+        } else alert('请输入手机号');
+    };
+    // 成交客户详情
+    window.openClosedDetail = (id) => {
+        const c = state.closedCustomers.find(c => c.id === id);
+        if (!c) return;
+        document.getElementById('detailClosedId').value = id;
+        document.getElementById('detailClosedName').innerText = c.name;
+        document.getElementById('detailClosedPhone').innerText = c.phone;
+        document.getElementById('detailTrackingNumber').value = c.trackingNumber || '';
+        closedDetailModal.style.display = 'flex';
+    };
+    document.getElementById('updateTrackingBtn').onclick = () => {
+        const id = parseInt(document.getElementById('detailClosedId').value);
+        const c = state.closedCustomers.find(c => c.id === id);
+        if (c) {
+            c.trackingNumber = document.getElementById('detailTrackingNumber').value.trim();
+            c.trackingStatus = '已揽件';
+            saveState();
+            closedDetailModal.style.display = 'none';
+        }
+    };
+    window.deleteClosed = (id) => {
+        state.closedCustomers = state.closedCustomers.filter(c => c.id !== id);
+        saveState();
+    };
+    document.getElementById('refreshBtn').onclick = async () => {
+        await loadFromCloud();
+        showToast('已刷新');
+    };
 
-        onlineSearchBtn.onclick = () => {
-            window.open('https://s.taobao.com', '_blank');
-            linkPasteArea.style.display = 'block';
+    // 标签切换
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(tab.dataset.tab + 'Panel').classList.add('active');
         };
+    });
+    document.querySelectorAll('.sidebar-menu .menu-item').forEach(item => {
+        item.onclick = () => {
+            document.querySelectorAll('.sidebar-menu .menu-item').forEach(m => m.classList.remove('active'));
+            item.classList.add('active');
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(item.dataset.tab + 'Panel').classList.add('active');
+        };
+    });
 
-        convertLinkBtn.onclick = async () => {
-            const link = itemLink.value.trim();
-            if (!link) {
-                alert('请输入链接');
-                return;
-            }
-            alert('推广链接已生成（模拟），请手动填入下方购买链接');
-            document.getElementById('shopLink').value = link;
-            linkPasteArea.style.display = 'none';
-            itemLink.value = '';
-        };
-
-        // 模式切换
-        document.getElementById('parentModeBtn').onclick = () => {
-            document.getElementById('parentModeBtn').classList.add('active');
-            document.getElementById('childModeBtn').classList.remove('active');
-            document.getElementById('parentView').classList.add('active');
-            document.getElementById('childView').classList.remove('active');
-        };
-        document.getElementById('childModeBtn').onclick = () => {
-            document.getElementById('childModeBtn').classList.add('active');
-            document.getElementById('parentModeBtn').classList.remove('active');
-            document.getElementById('childView').classList.add('active');
-            document.getElementById('parentView').classList.remove('active');
-            renderChildTasks();
-            renderChildShop();
-        };
-
-        // 初始化加载
-        loadFromCloud();
-    </script>
+    // 初始化
+    loadFromCloud();
+    setInterval(loadFromCloud, 10000);
+</script>
 </body>
 </html>
