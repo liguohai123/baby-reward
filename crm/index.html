@@ -39,6 +39,7 @@
         .follow-item { font-size: 14px; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
         .refresh-btn { display: flex; justify-content: flex-end; margin-bottom: 8px; }
         .history-list { max-height: 400px; overflow-y: auto; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 40px; font-size: 14px; z-index: 2000; display: none; }
     </style>
 </head>
 <body>
@@ -146,7 +147,11 @@
     </div>
 </div>
 
+<!-- 提示 Toast -->
+<div id="toast" class="toast"></div>
+
 <script>
+    // Supabase 配置
     const SUPABASE_URL = 'https://hgmjwcpvhaacgzsmvtkp.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_kUGFH7AVvRBWT90iT-R5iQ_ngyHOmx0';
     const { createClient } = supabase;
@@ -158,46 +163,74 @@
         phones: [],
         followups: []
     };
+    let retryCount = 0;
 
-    // 从 Supabase 加载数据
+    function showToast(msg, duration = 2000) {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        toast.innerText = msg;
+        setTimeout(() => { toast.style.display = 'none'; }, duration);
+    }
+
+    // 从云端加载数据
     async function loadFromCloud() {
+        console.log('尝试从云端加载数据...');
         try {
             const { data, error } = await supabaseClient
                 .from('crm_data')
                 .select('*')
                 .single();
+            if (error) {
+                console.error('云端加载错误', error);
+                showToast('加载失败：' + error.message, 3000);
+                return;
+            }
             if (data) {
                 state = { ...state, ...data.data };
+                console.log('云端加载成功', data.data);
+                retryCount = 0;
+            } else {
+                console.log('云端无数据，使用本地');
             }
         } catch (e) {
-            console.warn('云端加载失败，使用本地空数据');
+            console.error('云端加载异常', e);
+            showToast('网络异常，请稍后重试', 3000);
         }
         renderAll();
     }
 
-    // 保存到 Supabase
     async function saveToCloud() {
+        console.log('尝试保存到云端...');
         try {
-            await supabaseClient
+            const { error } = await supabaseClient
                 .from('crm_data')
                 .upsert({ id: 1, data: state });
+            if (error) {
+                console.error('云端保存错误', error);
+                showToast('保存失败：' + error.message + '，可能权限不足', 5000);
+                if (error.message.includes('permission denied') || error.code === '42501') {
+                    showToast('数据库权限不足，请在 Supabase 中允许匿名访问', 6000);
+                }
+            } else {
+                console.log('云端保存成功');
+                retryCount = 0;
+            }
         } catch (e) {
-            console.warn('云端保存失败', e);
+            console.error('云端保存异常', e);
+            showToast('保存异常，请检查网络', 3000);
         }
     }
 
     function saveState() {
-        saveToCloud();
         renderAll();
+        saveToCloud();
     }
 
-    // 手机号脱敏
     function maskPhone(phone) {
         if (!phone || phone.length < 11) return phone;
         return phone.substring(0, 3) + '****' + phone.substring(7);
     }
 
-    // 渲染所有界面
     function renderAll() {
         document.getElementById('customerCount').innerText = state.customers.length;
         document.getElementById('poolCount').innerText = state.pool.length;
@@ -206,7 +239,7 @@
             return new Date(f.time).toDateString() === new Date().toDateString();
         }).length;
 
-        // 客户列表（姓名可点击查看跟进历史）
+        // 客户列表
         const customerList = document.getElementById('customerList');
         customerList.innerHTML = state.customers.map(c => `
             <div class="list-item">
@@ -259,7 +292,6 @@
         }
     }
 
-    // 拨号
     window.callCustomer = function(phone) {
         window.location.href = 'tel:' + phone;
     };
@@ -286,7 +318,6 @@
         followModal.style.display = 'flex';
     };
 
-    // 显示单个客户的跟进历史
     window.showFollowHistory = function(customerId) {
         const customer = state.customers.find(c => c.id === customerId);
         if (!customer) return;
@@ -297,11 +328,7 @@
             </div>
         `).join('');
         const modalContent = document.getElementById('followHistoryList');
-        if (history) {
-            modalContent.innerHTML = history;
-        } else {
-            modalContent.innerHTML = '<div style="color:#94a3b8;">暂无跟进记录</div>';
-        }
+        modalContent.innerHTML = history || '<div style="color:#94a3b8;">暂无跟进记录</div>';
         followHistoryModal.style.display = 'flex';
     };
 
@@ -392,11 +419,10 @@
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
         document.getElementById(tabName + 'Panel').classList.add('active');
-        // 每次切换时刷新数据
         loadFromCloud();
     }
 
-    // 标签切换（保留原有功能）
+    // 标签切换
     document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -408,16 +434,22 @@
     });
 
     // 手动刷新按钮
-    document.getElementById('refreshBtn').onclick = () => {
-        loadFromCloud();
+    const refreshBtn = document.getElementById('refreshBtn');
+    refreshBtn.onclick = async () => {
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 刷新中...';
+        await loadFromCloud();
+        refreshBtn.disabled = false;
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> 刷新数据';
+        showToast('数据已刷新', 1500);
     };
 
-    // 定时自动刷新（每10秒）
+    // 定时自动刷新（每5秒）
     setInterval(() => {
         loadFromCloud();
-    }, 10000);
+    }, 5000);
 
-    // 页面可见时自动刷新（比如从后台切回来）
+    // 页面可见时自动刷新
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
             loadFromCloud();
