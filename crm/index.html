@@ -105,11 +105,13 @@
 </div>
 
 <script>
+    // Supabase 配置（使用你项目三的配置）
     const SUPABASE_URL = 'https://hgmjwcpvhaacgzsmvtkp.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_kUGFH7AVvRBWT90iT-R5iQ_ngyHOmx0';
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // 初始状态
     let state = {
         customers: [],
         pool: [],
@@ -117,65 +119,150 @@
         followups: []
     };
 
+    // 从 Supabase 加载数据
     async function loadFromCloud() {
-        const { data, error } = await supabaseClient.from('crm_data').select('*').single();
-        if (data) state = { ...state, ...data.data };
+        try {
+            const { data, error } = await supabaseClient
+                .from('crm_data')
+                .select('*')
+                .single();
+            if (data) {
+                state = { ...state, ...data.data };
+            }
+        } catch (e) {
+            console.warn('云端加载失败，使用本地空数据');
+        }
         renderAll();
     }
-    async function saveToCloud() {
-        await supabaseClient.from('crm_data').upsert({ id: 1, data: state });
-    }
-    function saveState() { saveToCloud(); renderAll(); }
 
+    // 保存到 Supabase
+    async function saveToCloud() {
+        try {
+            await supabaseClient
+                .from('crm_data')
+                .upsert({ id: 1, data: state });
+        } catch (e) {
+            console.warn('云端保存失败', e);
+        }
+    }
+
+    // 保存状态并刷新界面
+    function saveState() {
+        saveToCloud();
+        renderAll();
+    }
+
+    // 渲染所有界面
     function renderAll() {
+        // 更新统计数字
         document.getElementById('customerCount').innerText = state.customers.length;
         document.getElementById('poolCount').innerText = state.pool.length;
-        document.getElementById('todayFollow').innerText = state.followups.filter(f => new Date(f.time).toDateString() === new Date().toDateString()).length;
+        document.getElementById('todayFollow').innerText = state.followups.filter(f => {
+            if (!f.time) return false;
+            return new Date(f.time).toDateString() === new Date().toDateString();
+        }).length;
 
-        // 客户列表
-        const cl = document.getElementById('customerList');
-        cl.innerHTML = state.customers.map(c => `<div class="list-item"><div><div class="name">${c.name}</div><div class="meta">${c.phone}</div></div><span class="badge">跟进</span></div>`).join('');
+        // 渲染客户列表
+        const customerList = document.getElementById('customerList');
+        customerList.innerHTML = state.customers.map(c => `
+            <div class="list-item">
+                <div>
+                    <div class="name">${c.name}</div>
+                    <div class="meta">${c.phone}</div>
+                </div>
+                <span class="badge">跟进</span>
+            </div>
+        `).join('');
 
-        // 公海列表
-        const pl = document.getElementById('poolList');
-        pl.innerHTML = state.pool.map(p => `<div class="list-item"><div><div class="name">${p.name}</div><div class="meta">${p.phone}</div></div><button class="btn-outline" style="width:auto;">领取</button></div>`).join('');
+        // 渲染公海列表
+        const poolList = document.getElementById('poolList');
+        poolList.innerHTML = state.pool.map(p => `
+            <div class="list-item">
+                <div>
+                    <div class="name">${p.name}</div>
+                    <div class="meta">${p.phone}</div>
+                </div>
+                <button class="btn-outline" style="width:auto;" onclick="claimCustomer(${p.id})">领取</button>
+            </div>
+        `).join('');
 
-        // 手机号列表
-        const ph = document.getElementById('phoneList');
-        ph.innerHTML = state.phones.map(p => `<div class="list-item"><span>${p.desc} · ${p.number}</span><i class="fas fa-trash" style="color:#ef4444; cursor:pointer;" onclick="deletePhone('${p.number}')"></i></div>`).join('');
+        // 渲染手机号列表
+        const phoneList = document.getElementById('phoneList');
+        phoneList.innerHTML = state.phones.map(p => `
+            <div class="list-item">
+                <span>${p.desc || '默认'} · ${p.number}</span>
+                <i class="fas fa-trash" style="color:#ef4444; cursor:pointer;" onclick="deletePhone('${p.number}')"></i>
+            </div>
+        `).join('');
     }
 
-    window.deletePhone = (num) => { state.phones = state.phones.filter(p => p.number !== num); saveState(); };
+    // 从公海领取客户
+    window.claimCustomer = function(id) {
+        const customer = state.pool.find(c => c.id === id);
+        if (customer) {
+            state.pool = state.pool.filter(c => c.id !== id);
+            state.customers.push(customer);
+            saveState();
+        }
+    };
+
+    // 删除手机号
+    window.deletePhone = function(number) {
+        state.phones = state.phones.filter(p => p.number !== number);
+        saveState();
+    };
 
     // 弹窗控制
     const custModal = document.getElementById('customerModal');
     const phoneModal = document.getElementById('phoneModal');
-    document.getElementById('addCustomerBtn').onclick = () => custModal.style.display = 'flex';
-    document.getElementById('addPhoneBtn').onclick = () => phoneModal.style.display = 'flex';
-    document.querySelectorAll('.close').forEach(c => c.onclick = () => { custModal.style.display = 'none'; phoneModal.style.display = 'none'; });
-    window.onclick = (e) => { if(e.target === custModal) custModal.style.display = 'none'; if(e.target === phoneModal) phoneModal.style.display = 'none'; };
 
+    document.getElementById('addCustomerBtn').onclick = () => {
+        custModal.style.display = 'flex';
+    };
+    document.getElementById('addPhoneBtn').onclick = () => {
+        phoneModal.style.display = 'flex';
+    };
+
+    // 关闭弹窗
+    document.querySelectorAll('.close').forEach(btn => {
+        btn.onclick = () => {
+            custModal.style.display = 'none';
+            phoneModal.style.display = 'none';
+        };
+    });
+    window.onclick = (e) => {
+        if (e.target === custModal) custModal.style.display = 'none';
+        if (e.target === phoneModal) phoneModal.style.display = 'none';
+    };
+
+    // 保存客户
     document.getElementById('saveCustomerBtn').onclick = () => {
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim();
-        if(name && phone) {
-            state.customers.push({ name, phone, id: Date.now() });
+        if (name && phone) {
+            // 默认添加到公海
+            state.pool.push({ name, phone, id: Date.now() });
             saveState();
             custModal.style.display = 'none';
             document.getElementById('custName').value = '';
             document.getElementById('custPhone').value = '';
+        } else {
+            alert('请填写完整信息');
         }
     };
 
+    // 保存手机号
     document.getElementById('savePhoneBtn').onclick = () => {
         const number = document.getElementById('phoneNumber').value.trim();
         const desc = document.getElementById('phoneDesc').value.trim() || '默认';
-        if(number) {
+        if (number) {
             state.phones.push({ number, desc });
             saveState();
             phoneModal.style.display = 'none';
             document.getElementById('phoneNumber').value = '';
             document.getElementById('phoneDesc').value = '';
+        } else {
+            alert('请填写手机号');
         }
     };
 
@@ -189,6 +276,7 @@
         };
     });
 
+    // 初始化加载
     loadFromCloud();
 </script>
 </body>
