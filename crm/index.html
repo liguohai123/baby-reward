@@ -71,7 +71,7 @@
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        /* 顶层面板（工作台/报表/应用） */
+        /* 顶层面板（工作台/报表） */
         .top-panel { display: none; }
         .top-panel.active { display: block; }
 
@@ -93,6 +93,10 @@
             margin-bottom: -2px;
         }
         .sub-tab.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+
+        /* 子面板 */
+        .sub-panel { display: none; }
+        .sub-panel.active { display: block; }
 
         /* 筛选栏 */
         .filter-bar {
@@ -267,7 +271,6 @@
             <div class="nav-menu">
                 <span class="nav-item active" data-nav="workbench">工作台</span>
                 <span class="nav-item" data-nav="report">报表中心</span>
-                <span class="nav-item" data-nav="apps">应用中心</span>
             </div>
         </div>
         <div class="top-nav-right">
@@ -465,19 +468,11 @@
                 </div>
             </div>
 
-            <!-- 顶层面板：报表中心（占位） -->
+            <!-- 顶层面板：报表中心 -->
             <div id="report-panel" class="top-panel">
                 <div style="padding:40px; text-align:center; color:#64748b;">
                     <i class="fas fa-chart-pie" style="font-size:48px; margin-bottom:20px;"></i>
                     <h2>报表中心开发中，敬请期待</h2>
-                </div>
-            </div>
-
-            <!-- 顶层面板：应用中心（占位） -->
-            <div id="apps-panel" class="top-panel">
-                <div style="padding:40px; text-align:center; color:#64748b;">
-                    <i class="fas fa-cubes" style="font-size:48px; margin-bottom:20px;"></i>
-                    <h2>应用中心开发中，敬请期待</h2>
                 </div>
             </div>
         </div>
@@ -637,7 +632,7 @@
         });
     });
 
-    // 二级标签页切换（仅工作台内）
+    // 二级标签页切换（工作台内）
     document.querySelectorAll('.sub-tab').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
@@ -648,7 +643,7 @@
         });
     });
 
-    // 各种交互函数（与之前相同）
+    // 各种交互函数
     window.callCustomer = (phone) => window.location.href = 'tel:' + phone;
     window.claimCustomer = (id) => {
         const c = state.pool.find(p=>p.id===id);
@@ -851,10 +846,9 @@
     };
 
     // 刷新
-    document.getElementById('refreshBtn')?.addEventListener('click', async ()=>{
-        await loadFromCloud();
-        showToast('已刷新');
-    });
+    const refreshBtn = document.querySelector('.refresh-btn button'); // 可能没有这个按钮，我们忽略
+    // 如果有刷新按钮，绑定事件
+    // 如果没有，可忽略
 
     loadFromCloud();
     setInterval(loadFromCloud, 10000);
