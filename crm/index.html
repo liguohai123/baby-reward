@@ -7,26 +7,515 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; margin:0; padding:0; }
-        body { font-family: system-ui; background: #f1f5f9; padding:16px; }
-        .app-card { background: white; border-radius:32px; padding:24px; max-width:1400px; margin:0 auto; }
-        @media (min-width:1024px) {
-            .mobile-tabs { display:none; }
-            .desktop-menu { display:flex; gap:12px; margin-bottom:24px; }
-            .content-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; padding: 16px; }
+        .app-card { background: white; border-radius: 32px; padding: 24px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 500px; margin: 0 auto; }
+
+        /* 手机端样式 (默认) */
+        .sidebar-menu { display: none; }
+        .tabs { display: flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 40px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab { flex: 1; min-width: 70px; padding: 12px 8px; text-align: center; border-radius: 30px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
+        .tab.active { background: white; color: #3b82f6; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #e2e8f0; }
+        .btn-primary { background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; width: 100%; margin-top: 16px; cursor: pointer; }
+        .btn-outline { background: white; border: 1px solid #cbd5e1; padding: 10px 14px; border-radius: 30px; color: #1e293b; cursor: pointer; font-size: 14px; }
+        .btn-icon { background: white; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 30px; color: #1e293b; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
+        .modal { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 32px; padding: 24px; max-height: 70vh; overflow-y: auto; }
+        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 14px; margin: 8px 0 16px; border: 1px solid #cbd5e1; border-radius: 30px; font-size: 16px; }
+        .close { float: right; font-size: 24px; cursor: pointer; }
+        .refresh-btn { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 40px; font-size: 14px; z-index: 2000; display: none; }
+
+        /* 电脑端样式 (min-width: 1024px) */
+        @media (min-width: 1024px) {
+            body { padding: 24px; background: #e2e8f0; }
+            .app-card { max-width: 1600px; padding: 32px; border-radius: 24px; }
+            .tabs { display: none; }
+            .sidebar-menu {
+                display: flex;
+                flex-direction: column;
+                width: 240px;
+                background: #f8fafc;
+                border-radius: 24px;
+                padding: 20px 12px;
+                margin-right: 24px;
+                flex-shrink: 0;
+            }
+            .sidebar-menu .menu-item {
+                padding: 14px 16px;
+                border-radius: 16px;
+                font-weight: 600;
+                color: #334155;
+                cursor: pointer;
+                margin-bottom: 8px;
+                transition: 0.2s;
+            }
+            .sidebar-menu .menu-item:hover { background: #e2e8f0; }
+            .sidebar-menu .menu-item.active { background: #3b82f6; color: white; }
+            .desktop-layout {
+                display: flex;
+                gap: 24px;
+            }
+            .desktop-content {
+                flex: 1;
+                background: white;
+                border-radius: 24px;
+                padding: 28px;
+                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            }
+            .panel { display: none; }
+            .panel.active { display: block; }
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 24px;
+            }
+            .dashboard-card {
+                background: #f8fafc;
+                border-radius: 20px;
+                padding: 20px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+            .dashboard-card h3 {
+                font-size: 16px;
+                font-weight: 600;
+                color: #475569;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .dashboard-card h3 i { color: #3b82f6; }
+            .stats-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 16px 0;
+            }
+            .stat-number {
+                font-size: 32px;
+                font-weight: 700;
+                color: #0f172a;
+                line-height: 1.2;
+            }
+            .stat-label { font-size: 13px; color: #64748b; }
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 16px;
+            }
+            .data-table th {
+                text-align: left;
+                padding: 12px 8px;
+                border-bottom: 2px solid #e2e8f0;
+                color: #475569;
+                font-weight: 600;
+            }
+            .data-table td {
+                padding: 12px 8px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .filter-bar {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 20px;
+                align-items: center;
+            }
+            .filter-bar select, .filter-bar input {
+                padding: 8px 12px;
+                border: 1px solid #cbd5e1;
+                border-radius: 20px;
+                font-size: 14px;
+            }
+            .batch-bar {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 1px solid #e2e8f0;
+                margin-bottom: 16px;
+            }
         }
-        @media (max-width:1023px) {
-            .desktop-menu { display:none; }
-            .mobile-tabs { display:flex; gap:8px; background:#f1f5f9; padding:6px; border-radius:40px; margin-bottom:24px; }
-        }
-        .stats { background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; border-radius:24px; padding:20px; margin-bottom:24px; display:flex; justify-content:space-between; }
-        .card { background:#f8fafc; border-radius:20px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 <div class="app-card">
-    <h1>瑞喆CRM · 测试版</h1>
-    <p>如果能看到这段文字，说明CSS加载正常。</p>
+    <div class="header">
+        <h1>瑞喆CRM</h1>
+        <i class="fas fa-user-circle"></i>
+    </div>
+
+    <div class="refresh-btn">
+        <button class="btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> 刷新数据</button>
+    </div>
+
+    <!-- 统计卡片 (手机/电脑均可见) -->
+    <div class="stats">
+        <div class="stats-item" id="statsCustomer">
+            <span class="num" id="customerCount">0</span><div class="label">客户</div>
+        </div>
+        <div class="stats-item" id="statsPool">
+            <span class="num" id="poolCount">0</span><div class="label">公海</div>
+        </div>
+        <div class="stats-item" id="statsFollow">
+            <span class="num" id="todayFollow">0</span><div class="label">今日跟进</div>
+        </div>
+    </div>
+
+    <!-- 手机端标签导航 -->
+    <div class="tabs">
+        <div class="tab" data-tab="dashboard">工作台</div>
+        <div class="tab" data-tab="customer">客户管理</div>
+        <div class="tab" data-tab="pool">公海池</div>
+        <div class="tab" data-tab="closed">成交客户</div>
+        <div class="tab" data-tab="profile">我的</div>
+    </div>
+
+    <!-- 电脑端左侧菜单 -->
+    <div class="desktop-layout">
+        <div class="sidebar-menu">
+            <div class="menu-item active" data-tab="dashboard">工作台</div>
+            <div class="menu-item" data-tab="customer">客户管理</div>
+            <div class="menu-item" data-tab="pool">公海池</div>
+            <div class="menu-item" data-tab="closed">成交客户</div>
+            <div class="menu-item" data-tab="profile">我的</div>
+        </div>
+        <div class="desktop-content">
+            <!-- 工作台面板 (默认激活) -->
+            <div id="dashboardPanel" class="panel active">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-chart-line"></i> 销售简报</h3>
+                        <div class="stats-row">
+                            <div class="stat-item"><span class="stat-number" id="dashboardCustomerCount">0</span><div class="stat-label">客户数</div></div>
+                            <div class="stat-item"><span class="stat-number" id="dashboardContactCount">0</span><div class="stat-label">联系人</div></div>
+                            <div class="stat-item"><span class="stat-number" id="dashboardFollowCount">0</span><div class="stat-label">跟进</div></div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="far fa-calendar-alt"></i> 日历</h3>
+                        <div>今日日期：2026-03-03</div>
+                        <div>过期任务：<span id="overdueTask">0</span></div>
+                        <div>今日新增客户：<span id="todayNewCustomer">0</span></div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-chart-bar"></i> 跟进行为</h3>
+                        <div>跟进总次数：<span id="followTotal">0</span></div>
+                        <div>跟进对象：<span id="followCustomerTotal">0</span></div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-exclamation-triangle"></i> 预警</h3>
+                        <div>超过7天未跟进：<span id="overdue7">0</span></div>
+                        <div>预计30天内签单：0</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-bullseye"></i> 个人目标</h3>
+                        <div>完成度：0/0</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-trophy"></i> 荣誉榜</h3>
+                        <ul><li>张三 +124</li><li>李四 +89</li><li>王五 +45</li></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 客户管理面板 -->
+            <div id="customerPanel" class="panel">
+                <div class="filter-bar">
+                    <select id="filterStatus"><option value="all">全部跟进状态</option></select>
+                    <select id="filterDept"><option value="all">全部部门</option></select>
+                    <select id="filterOwner"><option value="all">全部负责人</option></select>
+                    <input type="text" id="searchCustomer" placeholder="搜索客户名称或手机">
+                </div>
+                <div class="batch-bar">
+                    <input type="checkbox" id="selectAll"> 全选
+                    <button class="btn-outline" id="batchEdit">编辑</button>
+                    <button class="btn-outline" id="batchTransfer">转移</button>
+                    <button class="btn-outline" id="batchSms">发送短信</button>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>选择</th><th>客户名称</th><th>手机号</th><th>操作</th></tr></thead>
+                    <tbody id="customerTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 公海池面板 -->
+            <div id="poolPanel" class="panel">
+                <table class="data-table">
+                    <thead><tr><th>客户名称</th><th>手机号</th><th>操作</th></tr></thead>
+                    <tbody id="poolTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 成交客户面板 -->
+            <div id="closedPanel" class="panel">
+                <button class="btn-outline" id="addClosedBtn">新增成交</button>
+                <table class="data-table">
+                    <thead><tr><th>客户名称</th><th>手机号</th><th>物流单号</th><th>操作</th></tr></thead>
+                    <tbody id="closedTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 我的面板 -->
+            <div id="profilePanel" class="panel">
+                <h3>绑定手机号</h3>
+                <div id="phoneList"></div>
+                <button class="btn-outline" id="addPhoneBtn">+ 添加手机号</button>
+                <hr>
+                <h3>跟进记录</h3>
+                <div id="followList"></div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- 各种弹窗 -->
+<div id="customerModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建客户</h3><input id="custName" placeholder="客户姓名"><input id="custPhone" placeholder="手机号"><button id="saveCustomerBtn">保存</button></div></div>
+<div id="closedModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建成交客户</h3><input id="closedName" placeholder="客户姓名"><input id="closedPhone" placeholder="手机号"><button id="saveClosedBtn">保存</button></div></div>
+<div id="closedDetailModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>成交客户详情</h3><input type="hidden" id="detailClosedId"><div><span id="detailClosedName"></span> <span id="detailClosedPhone"></span></div><label>物流单号</label><input id="detailTrackingNumber"><button id="updateTrackingBtn">更新</button></div></div>
+<div id="moveModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>移动客户</h3><button id="moveToPoolBtn">移入公海</button><button id="moveToClosedBtn">移入成交客户</button></div></div>
+<div id="phoneModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>绑定手机号</h3><input id="phoneNumber" placeholder="手机号"><input id="phoneDesc" placeholder="备注"><button id="savePhoneBtn">保存</button></div></div>
+<div id="followHistoryModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>跟进历史</h3><div id="followHistoryList"></div></div></div>
+<div id="followModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>记录跟进</h3><input type="hidden" id="followCustomerId"><input id="followContent" placeholder="跟进内容"><button id="saveFollowBtn">保存</button></div></div>
+<div id="smsModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>发送短信</h3><select id="smsPhoneSelect"></select><textarea id="smsContent" placeholder="短信内容，可用{尊称}"></textarea><button id="saveSmsBtn">发送</button></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+    const SUPABASE_URL = 'https://hgmjwcpvhaacgzsmvtkp.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_kUGFH7AVvRBWT90iT-R5iQ_ngyHOmx0';
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let state = {
+        customers: [],
+        pool: [],
+        phones: [],
+        followups: [],
+        closedCustomers: [],
+        smsTemplates: [
+            { id: 1, name: '初次问候', content: '{尊称}您好，我是瑞喆科技的李四。' },
+            { id: 2, name: '跟进', content: '{尊称}上次沟通的产品还有印象吗？' }
+        ],
+        selectedCustomers: []
+    };
+    let movingCustomerId = null;
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        t.innerText = msg;
+        setTimeout(() => t.style.display = 'none', 2000);
+    }
+
+    async function loadFromCloud() {
+        try {
+            const { data, error } = await supabaseClient.from('crm_data').select('*').single();
+            if (!error && data) state = { ...state, ...data.data };
+        } catch (e) { console.warn(e); }
+        renderAll();
+    }
+    async function saveToCloud() {
+        try { await supabaseClient.from('crm_data').upsert({ id: 1, data: state }); } catch (e) {}
+    }
+    function saveState() { renderAll(); saveToCloud(); }
+
+    function maskPhone(p) {
+        if (!p || p.length<11) return p;
+        return p.substring(0,3) + '****' + p.substring(7);
+    }
+
+    function renderAll() {
+        document.getElementById('customerCount').innerText = state.customers.length;
+        document.getElementById('poolCount').innerText = state.pool.length;
+        const today = new Date().toDateString();
+        const todayFollow = state.followups.filter(f => new Date(f.time).toDateString() === today).length;
+        document.getElementById('todayFollow').innerText = todayFollow;
+
+        document.getElementById('dashboardCustomerCount').innerText = state.customers.length;
+        document.getElementById('dashboardFollowCount').innerText = state.followups.length;
+        document.getElementById('followTotal').innerText = state.followups.length;
+        document.getElementById('followCustomerTotal').innerText = new Set(state.followups.map(f=>f.customerId)).size;
+        document.getElementById('overdue7').innerText = state.customers.filter(c => {
+            const last = state.followups.filter(f=>f.customerId===c.id).sort((a,b)=>new Date(b.time)-new Date(a.time))[0];
+            return !last || (new Date() - new Date(last.time))/ (1000*60*60*24) > 7;
+        }).length;
+
+        const tbody = document.getElementById('customerTableBody');
+        if (tbody) {
+            tbody.innerHTML = state.customers.map(c => `
+                <tr>
+                    <td><input type="checkbox" class="customer-checkbox" value="${c.id}" onchange="updateSelected(${c.id}, this.checked)"></td>
+                    <td><span onclick="showFollowHistory(${c.id})" style="color:#2563eb;cursor:pointer;">${c.name}</span></td>
+                    <td>${maskPhone(c.phone)}</td>
+                    <td class="action-buttons">
+                        <button class="btn-icon" onclick="callCustomer('${c.phone}')"><i class="fas fa-phone"></i></button>
+                        <button class="btn-icon" onclick="openSmsModal(${c.id})"><i class="fas fa-envelope"></i></button>
+                        <button class="btn-icon" onclick="openMoveModal(${c.id})"><i class="fas fa-arrows-alt"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        const poolTbody = document.getElementById('poolTableBody');
+        if (poolTbody) {
+            poolTbody.innerHTML = state.pool.map(p => `<tr><td>${p.name}</td><td>${maskPhone(p.phone)}</td><td><button onclick="claimCustomer(${p.id})">领取</button></td></tr>`).join('');
+        }
+        const closedTbody = document.getElementById('closedTableBody');
+        if (closedTbody) {
+            closedTbody.innerHTML = state.closedCustomers.map(c => `<tr><td><span onclick="openClosedDetail(${c.id})" style="color:#2563eb;">${c.name}</span></td><td>${maskPhone(c.phone)}</td><td>${c.trackingNumber||''}</td><td><button onclick="deleteClosed(${c.id})">删除</button></td></tr>`).join('');
+        }
+        const phoneDiv = document.getElementById('phoneList');
+        if (phoneDiv) phoneDiv.innerHTML = state.phones.map(p => `<div>${p.desc} · ${maskPhone(p.number)} <i onclick="deletePhone('${p.number}')" style="cursor:pointer;">🗑️</i></div>`).join('');
+        const followDiv = document.getElementById('followList');
+        if (followDiv) {
+            followDiv.innerHTML = state.followups.slice(-10).reverse().map(f => {
+                const cust = state.customers.find(c=>c.id===f.customerId) || {name:'未知'};
+                return `<div>${cust.name} · ${f.content} · ${new Date(f.time).toLocaleString()}</div>`;
+            }).join('');
+        }
+    }
+
+    window.callCustomer = (phone) => window.location.href = 'tel:' + phone;
+    window.claimCustomer = (id) => {
+        const c = state.pool.find(p=>p.id===id);
+        if (c) { state.pool = state.pool.filter(p=>p.id!==id); state.customers.push(c); saveState(); }
+    };
+    window.deletePhone = (num) => { state.phones = state.phones.filter(p=>p.number!==num); saveState(); };
+    window.openMoveModal = (id) => { movingCustomerId = id; moveModal.style.display = 'flex'; };
+    document.getElementById('moveToPoolBtn').onclick = () => {
+        if (movingCustomerId) {
+            const c = state.customers.find(c=>c.id===movingCustomerId);
+            if (c) { state.customers = state.customers.filter(c=>c.id!==movingCustomerId); state.pool.push(c); saveState(); }
+            moveModal.style.display = 'none';
+        }
+    };
+    document.getElementById('moveToClosedBtn').onclick = () => {
+        if (movingCustomerId) {
+            const c = state.customers.find(c=>c.id===movingCustomerId);
+            if (c) { state.customers = state.customers.filter(c=>c.id!==movingCustomerId); state.closedCustomers.push({...c}); saveState(); }
+            moveModal.style.display = 'none';
+        }
+    };
+    window.showFollowHistory = (id) => {
+        const history = state.followups.filter(f=>f.customerId===id).map(f=>`<div>${f.content} - ${new Date(f.time).toLocaleString()}</div>`).join('');
+        document.getElementById('followHistoryList').innerHTML = history || '无记录';
+        followHistoryModal.style.display = 'flex';
+    };
+    window.openSmsModal = (id) => {
+        const cust = state.customers.find(c=>c.id===id);
+        if (!cust) return;
+        const select = document.getElementById('smsPhoneSelect');
+        select.innerHTML = state.phones.map(p=>`<option value="${p.number}">${p.desc||'默认'}: ${p.number}</option>`).join('');
+        if (select.options.length===0) select.innerHTML = '<option value="">请先绑定手机号</option>';
+        document.getElementById('smsContent').value = '';
+        document.getElementById('smsModal').dataset.cid = id;
+        smsModal.style.display = 'flex';
+    };
+    document.getElementById('saveSmsBtn').onclick = () => {
+        const cid = parseInt(smsModal.dataset.cid);
+        const content = document.getElementById('smsContent').value.trim();
+        if (!content) return alert('内容不能为空');
+        const cust = state.customers.find(c=>c.id===cid);
+        if (cust) {
+            state.followups.push({ customerId: cid, customerName: cust.name, content: '短信:'+content, time: new Date().toISOString() });
+            saveState();
+            smsModal.style.display = 'none';
+            alert('短信已发送（模拟）');
+        }
+    };
+    document.getElementById('batchSms').onclick = () => {
+        if (state.selectedCustomers.length===0) return alert('请先选择客户');
+        openSmsModal(state.selectedCustomers[0]);
+    };
+    function updateSelected(id, checked) {
+        if (checked) state.selectedCustomers.push(id);
+        else state.selectedCustomers = state.selectedCustomers.filter(i=>i!==id);
+    }
+    document.querySelectorAll('.close').forEach(btn => btn.onclick = () => btn.closest('.modal').style.display = 'none');
+    window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
+
+    document.getElementById('addCustomerBtn').onclick = () => customerModal.style.display = 'flex';
+    document.getElementById('saveCustomerBtn').onclick = () => {
+        const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
+        if (name && phone) {
+            state.pool.push({ name, phone, id: Date.now() });
+            saveState();
+            customerModal.style.display = 'none';
+            document.getElementById('custName').value = ''; document.getElementById('custPhone').value = '';
+        } else alert('请填写完整');
+    };
+    document.getElementById('addClosedBtn').onclick = () => closedModal.style.display = 'flex';
+    document.getElementById('saveClosedBtn').onclick = () => {
+        const name = document.getElementById('closedName').value.trim();
+        const phone = document.getElementById('closedPhone').value.trim();
+        if (name && phone) {
+            state.closedCustomers.push({ id: Date.now(), name, phone, trackingNumber: '' });
+            saveState();
+            closedModal.style.display = 'none';
+            document.getElementById('closedName').value = ''; document.getElementById('closedPhone').value = '';
+        } else alert('请填写完整');
+    };
+    window.openClosedDetail = (id) => {
+        const c = state.closedCustomers.find(c=>c.id===id);
+        if (!c) return;
+        document.getElementById('detailClosedId').value = id;
+        document.getElementById('detailClosedName').innerText = c.name;
+        document.getElementById('detailClosedPhone').innerText = c.phone;
+        document.getElementById('detailTrackingNumber').value = c.trackingNumber || '';
+        closedDetailModal.style.display = 'flex';
+    };
+    document.getElementById('updateTrackingBtn').onclick = () => {
+        const id = parseInt(document.getElementById('detailClosedId').value);
+        const c = state.closedCustomers.find(c=>c.id===id);
+        if (c) {
+            c.trackingNumber = document.getElementById('detailTrackingNumber').value.trim();
+            c.trackingStatus = '已揽件';
+            saveState();
+            closedDetailModal.style.display = 'none';
+        }
+    };
+    window.deleteClosed = (id) => {
+        state.closedCustomers = state.closedCustomers.filter(c=>c.id!==id);
+        saveState();
+    };
+    document.getElementById('addPhoneBtn').onclick = () => phoneModal.style.display = 'flex';
+    document.getElementById('savePhoneBtn').onclick = () => {
+        const num = document.getElementById('phoneNumber').value.trim();
+        const desc = document.getElementById('phoneDesc').value.trim() || '默认';
+        if (num) {
+            state.phones.push({ number: num, desc });
+            saveState();
+            phoneModal.style.display = 'none';
+            document.getElementById('phoneNumber').value = ''; document.getElementById('phoneDesc').value = '';
+        } else alert('请输入手机号');
+    };
+    document.getElementById('refreshBtn').onclick = async () => {
+        await loadFromCloud();
+        showToast('已刷新');
+    };
+    // 标签切换
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+            tab.classList.add('active');
+            document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+            document.getElementById(tab.dataset.tab + 'Panel').classList.add('active');
+        };
+    });
+    document.querySelectorAll('.sidebar-menu .menu-item').forEach(item => {
+        item.onclick = () => {
+            document.querySelectorAll('.sidebar-menu .menu-item').forEach(m=>m.classList.remove('active'));
+            item.classList.add('active');
+            document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+            document.getElementById(item.dataset.tab + 'Panel').classList.add('active');
+        };
+    });
+
+    loadFromCloud();
+    setInterval(loadFromCloud, 10000);
+</script>
 </body>
 </html>
