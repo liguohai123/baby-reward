@@ -18,8 +18,8 @@
         .stats-item:hover { background: rgba(255,255,255,0.2); }
         .stats-item .num { font-size: 28px; font-weight: 700; }
         .stats-item .label { font-size: 14px; opacity: 0.9; }
-        .tabs { display: flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 40px; margin-bottom: 24px; }
-        .tab { flex: 1; padding: 12px; text-align: center; border-radius: 30px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
+        .tabs { display: flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 40px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab { flex: 1; min-width: 70px; padding: 12px 8px; text-align: center; border-radius: 30px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
         .tab.active { background: white; color: #3b82f6; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .panel { display: none; }
         .panel.active { display: block; }
@@ -40,6 +40,7 @@
         .refresh-btn { display: flex; justify-content: flex-end; margin-bottom: 8px; }
         .history-list { max-height: 400px; overflow-y: auto; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 40px; font-size: 14px; z-index: 2000; display: none; }
+        .small-btn { width: auto; padding: 6px 10px; font-size: 12px; margin-left: 4px; }
     </style>
 </head>
 <body>
@@ -70,9 +71,11 @@
         </div>
     </div>
 
+    <!-- 标签页，增加第四个“成交客户” -->
     <div class="tabs">
         <div class="tab active" data-tab="customer">客户管理</div>
         <div class="tab" data-tab="pool">公海池</div>
+        <div class="tab" data-tab="closed">成交客户</div>
         <div class="tab" data-tab="profile">我的</div>
     </div>
 
@@ -88,6 +91,15 @@
     <!-- 公海池面板 -->
     <div id="poolPanel" class="panel">
         <div id="poolList"></div>
+    </div>
+
+    <!-- 成交客户面板 -->
+    <div id="closedPanel" class="panel">
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <input type="text" id="searchClosed" placeholder="搜索成交客户" style="flex:1; padding:12px; border:1px solid #e2e8f0; border-radius:30px;">
+            <button class="btn-outline" style="width:auto;" id="addClosedBtn"><i class="fas fa-plus"></i> 新增成交</button>
+        </div>
+        <div id="closedList"></div>
     </div>
 
     <!-- 我的面板 -->
@@ -113,6 +125,58 @@
         <input type="text" id="custName" placeholder="客户姓名">
         <input type="tel" id="custPhone" placeholder="手机号">
         <button id="saveCustomerBtn" class="btn-primary">保存</button>
+    </div>
+</div>
+
+<!-- 添加成交客户弹窗 -->
+<div id="closedModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>新建成交客户</h3>
+        <input type="text" id="closedName" placeholder="客户姓名">
+        <input type="tel" id="closedPhone" placeholder="手机号">
+        <button id="saveClosedBtn" class="btn-primary">保存</button>
+    </div>
+</div>
+
+<!-- 成交客户详情弹窗（用于录入物流单号和查看物流跟踪） -->
+<div id="closedDetailModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>成交客户详情</h3>
+        <input type="hidden" id="detailClosedId">
+        <div style="margin-bottom: 8px;">
+            <strong>姓名：</strong><span id="detailClosedName"></span>
+        </div>
+        <div style="margin-bottom: 8px;">
+            <strong>手机号：</strong><span id="detailClosedPhone"></span>
+        </div>
+        <div style="margin-bottom: 8px;">
+            <label>物流单号：</label>
+            <input type="text" id="detailTrackingNumber" placeholder="输入物流单号" style="width:100%;">
+        </div>
+        <div style="margin-bottom: 16px;">
+            <button class="btn-outline" id="updateTrackingBtn" style="width:auto;">更新物流</button>
+            <button class="btn-outline" id="refreshTrackingBtn" style="width:auto;">刷新物流</button>
+        </div>
+        <div>
+            <h4>物流跟踪信息</h4>
+            <div id="trackingInfo" style="background:#f1f5f9; padding:12px; border-radius:16px; min-height:60px;">
+                暂无物流信息
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 移动客户选择弹窗（新增） -->
+<div id="moveModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>选择移动目标</h3>
+        <div style="display: flex; flex-direction: column; gap: 16px; margin: 20px 0;">
+            <button class="btn-outline" id="moveToPoolBtn" style="width:100%;">移入公海</button>
+            <button class="btn-outline" id="moveToClosedBtn" style="width:100%;">移入成交客户</button>
+        </div>
     </div>
 </div>
 
@@ -157,13 +221,17 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // 状态数据
     let state = {
         customers: [],
         pool: [],
         phones: [],
-        followups: []
+        followups: [],
+        closedCustomers: []  // 成交客户
     };
+
     let retryCount = 0;
+    let movingCustomerId = null; // 当前准备移动的客户ID
 
     function showToast(msg, duration = 2000) {
         const toast = document.getElementById('toast');
@@ -187,6 +255,7 @@
             }
             if (data) {
                 state = { ...state, ...data.data };
+                if (!state.closedCustomers) state.closedCustomers = [];
                 console.log('云端加载成功', data.data);
                 retryCount = 0;
             } else {
@@ -231,6 +300,7 @@
         return phone.substring(0, 3) + '****' + phone.substring(7);
     }
 
+    // 渲染所有界面
     function renderAll() {
         document.getElementById('customerCount').innerText = state.customers.length;
         document.getElementById('poolCount').innerText = state.pool.length;
@@ -239,7 +309,7 @@
             return new Date(f.time).toDateString() === new Date().toDateString();
         }).length;
 
-        // 客户列表
+        // 客户列表：使用单个移动按钮
         const customerList = document.getElementById('customerList');
         customerList.innerHTML = state.customers.map(c => `
             <div class="list-item">
@@ -247,9 +317,10 @@
                     <div class="name" onclick="showFollowHistory(${c.id})">${c.name}</div>
                     <div class="meta">${maskPhone(c.phone)}</div>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-icon" onclick="callCustomer('${c.phone}')"><i class="fas fa-phone"></i> 拨号</button>
-                    <button class="btn-icon" onclick="followCustomer(${c.id})"><i class="fas fa-pen"></i> 跟进</button>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn-icon" onclick="callCustomer('${c.phone}')"><i class="fas fa-phone"></i></button>
+                    <button class="btn-icon" onclick="followCustomer(${c.id})"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon" onclick="openMoveModal(${c.id})"><i class="fas fa-exchange-alt"></i></button>
                 </div>
             </div>
         `).join('');
@@ -263,6 +334,20 @@
                     <div class="meta">${maskPhone(p.phone)}</div>
                 </div>
                 <button class="btn-outline" style="width:auto;" onclick="claimCustomer(${p.id})">领取</button>
+            </div>
+        `).join('');
+
+        // 成交客户列表
+        const closedList = document.getElementById('closedList');
+        closedList.innerHTML = state.closedCustomers.map(c => `
+            <div class="list-item">
+                <div class="item-info">
+                    <div class="name" onclick="openClosedDetail(${c.id})">${c.name}</div>
+                    <div class="meta">${maskPhone(c.phone)}</div>
+                </div>
+                <div style="display: flex; gap: 4px;">
+                    <button class="btn-icon" onclick="deleteClosed(${c.id})" title="删除"><i class="fas fa-trash"></i></button>
+                </div>
             </div>
         `).join('');
 
@@ -292,10 +377,12 @@
         }
     }
 
+    // 拨号
     window.callCustomer = function(phone) {
         window.location.href = 'tel:' + phone;
     };
 
+    // 领取公海客户
     window.claimCustomer = function(id) {
         const customer = state.pool.find(c => c.id === id);
         if (customer) {
@@ -332,11 +419,116 @@
         followHistoryModal.style.display = 'flex';
     };
 
+    // 打开移动选择弹窗
+    window.openMoveModal = function(customerId) {
+        movingCustomerId = customerId;
+        moveModal.style.display = 'flex';
+    };
+
+    // 移入公海
+    function moveToPool() {
+        if (!movingCustomerId) return;
+        const customer = state.customers.find(c => c.id === movingCustomerId);
+        if (customer) {
+            state.customers = state.customers.filter(c => c.id !== movingCustomerId);
+            state.pool.push(customer);
+            saveState();
+            showToast('已移入公海', 1500);
+        }
+        moveModal.style.display = 'none';
+        movingCustomerId = null;
+    }
+
+    // 移入成交客户
+    function moveToClosed() {
+        if (!movingCustomerId) return;
+        const customer = state.customers.find(c => c.id === movingCustomerId);
+        if (customer) {
+            state.customers = state.customers.filter(c => c.id !== movingCustomerId);
+            state.closedCustomers.push({
+                ...customer,
+                trackingNumber: '',
+                trackingStatus: ''
+            });
+            saveState();
+            showToast('已移入成交客户', 1500);
+        }
+        moveModal.style.display = 'none';
+        movingCustomerId = null;
+    }
+
+    // 成交客户相关
+    window.openClosedDetail = function(id) {
+        const closed = state.closedCustomers.find(c => c.id === id);
+        if (!closed) return;
+        document.getElementById('detailClosedId').value = id;
+        document.getElementById('detailClosedName').innerText = closed.name;
+        document.getElementById('detailClosedPhone').innerText = closed.phone;
+        document.getElementById('detailTrackingNumber').value = closed.trackingNumber || '';
+        updateTrackingDisplay(id);
+        closedDetailModal.style.display = 'flex';
+    };
+
+    function updateTrackingDisplay(id) {
+        const closed = state.closedCustomers.find(c => c.id === id);
+        const infoDiv = document.getElementById('trackingInfo');
+        if (!closed || !closed.trackingNumber) {
+            infoDiv.innerHTML = '暂无物流信息';
+            return;
+        }
+        let trackingHtml = `<p>物流单号：${closed.trackingNumber}</p>`;
+        if (closed.trackingStatus) {
+            trackingHtml += `<p>最新状态：${closed.trackingStatus}</p>`;
+        } else {
+            trackingHtml += `<p>暂无物流更新</p>`;
+        }
+        infoDiv.innerHTML = trackingHtml;
+    }
+
+    window.deleteClosed = function(id) {
+        if (confirm('确定删除该成交客户吗？')) {
+            state.closedCustomers = state.closedCustomers.filter(c => c.id !== id);
+            saveState();
+        }
+    };
+
+    // 更新物流单号
+    document.getElementById('updateTrackingBtn').onclick = () => {
+        const id = parseInt(document.getElementById('detailClosedId').value);
+        const closed = state.closedCustomers.find(c => c.id === id);
+        if (!closed) return;
+        const trackingNumber = document.getElementById('detailTrackingNumber').value.trim();
+        closed.trackingNumber = trackingNumber;
+        closed.trackingStatus = '已揽件，等待运输';
+        saveState();
+        updateTrackingDisplay(id);
+        showToast('物流信息已更新', 1500);
+    };
+
+    document.getElementById('refreshTrackingBtn').onclick = () => {
+        const id = parseInt(document.getElementById('detailClosedId').value);
+        const closed = state.closedCustomers.find(c => c.id === id);
+        if (!closed) return;
+        if (closed.trackingNumber) {
+            const statuses = ['已揽件', '运输中', '到达中转站', '派送中', '已签收'];
+            const random = Math.floor(Math.random() * statuses.length);
+            closed.trackingStatus = statuses[random];
+            saveState();
+            updateTrackingDisplay(id);
+            showToast('物流状态已刷新', 1500);
+        } else {
+            showToast('请先输入物流单号', 1500);
+        }
+    };
+
     // 弹窗控制
     const custModal = document.getElementById('customerModal');
     const phoneModal = document.getElementById('phoneModal');
     const followModal = document.getElementById('followModal');
     const followHistoryModal = document.getElementById('followHistoryModal');
+    const closedModal = document.getElementById('closedModal');
+    const closedDetailModal = document.getElementById('closedDetailModal');
+    const moveModal = document.getElementById('moveModal');
 
     document.getElementById('addCustomerBtn').onclick = () => {
         custModal.style.display = 'flex';
@@ -344,13 +536,25 @@
     document.getElementById('addPhoneBtn').onclick = () => {
         phoneModal.style.display = 'flex';
     };
+    document.getElementById('addClosedBtn').onclick = () => {
+        closedModal.style.display = 'flex';
+    };
 
+    // 移动弹窗按钮事件
+    document.getElementById('moveToPoolBtn').onclick = moveToPool;
+    document.getElementById('moveToClosedBtn').onclick = moveToClosed;
+
+    // 关闭弹窗通用
     document.querySelectorAll('.close').forEach(btn => {
         btn.onclick = () => {
             custModal.style.display = 'none';
             phoneModal.style.display = 'none';
             followModal.style.display = 'none';
             followHistoryModal.style.display = 'none';
+            closedModal.style.display = 'none';
+            closedDetailModal.style.display = 'none';
+            moveModal.style.display = 'none';
+            movingCustomerId = null; // 取消移动
         };
     });
     window.onclick = (e) => {
@@ -358,6 +562,12 @@
         if (e.target === phoneModal) phoneModal.style.display = 'none';
         if (e.target === followModal) followModal.style.display = 'none';
         if (e.target === followHistoryModal) followHistoryModal.style.display = 'none';
+        if (e.target === closedModal) closedModal.style.display = 'none';
+        if (e.target === closedDetailModal) closedDetailModal.style.display = 'none';
+        if (e.target === moveModal) {
+            moveModal.style.display = 'none';
+            movingCustomerId = null;
+        }
     };
 
     document.getElementById('saveCustomerBtn').onclick = () => {
@@ -406,6 +616,26 @@
             saveState();
             followModal.style.display = 'none';
             document.getElementById('followContent').value = '';
+        }
+    };
+
+    document.getElementById('saveClosedBtn').onclick = () => {
+        const name = document.getElementById('closedName').value.trim();
+        const phone = document.getElementById('closedPhone').value.trim();
+        if (name && phone) {
+            state.closedCustomers.push({
+                id: Date.now(),
+                name,
+                phone,
+                trackingNumber: '',
+                trackingStatus: ''
+            });
+            saveState();
+            closedModal.style.display = 'none';
+            document.getElementById('closedName').value = '';
+            document.getElementById('closedPhone').value = '';
+        } else {
+            alert('请填写完整信息');
         }
     };
 
