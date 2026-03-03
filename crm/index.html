@@ -28,11 +28,13 @@
         .item-info .meta { font-size: 13px; color: #64748b; }
         .badge { background: #dbeafe; color: #2563eb; padding: 4px 8px; border-radius: 20px; font-size: 12px; font-weight: 500; }
         .btn-primary { background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; width: 100%; margin-top: 16px; cursor: pointer; }
-        .btn-outline { background: white; border: 1px solid #cbd5e1; padding: 10px; border-radius: 30px; color: #1e293b; cursor: pointer; }
+        .btn-outline { background: white; border: 1px solid #cbd5e1; padding: 10px 14px; border-radius: 30px; color: #1e293b; cursor: pointer; font-size: 14px; }
+        .btn-icon { background: white; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 30px; color: #1e293b; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
         .modal { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 32px; padding: 24px; }
-        .modal-content input { width: 100%; padding: 14px; margin: 8px 0 16px; border: 1px solid #cbd5e1; border-radius: 30px; font-size: 16px; }
+        .modal-content input, .modal-content textarea { width: 100%; padding: 14px; margin: 8px 0 16px; border: 1px solid #cbd5e1; border-radius: 30px; font-size: 16px; }
         .close { float: right; font-size: 24px; cursor: pointer; }
+        .follow-item { font-size: 14px; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
     </style>
 </head>
 <body>
@@ -42,14 +44,12 @@
         <i class="fas fa-user-circle"></i>
     </div>
 
-    <!-- 统计数据 -->
     <div class="stats">
         <div class="stats-item"><span class="num" id="customerCount">0</span><div class="label">客户</div></div>
         <div class="stats-item"><span class="num" id="poolCount">0</span><div class="label">公海</div></div>
         <div class="stats-item"><span class="num" id="todayFollow">0</span><div class="label">今日跟进</div></div>
     </div>
 
-    <!-- 标签页切换 -->
     <div class="tabs">
         <div class="tab active" data-tab="customer">客户管理</div>
         <div class="tab" data-tab="pool">公海池</div>
@@ -75,6 +75,9 @@
         <h3 style="margin-bottom:16px;">绑定手机号</h3>
         <div id="phoneList"></div>
         <button class="btn-outline" style="width:100%; margin-top:16px;" id="addPhoneBtn">+ 添加手机号</button>
+        <hr style="margin:24px 0;">
+        <h3 style="margin-bottom:16px;">跟进记录</h3>
+        <div id="followList"></div>
         <hr style="margin:24px 0;">
         <h3 style="margin-bottom:16px;">回收规则</h3>
         <div>7天未跟进自动回收</div>
@@ -104,14 +107,23 @@
     </div>
 </div>
 
+<!-- 跟进记录弹窗 -->
+<div id="followModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>跟进记录</h3>
+        <input type="hidden" id="followCustomerId">
+        <input type="text" id="followContent" placeholder="跟进内容（如：有意向/空号/加微信）">
+        <button id="saveFollowBtn" class="btn-primary">保存</button>
+    </div>
+</div>
+
 <script>
-    // Supabase 配置（使用你项目三的配置）
     const SUPABASE_URL = 'https://hgmjwcpvhaacgzsmvtkp.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_kUGFH7AVvRBWT90iT-R5iQ_ngyHOmx0';
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 初始状态
     let state = {
         customers: [],
         pool: [],
@@ -119,7 +131,6 @@
         followups: []
     };
 
-    // 从 Supabase 加载数据
     async function loadFromCloud() {
         try {
             const { data, error } = await supabaseClient
@@ -135,7 +146,6 @@
         renderAll();
     }
 
-    // 保存到 Supabase
     async function saveToCloud() {
         try {
             await supabaseClient
@@ -146,15 +156,18 @@
         }
     }
 
-    // 保存状态并刷新界面
     function saveState() {
         saveToCloud();
         renderAll();
     }
 
-    // 渲染所有界面
+    // 手机号脱敏函数：显示前3位 + **** + 后4位
+    function maskPhone(phone) {
+        if (!phone || phone.length < 11) return phone;
+        return phone.substring(0, 3) + '****' + phone.substring(7);
+    }
+
     function renderAll() {
-        // 更新统计数字
         document.getElementById('customerCount').innerText = state.customers.length;
         document.getElementById('poolCount').innerText = state.pool.length;
         document.getElementById('todayFollow').innerText = state.followups.filter(f => {
@@ -162,41 +175,61 @@
             return new Date(f.time).toDateString() === new Date().toDateString();
         }).length;
 
-        // 渲染客户列表
+        // 客户列表（显示脱敏号码，拨号使用完整号码）
         const customerList = document.getElementById('customerList');
         customerList.innerHTML = state.customers.map(c => `
             <div class="list-item">
                 <div>
                     <div class="name">${c.name}</div>
-                    <div class="meta">${c.phone}</div>
+                    <div class="meta">${maskPhone(c.phone)}</div>
                 </div>
-                <span class="badge">跟进</span>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-icon" onclick="callCustomer('${c.phone}')"><i class="fas fa-phone"></i> 拨号</button>
+                    <button class="btn-icon" onclick="followCustomer(${c.id})"><i class="fas fa-pen"></i> 跟进</button>
+                </div>
             </div>
         `).join('');
 
-        // 渲染公海列表
+        // 公海列表（显示脱敏号码，领取时仍用完整数据）
         const poolList = document.getElementById('poolList');
         poolList.innerHTML = state.pool.map(p => `
             <div class="list-item">
                 <div>
                     <div class="name">${p.name}</div>
-                    <div class="meta">${p.phone}</div>
+                    <div class="meta">${maskPhone(p.phone)}</div>
                 </div>
                 <button class="btn-outline" style="width:auto;" onclick="claimCustomer(${p.id})">领取</button>
             </div>
         `).join('');
 
-        // 渲染手机号列表
+        // 手机号列表
         const phoneList = document.getElementById('phoneList');
         phoneList.innerHTML = state.phones.map(p => `
             <div class="list-item">
-                <span>${p.desc || '默认'} · ${p.number}</span>
+                <span>${p.desc || '默认'} · ${maskPhone(p.number)}</span>
                 <i class="fas fa-trash" style="color:#ef4444; cursor:pointer;" onclick="deletePhone('${p.number}')"></i>
             </div>
         `).join('');
+
+        // 跟进记录（我的页面）
+        const followList = document.getElementById('followList');
+        if (state.followups.length === 0) {
+            followList.innerHTML = '<div style="color:#94a3b8;">暂无跟进记录</div>';
+        } else {
+            followList.innerHTML = state.followups.slice(-5).reverse().map(f => `
+                <div class="follow-item">
+                    <div><strong>${f.customerName}</strong> ${f.content}</div>
+                    <div style="color:#64748b;">${new Date(f.time).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
     }
 
-    // 从公海领取客户
+    // 拨号函数，使用完整号码
+    window.callCustomer = function(phone) {
+        window.location.href = 'tel:' + phone;
+    };
+
     window.claimCustomer = function(id) {
         const customer = state.pool.find(c => c.id === id);
         if (customer) {
@@ -206,15 +239,23 @@
         }
     };
 
-    // 删除手机号
     window.deletePhone = function(number) {
         state.phones = state.phones.filter(p => p.number !== number);
         saveState();
     };
 
+    window.followCustomer = function(customerId) {
+        const customer = state.customers.find(c => c.id === customerId);
+        if (!customer) return;
+        document.getElementById('followCustomerId').value = customerId;
+        document.getElementById('followContent').value = '';
+        followModal.style.display = 'flex';
+    };
+
     // 弹窗控制
     const custModal = document.getElementById('customerModal');
     const phoneModal = document.getElementById('phoneModal');
+    const followModal = document.getElementById('followModal');
 
     document.getElementById('addCustomerBtn').onclick = () => {
         custModal.style.display = 'flex';
@@ -223,24 +264,23 @@
         phoneModal.style.display = 'flex';
     };
 
-    // 关闭弹窗
     document.querySelectorAll('.close').forEach(btn => {
         btn.onclick = () => {
             custModal.style.display = 'none';
             phoneModal.style.display = 'none';
+            followModal.style.display = 'none';
         };
     });
     window.onclick = (e) => {
         if (e.target === custModal) custModal.style.display = 'none';
         if (e.target === phoneModal) phoneModal.style.display = 'none';
+        if (e.target === followModal) followModal.style.display = 'none';
     };
 
-    // 保存客户
     document.getElementById('saveCustomerBtn').onclick = () => {
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim();
         if (name && phone) {
-            // 默认添加到公海
             state.pool.push({ name, phone, id: Date.now() });
             saveState();
             custModal.style.display = 'none';
@@ -251,7 +291,6 @@
         }
     };
 
-    // 保存手机号
     document.getElementById('savePhoneBtn').onclick = () => {
         const number = document.getElementById('phoneNumber').value.trim();
         const desc = document.getElementById('phoneDesc').value.trim() || '默认';
@@ -266,6 +305,27 @@
         }
     };
 
+    document.getElementById('saveFollowBtn').onclick = () => {
+        const customerId = document.getElementById('followCustomerId').value;
+        const content = document.getElementById('followContent').value.trim();
+        if (!content) {
+            alert('请输入跟进内容');
+            return;
+        }
+        const customer = state.customers.find(c => c.id == customerId);
+        if (customer) {
+            state.followups.push({
+                customerId: customer.id,
+                customerName: customer.name,
+                content,
+                time: new Date().toISOString()
+            });
+            saveState();
+            followModal.style.display = 'none';
+            document.getElementById('followContent').value = '';
+        }
+    };
+
     // 标签切换
     document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = () => {
@@ -276,7 +336,6 @@
         };
     });
 
-    // 初始化加载
     loadFromCloud();
 </script>
 </body>
