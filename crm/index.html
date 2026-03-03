@@ -3,247 +3,434 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>瑞喆CRM · 智能工作台</title>
+    <title>瑞喆CRM · 专业版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; padding: 16px; }
-        .app-card { background: white; border-radius: 32px; padding: 24px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 500px; margin: 0 auto; }
-
-        /* 手机端样式 (默认) */
-        .sidebar-menu { display: none; }
-        .tabs { display: flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 40px; margin-bottom: 24px; flex-wrap: wrap; }
-        .tab { flex: 1; min-width: 70px; padding: 12px 8px; text-align: center; border-radius: 30px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
-        .tab.active { background: white; color: #3b82f6; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .panel { display: none; }
-        .panel.active { display: block; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #e2e8f0; }
-        .btn-primary { background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; width: 100%; margin-top: 16px; cursor: pointer; }
-        .btn-outline { background: white; border: 1px solid #cbd5e1; padding: 10px 14px; border-radius: 30px; color: #1e293b; cursor: pointer; font-size: 14px; }
-        .btn-icon { background: white; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 30px; color: #1e293b; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
-        .modal { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 32px; padding: 24px; max-height: 70vh; overflow-y: auto; }
-        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 14px; margin: 8px 0 16px; border: 1px solid #cbd5e1; border-radius: 30px; font-size: 16px; }
-        .close { float: right; font-size: 24px; cursor: pointer; }
-        .refresh-btn { display: flex; justify-content: flex-end; margin-bottom: 8px; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 40px; font-size: 14px; z-index: 2000; display: none; }
-
-        /* 电脑端样式 (min-width: 1024px) */
-        @media (min-width: 1024px) {
-            body { padding: 24px; background: #e2e8f0; }
-            .app-card { max-width: 1600px; padding: 32px; border-radius: 24px; }
-            .tabs { display: none; }
-            .sidebar-menu {
-                display: flex;
-                flex-direction: column;
-                width: 240px;
-                background: #f8fafc;
-                border-radius: 24px;
-                padding: 20px 12px;
-                margin-right: 24px;
-                flex-shrink: 0;
-            }
-            .sidebar-menu .menu-item {
-                padding: 14px 16px;
-                border-radius: 16px;
-                font-weight: 600;
-                color: #334155;
-                cursor: pointer;
-                margin-bottom: 8px;
-                transition: 0.2s;
-            }
-            .sidebar-menu .menu-item:hover { background: #e2e8f0; }
-            .sidebar-menu .menu-item.active { background: #3b82f6; color: white; }
-            .desktop-layout {
-                display: flex;
-                gap: 24px;
-            }
-            .desktop-content {
-                flex: 1;
-                background: white;
-                border-radius: 24px;
-                padding: 28px;
-                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            }
-            .panel { display: none; }
-            .panel.active { display: block; }
-            .dashboard-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 24px;
-            }
-            .dashboard-card {
-                background: #f8fafc;
-                border-radius: 20px;
-                padding: 20px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            }
-            .dashboard-card h3 {
-                font-size: 16px;
-                font-weight: 600;
-                color: #475569;
-                margin-bottom: 12px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-            .dashboard-card h3 i { color: #3b82f6; }
-            .stats-row {
-                display: flex;
-                justify-content: space-between;
-                margin: 16px 0;
-            }
-            .stat-number {
-                font-size: 32px;
-                font-weight: 700;
-                color: #0f172a;
-                line-height: 1.2;
-            }
-            .stat-label { font-size: 13px; color: #64748b; }
-            .data-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 16px;
-            }
-            .data-table th {
-                text-align: left;
-                padding: 12px 8px;
-                border-bottom: 2px solid #e2e8f0;
-                color: #475569;
-                font-weight: 600;
-            }
-            .data-table td {
-                padding: 12px 8px;
-                border-bottom: 1px solid #e2e8f0;
-            }
-            .filter-bar {
-                display: flex;
-                gap: 12px;
-                flex-wrap: wrap;
-                margin-bottom: 20px;
-                align-items: center;
-            }
-            .filter-bar select, .filter-bar input {
-                padding: 8px 12px;
-                border: 1px solid #cbd5e1;
-                border-radius: 20px;
-                font-size: 14px;
-            }
-            .batch-bar {
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                padding: 12px 0;
-                border-bottom: 1px solid #e2e8f0;
-                margin-bottom: 16px;
-            }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1e293b;
         }
+        .app { max-width: 1600px; margin: 0 auto; padding: 20px; }
+
+        /* 顶部导航 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .top-nav-left { display: flex; align-items: center; gap: 24px; }
+        .company-name { font-size: 18px; font-weight: 600; color: #1e293b; }
+        .nav-menu { display: flex; gap: 16px; }
+        .nav-item { color: #64748b; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+        .nav-item.active { background: #e6f7ff; color: #3b82f6; }
+        .top-nav-right { display: flex; align-items: center; gap: 16px; }
+        .search-box { display: flex; align-items: center; background: #f1f5f9; border-radius: 20px; padding: 4px 12px; }
+        .search-box input { border: none; background: transparent; padding: 6px 8px; outline: none; width: 200px; }
+        .icon-btn { background: none; border: none; font-size: 16px; color: #64748b; cursor: pointer; padding: 4px 8px; }
+        .badge { background: #3b82f6; color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; margin-left: 4px; }
+
+        /* 左侧快捷栏 */
+        .main-layout { display: flex; gap: 20px; }
+        .left-quick {
+            width: 220px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .quick-title { font-size: 14px; color: #64748b; margin-bottom: 12px; }
+        .quick-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            color: #1e293b;
+            font-size: 14px;
+        }
+        .quick-btn i { margin-right: 8px; color: #3b82f6; }
+        .quick-btn:hover { background: #e6f7ff; border-color: #3b82f6; }
+
+        /* 右侧内容区 */
+        .right-content {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        /* 二级导航 */
+        .sub-tabs {
+            display: flex;
+            gap: 16px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+        }
+        .sub-tab {
+            color: #64748b;
+            cursor: pointer;
+            padding: 8px 0;
+            font-size: 16px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+        .sub-tab.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+
+        /* 筛选栏 */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .filter-bar select, .filter-bar input {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+        /* 批量操作 */
+        .batch-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+        .batch-bar button {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        /* 表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 12px 8px;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table tr:hover { background: #f8fafc; }
+        .customer-name { color: #3b82f6; cursor: pointer; font-weight: 500; }
+        .action-buttons { display: flex; gap: 6px; }
+        .action-buttons button {
+            background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; padding: 4px;
+        }
+        .action-buttons button:hover { color: #3b82f6; }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 20px;
+            gap: 8px;
+        }
+        .pagination button {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pagination .current { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+        /* 工作台卡片网格 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card h3 i { color: #3b82f6; }
+        .stat-number { font-size: 28px; font-weight: 700; color: #0f172a; }
+        .stat-label { font-size: 13px; color: #64748b; }
+
+        /* 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 16px;
+            padding: 24px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 { margin-bottom: 20px; }
+        .modal-content input, .modal-content textarea, .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .modal-content button {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .close { float: right; font-size: 24px; cursor: pointer; color: #64748b; }
+
+        .toast {
+            position: fixed;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+        }
+
+        /* 权限管理面板 */
+        .user-list {
+            margin-top: 20px;
+        }
+        .user-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .user-row span { flex: 1; }
+        .perm-checkbox { margin: 0 10px; }
     </style>
 </head>
 <body>
-<div class="app-card">
-    <div class="header">
-        <h1>瑞喆CRM</h1>
-        <i class="fas fa-user-circle"></i>
+<div class="app">
+    <!-- 顶部导航 -->
+    <div class="top-nav">
+        <div class="top-nav-left">
+            <span class="company-name">瑞喆科技有限公司</span>
+            <div class="nav-menu">
+                <span class="nav-item" data-nav="workbench">工作台</span>
+                <span class="nav-item" data-nav="report">报表中心</span>
+                <span class="nav-item" data-nav="apps">应用中心</span>
+            </div>
+        </div>
+        <div class="top-nav-right">
+            <div class="search-box">
+                <i class="fas fa-search" style="color:#94a3b8;"></i>
+                <input type="text" placeholder="搜索">
+            </div>
+            <span class="icon-btn"><i class="far fa-bell"></i> 提醒 <span class="badge">NEW</span></span>
+            <span class="icon-btn"><i class="far fa-question-circle"></i> 帮助</span>
+            <span class="icon-btn"><i class="fas fa-cog"></i> 设置</span>
+            <span class="icon-btn" id="userMenu"><i class="fas fa-user-circle"></i> 邹裕</span>
+        </div>
     </div>
 
-    <div class="refresh-btn">
-        <button class="btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> 刷新数据</button>
-    </div>
+    <div class="main-layout">
+        <!-- 左侧快捷新增栏 -->
+        <div class="left-quick">
+            <div class="quick-title">快捷新增</div>
+            <button class="quick-btn" id="quickAddCustomer"><i class="fas fa-user-plus"></i> 客户</button>
+            <button class="quick-btn" id="quickImport"><i class="fas fa-upload"></i> 导入</button>
+            <button class="quick-btn" id="quickDuplicate"><i class="fas fa-clone"></i> 客户查重</button>
+            <div style="margin-top:24px;">
+                <div class="quick-title">常用</div>
+                <button class="quick-btn" id="quickFollow"><i class="fas fa-tasks"></i> 跟进记录</button>
+                <button class="quick-btn" id="quickSmsTpl"><i class="fas fa-envelope"></i> 短信模板</button>
+                <!-- 主账号可见的权限管理 -->
+                <button class="quick-btn" id="quickUserMgmt" style="display:none;"><i class="fas fa-users-cog"></i> 员工权限</button>
+            </div>
+        </div>
 
-    <!-- 统计卡片 (手机/电脑均可见) -->
-    <div class="stats">
-        <div class="stats-item" id="statsCustomer">
-            <span class="num" id="customerCount">0</span><div class="label">客户</div>
-        </div>
-        <div class="stats-item" id="statsPool">
-            <span class="num" id="poolCount">0</span><div class="label">公海</div>
-        </div>
-        <div class="stats-item" id="statsFollow">
-            <span class="num" id="todayFollow">0</span><div class="label">今日跟进</div>
-        </div>
-    </div>
+        <!-- 右侧主内容区 -->
+        <div class="right-content">
+            <!-- 二级标签页（工作台/客户管理/公海池/成交客户/我的） -->
+            <div class="sub-tabs">
+                <span class="sub-tab active" data-tab="dashboard">工作台</span>
+                <span class="sub-tab" data-tab="customer">客户管理</span>
+                <span class="sub-tab" data-tab="pool">公海池</span>
+                <span class="sub-tab" data-tab="closed">成交客户</span>
+                <span class="sub-tab" data-tab="profile">我的</span>
+            </div>
 
-    <!-- 手机端标签导航 -->
-    <div class="tabs">
-        <div class="tab" data-tab="dashboard">工作台</div>
-        <div class="tab" data-tab="customer">客户管理</div>
-        <div class="tab" data-tab="pool">公海池</div>
-        <div class="tab" data-tab="closed">成交客户</div>
-        <div class="tab" data-tab="profile">我的</div>
-    </div>
-
-    <!-- 电脑端左侧菜单 -->
-    <div class="desktop-layout">
-        <div class="sidebar-menu">
-            <div class="menu-item active" data-tab="dashboard">工作台</div>
-            <div class="menu-item" data-tab="customer">客户管理</div>
-            <div class="menu-item" data-tab="pool">公海池</div>
-            <div class="menu-item" data-tab="closed">成交客户</div>
-            <div class="menu-item" data-tab="profile">我的</div>
-        </div>
-        <div class="desktop-content">
-            <!-- 工作台面板 (默认激活) -->
-            <div id="dashboardPanel" class="panel active">
+            <!-- 动态内容面板 -->
+            <div id="panel-dashboard" class="tab-panel active">
                 <div class="dashboard-grid">
-                    <div class="dashboard-card">
+                    <!-- 销售简报 -->
+                    <div class="card">
                         <h3><i class="fas fa-chart-line"></i> 销售简报</h3>
-                        <div class="stats-row">
-                            <div class="stat-item"><span class="stat-number" id="dashboardCustomerCount">0</span><div class="stat-label">客户数</div></div>
-                            <div class="stat-item"><span class="stat-number" id="dashboardContactCount">0</span><div class="stat-label">联系人</div></div>
-                            <div class="stat-item"><span class="stat-number" id="dashboardFollowCount">0</span><div class="stat-label">跟进</div></div>
+                        <div style="display:flex; justify-content:space-around;">
+                            <div><span class="stat-number" id="dashCust">0</span><div class="stat-label">客户数</div></div>
+                            <div><span class="stat-number" id="dashContact">0</span><div class="stat-label">联系人</div></div>
+                            <div><span class="stat-number" id="dashFollow">0</span><div class="stat-label">跟进</div></div>
                         </div>
                     </div>
-                    <div class="dashboard-card">
-                        <h3><i class="far fa-calendar-alt"></i> 日历</h3>
-                        <div>今日日期：2026-03-03</div>
-                        <div>过期任务：<span id="overdueTask">0</span></div>
-                        <div>今日新增客户：<span id="todayNewCustomer">0</span></div>
+                    <!-- 日历 -->
+                    <div class="card">
+                        <h3><i class="far fa-calendar-alt"></i> 2026.03月</h3>
+                        <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:13px;">
+                            <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                            <span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+                            <span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span>
+                            <span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span>
+                            <span>29</span><span>30</span><span>31</span>
+                        </div>
+                        <div style="margin-top:12px;">
+                            <div>过期任务：<span id="overdueTask">0</span></div>
+                            <div>今日新增：<span id="todayNew">0</span></div>
+                        </div>
                     </div>
-                    <div class="dashboard-card">
+                    <!-- 跟进行为分析 -->
+                    <div class="card">
                         <h3><i class="fas fa-chart-bar"></i> 跟进行为</h3>
                         <div>跟进总次数：<span id="followTotal">0</span></div>
-                        <div>跟进对象：<span id="followCustomerTotal">0</span></div>
+                        <div>跟进对象数：<span id="followObj">0</span></div>
+                        <div style="margin-top:8px;">拜访总次数：0</div>
+                        <div>拜访对象数：0</div>
+                        <div style="font-size:12px; color:#64748b;">环比：-17.33% / -15.07%</div>
                     </div>
-                    <div class="dashboard-card">
+                    <!-- 预警卡片 -->
+                    <div class="card">
                         <h3><i class="fas fa-exclamation-triangle"></i> 预警</h3>
-                        <div>超过7天未跟进：<span id="overdue7">0</span></div>
+                        <div>超过7天未跟进：<span id="warn7">0</span></div>
                         <div>预计30天内签单：0</div>
+                        <div>7天内需回款：0</div>
+                        <div>30天内到期合同：0</div>
                     </div>
-                    <div class="dashboard-card">
+                    <!-- 个人目标完成度 -->
+                    <div class="card">
                         <h3><i class="fas fa-bullseye"></i> 个人目标</h3>
-                        <div>完成度：0/0</div>
+                        <div>完成度：<span id="targetCompleted">0</span>/<span id="targetTotal">0</span></div>
+                        <div>拜访计划本月：0</div>
                     </div>
-                    <div class="dashboard-card">
-                        <h3><i class="fas fa-trophy"></i> 荣誉榜</h3>
-                        <ul><li>张三 +124</li><li>李四 +89</li><li>王五 +45</li></ul>
+                    <!-- 我的业绩统计（新增） -->
+                    <div class="card">
+                        <h3><i class="fas fa-coins"></i> 我的业绩统计</h3>
+                        <div>本月业绩：¥<span id="monthlyRevenue">0</span></div>
+                        <div>本月目标：¥<span id="monthlyTarget">0</span></div>
+                        <div>完成率：<span id="monthlyRate">0%</span></div>
+                        <div style="background:#e2e8f0; height:8px; border-radius:4px; margin-top:8px;">
+                            <div id="monthlyBar" style="width:0%; height:8px; background:#3b82f6; border-radius:4px;"></div>
+                        </div>
+                    </div>
+                    <!-- 部门荣誉榜 -->
+                    <div class="card">
+                        <h3><i class="fas fa-trophy"></i> 部门荣誉榜</h3>
+                        <ul style="list-style:none; padding:0;" id="rankList">
+                            <li>张三 +124</li>
+                            <li>李四 +89</li>
+                            <li>王五 +45</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
             <!-- 客户管理面板 -->
-            <div id="customerPanel" class="panel">
+            <div id="panel-customer" class="tab-panel">
+                <!-- 筛选栏 -->
                 <div class="filter-bar">
                     <select id="filterStatus"><option value="all">全部跟进状态</option></select>
                     <select id="filterDept"><option value="all">全部部门</option></select>
                     <select id="filterOwner"><option value="all">全部负责人</option></select>
-                    <input type="text" id="searchCustomer" placeholder="搜索客户名称或手机">
+                    <input type="text" id="searchCustomer" placeholder="请输入搜索内容">
                 </div>
+                <!-- 批量操作 -->
                 <div class="batch-bar">
-                    <input type="checkbox" id="selectAll"> 全选
-                    <button class="btn-outline" id="batchEdit">编辑</button>
-                    <button class="btn-outline" id="batchTransfer">转移</button>
-                    <button class="btn-outline" id="batchSms">发送短信</button>
+                    <span><span id="selectedCount">0</span> 已选</span>
+                    <button id="batchEdit">编辑</button>
+                    <button id="batchTransfer">转移</button>
+                    <button id="batchSms">发送短信</button>
+                    <button id="batchMore">更多操作 <i class="fas fa-chevron-down"></i></button>
                 </div>
+                <!-- 表格 -->
                 <table class="data-table">
-                    <thead><tr><th>选择</th><th>客户名称</th><th>手机号</th><th>操作</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th style="width:30px;"><input type="checkbox" id="selectAll"></th>
+                            <th>客户名称</th>
+                            <th>审批状态</th>
+                            <th>联系人</th>
+                            <th>跟进状态</th>
+                            <th>手机</th>
+                            <th>创建时间</th>
+                            <th>负责人</th>
+                            <th>最新跟进记录</th>
+                            <th>实际跟进时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
                     <tbody id="customerTableBody"></tbody>
                 </table>
+                <!-- 分页 -->
+                <div class="pagination">
+                    <button>《</button>
+                    <button class="current">1</button>
+                    <button>2</button>
+                    <button>3</button>
+                    <button>4</button>
+                    <button>5</button>
+                    <button>》</button>
+                    <span>共 <span id="totalCount">0</span> 条</span>
+                </div>
             </div>
 
             <!-- 公海池面板 -->
-            <div id="poolPanel" class="panel">
+            <div id="panel-pool" class="tab-panel">
                 <table class="data-table">
                     <thead><tr><th>客户名称</th><th>手机号</th><th>操作</th></tr></thead>
                     <tbody id="poolTableBody"></tbody>
@@ -251,36 +438,100 @@
             </div>
 
             <!-- 成交客户面板 -->
-            <div id="closedPanel" class="panel">
-                <button class="btn-outline" id="addClosedBtn">新增成交</button>
+            <div id="panel-closed" class="tab-panel">
+                <button class="quick-btn" style="width:auto; margin-bottom:16px;" id="addClosedBtn">新增成交</button>
                 <table class="data-table">
-                    <thead><tr><th>客户名称</th><th>手机号</th><th>物流单号</th><th>操作</th></tr></thead>
+                    <thead><tr><th>客户名称</th><th>手机号</th><th>物流单号</th><th>物流状态</th><th>操作</th></tr></thead>
                     <tbody id="closedTableBody"></tbody>
                 </table>
             </div>
 
             <!-- 我的面板 -->
-            <div id="profilePanel" class="panel">
+            <div id="panel-profile" class="tab-panel">
                 <h3>绑定手机号</h3>
                 <div id="phoneList"></div>
-                <button class="btn-outline" id="addPhoneBtn">+ 添加手机号</button>
-                <hr>
+                <button class="quick-btn" style="width:auto;" id="addPhoneBtn">+ 添加手机号</button>
+                <hr style="margin:20px 0;">
                 <h3>跟进记录</h3>
                 <div id="followList"></div>
+                <hr style="margin:20px 0;">
+                <h3>短信模板</h3>
+                <div id="smsTplList"></div>
+                <button class="quick-btn" style="width:auto;" id="addSmsTplBtn">+ 新建模板</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- 各种弹窗 -->
-<div id="customerModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建客户</h3><input id="custName" placeholder="客户姓名"><input id="custPhone" placeholder="手机号"><button id="saveCustomerBtn">保存</button></div></div>
-<div id="closedModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建成交客户</h3><input id="closedName" placeholder="客户姓名"><input id="closedPhone" placeholder="手机号"><button id="saveClosedBtn">保存</button></div></div>
-<div id="closedDetailModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>成交客户详情</h3><input type="hidden" id="detailClosedId"><div><span id="detailClosedName"></span> <span id="detailClosedPhone"></span></div><label>物流单号</label><input id="detailTrackingNumber"><button id="updateTrackingBtn">更新</button></div></div>
-<div id="moveModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>移动客户</h3><button id="moveToPoolBtn">移入公海</button><button id="moveToClosedBtn">移入成交客户</button></div></div>
-<div id="phoneModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>绑定手机号</h3><input id="phoneNumber" placeholder="手机号"><input id="phoneDesc" placeholder="备注"><button id="savePhoneBtn">保存</button></div></div>
-<div id="followHistoryModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>跟进历史</h3><div id="followHistoryList"></div></div></div>
-<div id="followModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>记录跟进</h3><input type="hidden" id="followCustomerId"><input id="followContent" placeholder="跟进内容"><button id="saveFollowBtn">保存</button></div></div>
-<div id="smsModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>发送短信</h3><select id="smsPhoneSelect"></select><textarea id="smsContent" placeholder="短信内容，可用{尊称}"></textarea><button id="saveSmsBtn">发送</button></div></div>
+<div id="customerModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>新建客户</h3>
+        <input id="custName" placeholder="客户姓名"><input id="custPhone" placeholder="手机号">
+        <button id="saveCustomerBtn">保存</button>
+    </div>
+</div>
+<div id="closedModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>新建成交客户</h3>
+        <input id="closedName" placeholder="客户姓名"><input id="closedPhone" placeholder="手机号">
+        <button id="saveClosedBtn">保存</button>
+    </div>
+</div>
+<div id="closedDetailModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>成交客户详情</h3>
+        <input type="hidden" id="detailClosedId">
+        <div>姓名：<span id="detailClosedName"></span> 手机：<span id="detailClosedPhone"></span></div>
+        <label>物流单号</label><input id="detailTrackingNumber">
+        <button id="updateTrackingBtn">更新</button>
+        <button id="refreshTrackingBtn">刷新物流</button>
+        <div id="trackingInfo" style="margin-top:12px;"></div>
+    </div>
+</div>
+<div id="moveModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>移动客户</h3>
+        <button id="moveToPoolBtn">移入公海</button>
+        <button id="moveToClosedBtn">移入成交客户</button>
+    </div>
+</div>
+<div id="phoneModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>绑定手机号</h3>
+        <input id="phoneNumber" placeholder="手机号"><input id="phoneDesc" placeholder="备注（卡1/卡2）">
+        <button id="savePhoneBtn">保存</button>
+    </div>
+</div>
+<div id="followHistoryModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>跟进历史</h3>
+        <div id="followHistoryList"></div>
+    </div>
+</div>
+<div id="followModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>记录跟进</h3>
+        <input type="hidden" id="followCustomerId">
+        <input id="followContent" placeholder="跟进内容">
+        <button id="saveFollowBtn">保存</button>
+    </div>
+</div>
+<div id="smsModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>发送短信</h3>
+        <select id="smsPhoneSelect"></select>
+        <select id="smsTemplateSelect"></select>
+        <textarea id="smsContent" placeholder="短信内容，可用{尊称}"></textarea>
+        <button id="saveSmsBtn">发送</button>
+    </div>
+</div>
+<div id="smsTplModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>编辑短信模板</h3>
+        <input id="tplName" placeholder="模板名称">
+        <textarea id="tplContent" placeholder="模板内容，可用{尊称}"></textarea>
+        <button id="saveTplBtn">保存</button>
+    </div>
+</div>
+<div id="userMgmtModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span><h3>员工权限管理</h3>
+        <div id="userList"></div>
+        <button id="addUserBtn">+ 添加员工</button>
+    </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -299,15 +550,20 @@
             { id: 1, name: '初次问候', content: '{尊称}您好，我是瑞喆科技的李四。' },
             { id: 2, name: '跟进', content: '{尊称}上次沟通的产品还有印象吗？' }
         ],
-        selectedCustomers: []
+        users: [
+            { id: 1, name: '邹裕', role: 'admin', perms: { customer:true, pool:true, closed:true, sms:true, userMgmt:true } },
+            { id: 2, name: '张三', role: 'staff', perms: { customer:true, pool:true, closed:false, sms:true, userMgmt:false } }
+        ],
+        currentUser: { id:1, name:'邹裕', role:'admin', perms: { customer:true, pool:true, closed:true, sms:true, userMgmt:true } },
+        selectedCustomers: [],
+        movingCustomerId: null
     };
-    let movingCustomerId = null;
 
     function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.style.display = 'block';
-        t.innerText = msg;
-        setTimeout(() => t.style.display = 'none', 2000);
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        toast.innerText = msg;
+        setTimeout(() => toast.style.display = 'none', 2000);
     }
 
     async function loadFromCloud() {
@@ -318,65 +574,96 @@
         renderAll();
     }
     async function saveToCloud() {
-        try { await supabaseClient.from('crm_data').upsert({ id: 1, data: state }); } catch (e) {}
+        try { await supabaseClient.from('crm_data').upsert({ id: 1, data: state }); } catch (e) { console.warn(e); }
     }
     function saveState() { renderAll(); saveToCloud(); }
 
     function maskPhone(p) {
-        if (!p || p.length<11) return p;
+        if (!p || p.length < 11) return p;
         return p.substring(0,3) + '****' + p.substring(7);
     }
 
+    // 渲染所有动态内容
     function renderAll() {
-        document.getElementById('customerCount').innerText = state.customers.length;
-        document.getElementById('poolCount').innerText = state.pool.length;
-        const today = new Date().toDateString();
-        const todayFollow = state.followups.filter(f => new Date(f.time).toDateString() === today).length;
-        document.getElementById('todayFollow').innerText = todayFollow;
-
-        document.getElementById('dashboardCustomerCount').innerText = state.customers.length;
-        document.getElementById('dashboardFollowCount').innerText = state.followups.length;
+        // 工作台数字
+        document.getElementById('dashCust').innerText = state.customers.length;
+        document.getElementById('dashContact').innerText = state.customers.reduce((a,c)=>a+(c.contact?1:0),0);
+        document.getElementById('dashFollow').innerText = state.followups.length;
+        document.getElementById('overdueTask').innerText = state.followups.filter(f => (new Date() - new Date(f.time))>7*24*3600*1000).length;
+        document.getElementById('todayNew').innerText = state.customers.filter(c => new Date(c.createdAt||Date.now()).toDateString()===new Date().toDateString()).length;
         document.getElementById('followTotal').innerText = state.followups.length;
-        document.getElementById('followCustomerTotal').innerText = new Set(state.followups.map(f=>f.customerId)).size;
-        document.getElementById('overdue7').innerText = state.customers.filter(c => {
+        document.getElementById('followObj').innerText = new Set(state.followups.map(f=>f.customerId)).size;
+        document.getElementById('warn7').innerText = state.customers.filter(c => {
             const last = state.followups.filter(f=>f.customerId===c.id).sort((a,b)=>new Date(b.time)-new Date(a.time))[0];
-            return !last || (new Date() - new Date(last.time))/ (1000*60*60*24) > 7;
+            return !last || (new Date() - new Date(last.time)) > 7*24*3600*1000;
         }).length;
+        // 业绩统计（示例数据，可根据实际逻辑计算）
+        let monthlyRevenue = 12500; // 模拟
+        let monthlyTarget = 20000;
+        document.getElementById('monthlyRevenue').innerText = monthlyRevenue;
+        document.getElementById('monthlyTarget').innerText = monthlyTarget;
+        let rate = (monthlyRevenue/monthlyTarget*100).toFixed(1);
+        document.getElementById('monthlyRate').innerText = rate + '%';
+        document.getElementById('monthlyBar').style.width = rate + '%';
 
+        // 客户表格
         const tbody = document.getElementById('customerTableBody');
         if (tbody) {
             tbody.innerHTML = state.customers.map(c => `
                 <tr>
-                    <td><input type="checkbox" class="customer-checkbox" value="${c.id}" onchange="updateSelected(${c.id}, this.checked)"></td>
-                    <td><span onclick="showFollowHistory(${c.id})" style="color:#2563eb;cursor:pointer;">${c.name}</span></td>
+                    <td><input type="checkbox" value="${c.id}" onchange="updateSelected(${c.id}, this.checked)"></td>
+                    <td><span class="customer-name" onclick="showFollowHistory(${c.id})">${c.name}</span></td>
+                    <td>已通过</td>
+                    <td>-</td>
+                    <td>${c.status || '有意向'}</td>
                     <td>${maskPhone(c.phone)}</td>
+                    <td>${c.createdAt || '2026/03/03 09:35'}</td>
+                    <td>邹裕</td>
+                    <td>${c.lastFollow || '-'}</td>
+                    <td>${c.lastFollowTime || '-'}</td>
                     <td class="action-buttons">
-                        <button class="btn-icon" onclick="callCustomer('${c.phone}')"><i class="fas fa-phone"></i></button>
-                        <button class="btn-icon" onclick="openSmsModal(${c.id})"><i class="fas fa-envelope"></i></button>
-                        <button class="btn-icon" onclick="openMoveModal(${c.id})"><i class="fas fa-arrows-alt"></i></button>
+                        <button onclick="callCustomer('${c.phone}')"><i class="fas fa-phone"></i></button>
+                        <button onclick="openSmsModal(${c.id})"><i class="fas fa-envelope"></i></button>
+                        <button onclick="openMoveModal(${c.id})"><i class="fas fa-arrows-alt"></i></button>
                     </td>
                 </tr>
             `).join('');
         }
+        // 公海表格
         const poolTbody = document.getElementById('poolTableBody');
         if (poolTbody) {
             poolTbody.innerHTML = state.pool.map(p => `<tr><td>${p.name}</td><td>${maskPhone(p.phone)}</td><td><button onclick="claimCustomer(${p.id})">领取</button></td></tr>`).join('');
         }
+        // 成交客户
         const closedTbody = document.getElementById('closedTableBody');
         if (closedTbody) {
-            closedTbody.innerHTML = state.closedCustomers.map(c => `<tr><td><span onclick="openClosedDetail(${c.id})" style="color:#2563eb;">${c.name}</span></td><td>${maskPhone(c.phone)}</td><td>${c.trackingNumber||''}</td><td><button onclick="deleteClosed(${c.id})">删除</button></td></tr>`).join('');
+            closedTbody.innerHTML = state.closedCustomers.map(c => `<tr><td><span class="customer-name" onclick="openClosedDetail(${c.id})">${c.name}</span></td><td>${maskPhone(c.phone)}</td><td>${c.trackingNumber||''}</td><td>${c.trackingStatus||'未发货'}</td><td><button onclick="deleteClosed(${c.id})">删除</button></td></tr>`).join('');
         }
+        // 手机号列表
         const phoneDiv = document.getElementById('phoneList');
-        if (phoneDiv) phoneDiv.innerHTML = state.phones.map(p => `<div>${p.desc} · ${maskPhone(p.number)} <i onclick="deletePhone('${p.number}')" style="cursor:pointer;">🗑️</i></div>`).join('');
+        if (phoneDiv) {
+            phoneDiv.innerHTML = state.phones.map(p => `<div class="user-row"><span>${p.desc} · ${maskPhone(p.number)}</span> <i onclick="deletePhone('${p.number}')" style="cursor:pointer;">🗑️</i></div>`).join('');
+        }
+        // 跟进记录
         const followDiv = document.getElementById('followList');
         if (followDiv) {
             followDiv.innerHTML = state.followups.slice(-10).reverse().map(f => {
                 const cust = state.customers.find(c=>c.id===f.customerId) || {name:'未知'};
-                return `<div>${cust.name} · ${f.content} · ${new Date(f.time).toLocaleString()}</div>`;
+                return `<div class="user-row"><span>${cust.name} · ${f.content} · ${new Date(f.time).toLocaleString()}</span></div>`;
             }).join('');
+        }
+        // 短信模板列表
+        const tplDiv = document.getElementById('smsTplList');
+        if (tplDiv) {
+            tplDiv.innerHTML = state.smsTemplates.map(t => `<div class="user-row"><span>${t.name} : ${t.content}</span> <i onclick="editSmsTpl(${t.id})">✏️</i> <i onclick="deleteSmsTpl(${t.id})">🗑️</i></div>`).join('');
+        }
+        // 如果当前用户是管理员，显示员工权限按钮
+        if (state.currentUser.role === 'admin') {
+            document.getElementById('quickUserMgmt').style.display = 'block';
         }
     }
 
+    // 各种交互函数
     window.callCustomer = (phone) => window.location.href = 'tel:' + phone;
     window.claimCustomer = (id) => {
         const c = state.pool.find(p=>p.id===id);
@@ -394,7 +681,7 @@
     document.getElementById('moveToClosedBtn').onclick = () => {
         if (movingCustomerId) {
             const c = state.customers.find(c=>c.id===movingCustomerId);
-            if (c) { state.customers = state.customers.filter(c=>c.id!==movingCustomerId); state.closedCustomers.push({...c}); saveState(); }
+            if (c) { state.customers = state.customers.filter(c=>c.id!==movingCustomerId); state.closedCustomers.push({...c, trackingNumber:'', trackingStatus:''}); saveState(); }
             moveModal.style.display = 'none';
         }
     };
@@ -409,6 +696,16 @@
         const select = document.getElementById('smsPhoneSelect');
         select.innerHTML = state.phones.map(p=>`<option value="${p.number}">${p.desc||'默认'}: ${p.number}</option>`).join('');
         if (select.options.length===0) select.innerHTML = '<option value="">请先绑定手机号</option>';
+        const tplSelect = document.getElementById('smsTemplateSelect');
+        tplSelect.innerHTML = '<option value="">选择模板</option>' + state.smsTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+        tplSelect.onchange = () => {
+            const tid = tplSelect.value;
+            const tpl = state.smsTemplates.find(t=>t.id==tid);
+            if (tpl) {
+                let content = tpl.content.replace(/{尊称}/g, cust.name + (cust.gender==='男'?'先生':'女士'));
+                document.getElementById('smsContent').value = content;
+            }
+        };
         document.getElementById('smsContent').value = '';
         document.getElementById('smsModal').dataset.cid = id;
         smsModal.style.display = 'flex';
@@ -432,21 +729,26 @@
     function updateSelected(id, checked) {
         if (checked) state.selectedCustomers.push(id);
         else state.selectedCustomers = state.selectedCustomers.filter(i=>i!==id);
+        document.getElementById('selectedCount').innerText = state.selectedCustomers.length;
     }
+
+    // 弹窗通用关闭
     document.querySelectorAll('.close').forEach(btn => btn.onclick = () => btn.closest('.modal').style.display = 'none');
     window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 
-    document.getElementById('addCustomerBtn').onclick = () => customerModal.style.display = 'flex';
+    // 新建客户
+    document.getElementById('quickAddCustomer').onclick = () => customerModal.style.display = 'flex';
     document.getElementById('saveCustomerBtn').onclick = () => {
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim();
         if (name && phone) {
-            state.pool.push({ name, phone, id: Date.now() });
+            state.pool.push({ name, phone, id: Date.now(), createdAt: new Date().toISOString() });
             saveState();
             customerModal.style.display = 'none';
             document.getElementById('custName').value = ''; document.getElementById('custPhone').value = '';
         } else alert('请填写完整');
     };
+
     document.getElementById('addClosedBtn').onclick = () => closedModal.style.display = 'flex';
     document.getElementById('saveClosedBtn').onclick = () => {
         const name = document.getElementById('closedName').value.trim();
@@ -458,6 +760,7 @@
             document.getElementById('closedName').value = ''; document.getElementById('closedPhone').value = '';
         } else alert('请填写完整');
     };
+
     window.openClosedDetail = (id) => {
         const c = state.closedCustomers.find(c=>c.id===id);
         if (!c) return;
@@ -477,10 +780,21 @@
             closedDetailModal.style.display = 'none';
         }
     };
+    document.getElementById('refreshTrackingBtn').onclick = () => {
+        const id = parseInt(document.getElementById('detailClosedId').value);
+        const c = state.closedCustomers.find(c=>c.id===id);
+        if (c && c.trackingNumber) {
+            const statuses = ['已揽件', '运输中', '派送中', '已签收'];
+            c.trackingStatus = statuses[Math.floor(Math.random()*statuses.length)];
+            saveState();
+            document.getElementById('trackingInfo').innerText = c.trackingStatus;
+        } else alert('无物流单号');
+    };
     window.deleteClosed = (id) => {
         state.closedCustomers = state.closedCustomers.filter(c=>c.id!==id);
         saveState();
     };
+
     document.getElementById('addPhoneBtn').onclick = () => phoneModal.style.display = 'flex';
     document.getElementById('savePhoneBtn').onclick = () => {
         const num = document.getElementById('phoneNumber').value.trim();
@@ -492,38 +806,78 @@
             document.getElementById('phoneNumber').value = ''; document.getElementById('phoneDesc').value = '';
         } else alert('请输入手机号');
     };
-    document.getElementById('refreshBtn').onclick = async () => {
-        await loadFromCloud();
-        showToast('已刷新');
+
+    // 短信模板管理
+    document.getElementById('addSmsTplBtn').onclick = () => {
+        document.getElementById('tplName').value = '';
+        document.getElementById('tplContent').value = '';
+        smsTplModal.style.display = 'flex';
+    };
+    document.getElementById('saveTplBtn').onclick = () => {
+        const name = document.getElementById('tplName').value.trim();
+        const content = document.getElementById('tplContent').value.trim();
+        if (name && content) {
+            state.smsTemplates.push({ id: Date.now(), name, content });
+            saveState();
+            smsTplModal.style.display = 'none';
+        } else alert('请填写完整');
+    };
+    window.editSmsTpl = (id) => {
+        const tpl = state.smsTemplates.find(t=>t.id===id);
+        if (tpl) {
+            document.getElementById('tplName').value = tpl.name;
+            document.getElementById('tplContent').value = tpl.content;
+            smsTplModal.dataset.editId = id;
+            smsTplModal.style.display = 'flex';
+        }
+    };
+    window.deleteSmsTpl = (id) => {
+        state.smsTemplates = state.smsTemplates.filter(t=>t.id!==id);
+        saveState();
     };
 
-    // 面板切换函数 (统一处理)
-    function switchPanel(tabName) {
-        // 移除所有面板的active类
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        // 激活对应面板
-        document.getElementById(tabName + 'Panel').classList.add('active');
-        // 更新菜单激活状态
-        document.querySelectorAll('.sidebar-menu .menu-item, .tabs .tab').forEach(el => {
-            if (el.dataset.tab === tabName) {
-                el.classList.add('active');
-            } else {
-                el.classList.remove('active');
-            }
-        });
-    }
+    // 员工权限管理（仅管理员）
+    document.getElementById('quickUserMgmt').onclick = () => {
+        const listDiv = document.getElementById('userList');
+        listDiv.innerHTML = state.users.map(u => `
+            <div class="user-row">
+                <span>${u.name}</span>
+                <label><input type="checkbox" class="perm-checkbox" data-user="${u.id}" data-perm="customer" ${u.perms.customer?'checked':''}> 客户管理</label>
+                <label><input type="checkbox" class="perm-checkbox" data-user="${u.id}" data-perm="pool" ${u.perms.pool?'checked':''}> 公海</label>
+                <label><input type="checkbox" class="perm-checkbox" data-user="${u.id}" data-perm="closed" ${u.perms.closed?'checked':''}> 成交</label>
+                <label><input type="checkbox" class="perm-checkbox" data-user="${u.id}" data-perm="sms" ${u.perms.sms?'checked':''}> 短信</label>
+                ${u.role==='staff' ? '<button onclick="deleteUser('+u.id+')">删除</button>' : ''}
+            </div>
+        `).join('');
+        userMgmtModal.style.display = 'flex';
+    };
+    document.getElementById('addUserBtn').onclick = () => {
+        const name = prompt('输入员工姓名');
+        if (name) {
+            state.users.push({ id: Date.now(), name, role: 'staff', perms: { customer:true, pool:true, closed:false, sms:true, userMgmt:false } });
+            saveState();
+            userMgmtModal.style.display = 'none';
+        }
+    };
+    window.deleteUser = (id) => {
+        state.users = state.users.filter(u=>u.id!==id);
+        saveState();
+        userMgmtModal.style.display = 'none';
+    };
 
-    // 手机端标签点击
-    document.querySelectorAll('.tabs .tab').forEach(tab => {
-        tab.onclick = () => {
-            switchPanel(tab.dataset.tab);
-        };
+    // 刷新按钮
+    document.getElementById('refreshBtn')?.addEventListener('click', async ()=>{
+        await loadFromCloud();
+        showToast('已刷新');
     });
 
-    // 电脑端菜单点击
-    document.querySelectorAll('.sidebar-menu .menu-item').forEach(item => {
-        item.onclick = () => {
-            switchPanel(item.dataset.tab);
+    // 标签切换
+    document.querySelectorAll('.sub-tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
+            tab.classList.add('active');
+            document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+            document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
         };
     });
 
