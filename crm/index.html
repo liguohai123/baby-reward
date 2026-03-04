@@ -159,7 +159,7 @@
             font-weight: 500;
         }
 
-        /* 表格样式 (模拟) */
+        /* 标签页 (顶部选项卡) */
         .tabs {
             display: flex;
             gap: 20px;
@@ -170,10 +170,12 @@
             padding: 8px 0;
             cursor: pointer;
             border-bottom: 2px solid transparent;
+            transition: 0.2s;
         }
         .tab.active {
             border-bottom-color: var(--accent-color);
             color: var(--accent-color);
+            font-weight: 500;
         }
 
         /* 销售简报数字 */
@@ -425,13 +427,13 @@
         <!-- 左侧边栏 (常用栏) -->
         <div class="sidebar">
             <div class="logo">瑞喆科技</div>
-            <div class="nav-item active">工作台</div>
-            <div class="nav-item">报表中心</div>
+            <div class="nav-item active" id="menuWorkbench">工作台</div>
+            <div class="nav-item" id="menuReport">报表中心</div>
             <div class="nav-item" id="menuFollowUp">跟进记录</div>
             <div class="nav-item" id="menuEmployee">员工权限</div>
             <div class="nav-item" id="menuSms">短信模板</div>
             <div style="flex:1"></div>
-            <div class="nav-item">邹裕 ⚙️</div>
+            <div class="nav-item" id="menuUser">邹裕 ⚙️</div>
         </div>
 
         <!-- 主内容区域 -->
@@ -452,13 +454,13 @@
                 </div>
             </div>
 
-            <!-- 标签页 -->
-            <div class="tabs">
-                <div class="tab active">客户管理</div>
-                <div class="tab">公海池</div>
-                <div class="tab">成交客户</div>
-                <div class="tab">黑名单</div>
-                <div class="tab">近期跟进记录</div>
+            <!-- 标签页 (顶部选项卡) -->
+            <div class="tabs" id="topTabs">
+                <div class="tab active" data-tab="customer">客户管理</div>
+                <div class="tab" data-tab="public">公海池</div>
+                <div class="tab" data-tab="deal">成交客户</div>
+                <div class="tab" data-tab="blacklist">黑名单</div>
+                <div class="tab" data-tab="recent">近期跟进记录</div>
             </div>
 
             <!-- 销售简报 -->
@@ -559,9 +561,17 @@
             const downloadBtn = document.getElementById('downloadTemplateBtn');
             const importBtn = document.getElementById('importBtn');
             const uploadBtn = document.getElementById('uploadBtn');
+
+            // 左侧菜单元素
+            const menuWorkbench = document.getElementById('menuWorkbench');
+            const menuReport = document.getElementById('menuReport');
             const menuFollowUp = document.getElementById('menuFollowUp');
             const menuEmployee = document.getElementById('menuEmployee');
             const menuSms = document.getElementById('menuSms');
+            const menuUser = document.getElementById('menuUser');
+
+            // 顶部标签页
+            const topTabs = document.querySelectorAll('.tab');
 
             // 辅助函数：保存状态 (模拟)
             function saveState() {
@@ -626,7 +636,6 @@
             if (downloadBtn) {
                 downloadBtn.onclick = function() {
                     alert('下载模板功能（模拟）\n实际开发中请对接后端接口');
-                    // 可以在这里触发下载逻辑
                 };
             }
 
@@ -642,38 +651,75 @@
                 };
             }
 
-            // ----- 3. 左侧菜单点击事件修复 (跟进记录、员工权限等) -----
+            // ----- 3. 左侧菜单点击事件修复 (所有导航项均添加响应) -----
+            // 工作台
+            if (menuWorkbench) {
+                menuWorkbench.onclick = function(e) {
+                    e.preventDefault();
+                    // 移除其他激活状态，添加自身激活
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    menuWorkbench.classList.add('active');
+                    alert('工作台 - 功能开发中');
+                };
+            }
+            // 报表中心
+            if (menuReport) {
+                menuReport.onclick = function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    menuReport.classList.add('active');
+                    alert('报表中心 - 功能开发中');
+                };
+            }
+            // 跟进记录
             if (menuFollowUp) {
                 menuFollowUp.onclick = function(e) {
                     e.preventDefault();
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    menuFollowUp.classList.add('active');
                     alert('跟进记录 - 功能开发中');
-                    console.log('跟进记录被点击');
                 };
             }
-
+            // 员工权限
             if (menuEmployee) {
                 menuEmployee.onclick = function(e) {
                     e.preventDefault();
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    menuEmployee.classList.add('active');
                     alert('员工权限 - 功能开发中');
-                    console.log('员工权限被点击');
                 };
             }
-
+            // 短信模板
             if (menuSms) {
                 menuSms.onclick = function(e) {
                     e.preventDefault();
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    menuSms.classList.add('active');
                     alert('短信模板 - 功能开发中');
                 };
             }
+            // 邹裕 (个人中心)
+            if (menuUser) {
+                menuUser.onclick = function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    menuUser.classList.add('active');
+                    alert('个人设置 - 功能开发中');
+                };
+            }
 
-            // ----- 4. 也可以使用事件委托来处理动态菜单 (未来扩展) -----
-            // 例如对 sidebar 内所有 .nav-item 添加统一监听
-            document.querySelector('.sidebar').addEventListener('click', function(e) {
-                const target = e.target.closest('.nav-item');
-                if (target) {
-                    // 可以在这里统一处理，但上面已经单独绑定，此处仅为示例
-                    console.log('侧边栏项点击:', target.innerText);
-                }
+            // ----- 4. 顶部标签页点击事件 (切换active并弹出提示) -----
+            topTabs.forEach(tab => {
+                tab.onclick = function(e) {
+                    e.preventDefault();
+                    // 移除所有tab的active类
+                    topTabs.forEach(t => t.classList.remove('active'));
+                    // 给当前点击的tab添加active类
+                    this.classList.add('active');
+                    // 弹出对应提示
+                    const tabName = this.innerText;
+                    alert(`${tabName} - 功能开发中`);
+                };
             });
 
             // 关闭模态框如果点击背景
