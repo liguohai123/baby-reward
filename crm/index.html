@@ -15,6 +15,35 @@
         }
         .app { max-width: 1600px; margin: 0 auto; padding: 20px; }
 
+        /* 登录页 */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .login-container h2 { margin-bottom: 24px; text-align: center; }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
         /* 顶部导航 */
         .top-nav {
             display: flex;
@@ -36,6 +65,8 @@
         .search-box input { border: none; background: transparent; padding: 6px 8px; outline: none; width: 200px; }
         .icon-btn { background: none; border: none; font-size: 16px; color: #64748b; cursor: pointer; padding: 4px 8px; }
         .badge { background: #3b82f6; color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; margin-left: 4px; }
+        .user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .logout-btn { margin-left: 8px; color: #ef4444; cursor: pointer; }
 
         /* 左侧快捷栏 */
         .main-layout { display: flex; gap: 20px; }
@@ -75,7 +106,7 @@
         .top-panel { display: none; }
         .top-panel.active { display: block; }
 
-        /* 二级导航（仅工作台内使用） */
+        /* 二级导航 */
         .sub-tabs {
             display: flex;
             gap: 16px;
@@ -259,237 +290,271 @@
             border-bottom: 1px solid #e2e8f0;
         }
         .user-row span { flex: 1; }
+        .user-row select { width: 100px; margin-right: 8px; }
         .perm-checkbox { margin: 0 10px; }
     </style>
 </head>
 <body>
-<div class="app">
-    <!-- 顶部导航 -->
-    <div class="top-nav">
-        <div class="top-nav-left">
-            <span class="company-name">瑞喆科技有限公司</span>
-            <div class="nav-menu">
-                <span class="nav-item active" data-nav="workbench">工作台</span>
-                <span class="nav-item" data-nav="report">报表中心</span>
-            </div>
-        </div>
-        <div class="top-nav-right">
-            <div class="search-box">
-                <i class="fas fa-search" style="color:#94a3b8;"></i>
-                <input type="text" placeholder="搜索">
-            </div>
-            <span class="icon-btn"><i class="far fa-bell"></i> 提醒 <span class="badge">NEW</span></span>
-            <span class="icon-btn"><i class="far fa-question-circle"></i> 帮助</span>
-            <span class="icon-btn"><i class="fas fa-cog"></i> 设置</span>
-            <span class="icon-btn" id="userMenu"><i class="fas fa-user-circle"></i> 邹裕</span>
-        </div>
+<!-- 登录界面 -->
+<div id="loginView" style="display:block;">
+    <div class="login-container">
+        <h2>瑞喆CRM 登录</h2>
+        <input type="text" id="loginUsername" placeholder="账号" value="admin">
+        <input type="password" id="loginPassword" placeholder="密码" value="123456">
+        <button id="loginBtn">登录</button>
     </div>
+</div>
 
-    <div class="main-layout">
-        <!-- 左侧快捷新增栏 -->
-        <div class="left-quick">
-            <div class="quick-title">快捷新增</div>
-            <button class="quick-btn" id="quickAddCustomer"><i class="fas fa-user-plus"></i> 客户</button>
-            <button class="quick-btn" id="quickImport"><i class="fas fa-upload"></i> 导入</button>
-            <button class="quick-btn" id="quickDuplicate"><i class="fas fa-clone"></i> 客户查重</button>
-            <div style="margin-top:24px;">
-                <div class="quick-title">常用</div>
-                <button class="quick-btn" id="quickFollow"><i class="fas fa-tasks"></i> 跟进记录</button>
-                <button class="quick-btn" id="quickSmsTpl"><i class="fas fa-envelope"></i> 短信模板</button>
-                <!-- 主账号可见的权限管理 -->
-                <button class="quick-btn" id="quickUserMgmt" style="display:none;"><i class="fas fa-users-cog"></i> 员工权限</button>
+<!-- 主应用界面 -->
+<div id="appView" style="display:none;">
+    <div class="app">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <span class="company-name">瑞喆科技有限公司</span>
+                <div class="nav-menu">
+                    <span class="nav-item active" data-nav="workbench">工作台</span>
+                    <span class="nav-item" data-nav="report">报表中心</span>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <div class="search-box">
+                    <i class="fas fa-search" style="color:#94a3b8;"></i>
+                    <input type="text" placeholder="搜索">
+                </div>
+                <span class="icon-btn"><i class="far fa-bell"></i> 提醒 <span class="badge">NEW</span></span>
+                <span class="icon-btn"><i class="far fa-question-circle"></i> 帮助</span>
+                <span class="icon-btn"><i class="fas fa-cog"></i> 设置</span>
+                <span class="user-info" id="userMenu">
+                    <i class="fas fa-user-circle"></i> <span id="currentUserName">邹裕</span>
+                    <i class="fas fa-sign-out-alt logout-btn" id="logoutBtn" title="退出登录"></i>
+                </span>
             </div>
         </div>
 
-        <!-- 右侧主内容区 -->
-        <div class="right-content">
-            <!-- 顶层面板：工作台 -->
-            <div id="workbench-panel" class="top-panel active">
-                <!-- 二级标签页（工作台/客户管理/公海池/成交客户/我的） -->
-                <div class="sub-tabs">
-                    <span class="sub-tab active" data-subtab="dashboard">工作台</span>
-                    <span class="sub-tab" data-subtab="customer">客户管理</span>
-                    <span class="sub-tab" data-subtab="pool">公海池</span>
-                    <span class="sub-tab" data-subtab="closed">成交客户</span>
-                    <span class="sub-tab" data-subtab="profile">我的</span>
-                </div>
-
-                <!-- 二级内容面板 -->
-                <div id="subpanel-dashboard" class="sub-panel active">
-                    <div class="dashboard-grid">
-                        <!-- 销售简报 -->
-                        <div class="card">
-                            <h3><i class="fas fa-chart-line"></i> 销售简报</h3>
-                            <div style="display:flex; justify-content:space-around;">
-                                <div><span class="stat-number" id="dashCust">0</span><div class="stat-label">客户数</div></div>
-                                <div><span class="stat-number" id="dashContact">0</span><div class="stat-label">联系人</div></div>
-                                <div><span class="stat-number" id="dashFollow">0</span><div class="stat-label">跟进</div></div>
-                            </div>
-                        </div>
-                        <!-- 日历 -->
-                        <div class="card">
-                            <h3><i class="far fa-calendar-alt"></i> 2026.03月</h3>
-                            <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:13px;">
-                                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
-                                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
-                                <span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
-                                <span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span>
-                                <span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span>
-                                <span>29</span><span>30</span><span>31</span>
-                            </div>
-                            <div style="margin-top:12px;">
-                                <div>过期任务：<span id="overdueTask">0</span></div>
-                                <div>今日新增：<span id="todayNew">0</span></div>
-                            </div>
-                        </div>
-                        <!-- 跟进行为分析 -->
-                        <div class="card">
-                            <h3><i class="fas fa-chart-bar"></i> 跟进行为</h3>
-                            <div>跟进总次数：<span id="followTotal">0</span></div>
-                            <div>跟进对象数：<span id="followObj">0</span></div>
-                            <div style="margin-top:8px;">拜访总次数：0</div>
-                            <div>拜访对象数：0</div>
-                            <div style="font-size:12px; color:#64748b;">环比：-17.33% / -15.07%</div>
-                        </div>
-                        <!-- 预警卡片 -->
-                        <div class="card">
-                            <h3><i class="fas fa-exclamation-triangle"></i> 预警</h3>
-                            <div>超过7天未跟进：<span id="warn7">0</span></div>
-                            <div>预计30天内签单：0</div>
-                            <div>7天内需回款：0</div>
-                            <div>30天内到期合同：0</div>
-                        </div>
-                        <!-- 个人目标完成度 -->
-                        <div class="card">
-                            <h3><i class="fas fa-bullseye"></i> 个人目标</h3>
-                            <div>完成度：<span id="targetCompleted">0</span>/<span id="targetTotal">0</span></div>
-                            <div>拜访计划本月：0</div>
-                        </div>
-                        <!-- 我的业绩统计 -->
-                        <div class="card">
-                            <h3><i class="fas fa-coins"></i> 我的业绩统计</h3>
-                            <div>本月业绩：¥<span id="monthlyRevenue">0</span></div>
-                            <div>本月目标：¥<span id="monthlyTarget">0</span></div>
-                            <div>完成率：<span id="monthlyRate">0%</span></div>
-                            <div style="background:#e2e8f0; height:8px; border-radius:4px; margin-top:8px;">
-                                <div id="monthlyBar" style="width:0%; height:8px; background:#3b82f6; border-radius:4px;"></div>
-                            </div>
-                        </div>
-                        <!-- 部门荣誉榜 -->
-                        <div class="card">
-                            <h3><i class="fas fa-trophy"></i> 部门荣誉榜</h3>
-                            <ul style="list-style:none; padding:0;" id="rankList">
-                                <li>张三 +124</li>
-                                <li>李四 +89</li>
-                                <li>王五 +45</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 客户管理子面板 -->
-                <div id="subpanel-customer" class="sub-panel">
-                    <!-- 筛选栏 -->
-                    <div class="filter-bar">
-                        <select id="filterStatus"><option value="all">全部跟进状态</option></select>
-                        <select id="filterDept"><option value="all">全部部门</option></select>
-                        <select id="filterOwner"><option value="all">全部负责人</option></select>
-                        <input type="text" id="searchCustomer" placeholder="请输入搜索内容">
-                    </div>
-                    <!-- 批量操作 -->
-                    <div class="batch-bar">
-                        <span><span id="selectedCount">0</span> 已选</span>
-                        <button id="batchEdit">编辑</button>
-                        <button id="batchTransfer">转移</button>
-                        <button id="batchSms">发送短信</button>
-                        <button id="batchMore">更多操作 <i class="fas fa-chevron-down"></i></button>
-                    </div>
-                    <!-- 表格 -->
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th style="width:30px;"><input type="checkbox" id="selectAll"></th>
-                                <th>客户名称</th>
-                                <th>审批状态</th>
-                                <th>联系人</th>
-                                <th>跟进状态</th>
-                                <th>手机</th>
-                                <th>创建时间</th>
-                                <th>负责人</th>
-                                <th>最新跟进记录</th>
-                                <th>实际跟进时间</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customerTableBody"></tbody>
-                    </table>
-                    <!-- 分页 -->
-                    <div class="pagination">
-                        <button>《</button>
-                        <button class="current">1</button>
-                        <button>2</button>
-                        <button>3</button>
-                        <button>4</button>
-                        <button>5</button>
-                        <button>》</button>
-                        <span>共 <span id="totalCount">0</span> 条</span>
-                    </div>
-                </div>
-
-                <!-- 公海池子面板 -->
-                <div id="subpanel-pool" class="sub-panel">
-                    <table class="data-table">
-                        <thead><tr><th>客户名称</th><th>手机号</th><th>操作</th></tr></thead>
-                        <tbody id="poolTableBody"></tbody>
-                    </table>
-                </div>
-
-                <!-- 成交客户子面板 -->
-                <div id="subpanel-closed" class="sub-panel">
-                    <button class="quick-btn" style="width:auto; margin-bottom:16px;" id="addClosedBtn">新增成交</button>
-                    <table class="data-table">
-                        <thead><tr><th>客户名称</th><th>手机号</th><th>物流单号</th><th>物流状态</th><th>操作</th></tr></thead>
-                        <tbody id="closedTableBody"></tbody>
-                    </table>
-                </div>
-
-                <!-- 我的子面板 -->
-                <div id="subpanel-profile" class="sub-panel">
-                    <h3>绑定手机号</h3>
-                    <div id="phoneList"></div>
-                    <button class="quick-btn" style="width:auto;" id="addPhoneBtn">+ 添加手机号</button>
-                    <hr style="margin:20px 0;">
-                    <h3>跟进记录</h3>
-                    <div id="followList"></div>
-                    <hr style="margin:20px 0;">
-                    <h3>短信模板</h3>
-                    <div id="smsTplList"></div>
-                    <button class="quick-btn" style="width:auto;" id="addSmsTplBtn">+ 新建模板</button>
+        <div class="main-layout">
+            <!-- 左侧快捷新增栏 -->
+            <div class="left-quick">
+                <div class="quick-title">快捷新增</div>
+                <button class="quick-btn" id="quickAddCustomer"><i class="fas fa-user-plus"></i> 客户</button>
+                <button class="quick-btn" id="quickImport"><i class="fas fa-upload"></i> 导入</button>
+                <button class="quick-btn" id="quickDuplicate"><i class="fas fa-clone"></i> 客户查重</button>
+                <div style="margin-top:24px;">
+                    <div class="quick-title">常用</div>
+                    <button class="quick-btn" id="quickFollow"><i class="fas fa-tasks"></i> 跟进记录</button>
+                    <button class="quick-btn" id="quickSmsTpl"><i class="fas fa-envelope"></i> 短信模板</button>
+                    <!-- 主账号可见的权限管理 -->
+                    <button class="quick-btn" id="quickUserMgmt" style="display:none;"><i class="fas fa-users-cog"></i> 员工权限</button>
                 </div>
             </div>
 
-            <!-- 顶层面板：报表中心 -->
-            <div id="report-panel" class="top-panel">
-                <div style="padding:40px; text-align:center; color:#64748b;">
-                    <i class="fas fa-chart-pie" style="font-size:48px; margin-bottom:20px;"></i>
-                    <h2>报表中心开发中，敬请期待</h2>
+            <!-- 右侧主内容区 -->
+            <div class="right-content">
+                <!-- 顶层面板：工作台 -->
+                <div id="workbench-panel" class="top-panel active">
+                    <!-- 二级标签页 -->
+                    <div class="sub-tabs">
+                        <span class="sub-tab active" data-subtab="dashboard">工作台</span>
+                        <span class="sub-tab" data-subtab="customer">客户管理</span>
+                        <span class="sub-tab" data-subtab="pool">公海池</span>
+                        <span class="sub-tab" data-subtab="closed">成交客户</span>
+                        <span class="sub-tab" data-subtab="profile">我的</span>
+                    </div>
+
+                    <!-- 二级内容面板 -->
+                    <div id="subpanel-dashboard" class="sub-panel active">
+                        <div class="dashboard-grid">
+                            <!-- 销售简报 -->
+                            <div class="card">
+                                <h3><i class="fas fa-chart-line"></i> 销售简报</h3>
+                                <div style="display:flex; justify-content:space-around;">
+                                    <div><span class="stat-number" id="dashCust">0</span><div class="stat-label">客户数</div></div>
+                                    <div><span class="stat-number" id="dashContact">0</span><div class="stat-label">联系人</div></div>
+                                    <div><span class="stat-number" id="dashFollow">0</span><div class="stat-label">跟进</div></div>
+                                </div>
+                            </div>
+                            <!-- 日历 -->
+                            <div class="card">
+                                <h3><i class="far fa-calendar-alt"></i> 2026.03月</h3>
+                                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:13px;">
+                                    <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                                    <span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+                                    <span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span>
+                                    <span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span>
+                                    <span>29</span><span>30</span><span>31</span>
+                                </div>
+                                <div style="margin-top:12px;">
+                                    <div>过期任务：<span id="overdueTask">0</span></div>
+                                    <div>今日新增：<span id="todayNew">0</span></div>
+                                </div>
+                            </div>
+                            <!-- 跟进行为分析 -->
+                            <div class="card">
+                                <h3><i class="fas fa-chart-bar"></i> 跟进行为</h3>
+                                <div>跟进总次数：<span id="followTotal">0</span></div>
+                                <div>跟进对象数：<span id="followObj">0</span></div>
+                                <div style="margin-top:8px;">拜访总次数：0</div>
+                                <div>拜访对象数：0</div>
+                                <div style="font-size:12px; color:#64748b;">环比：-17.33% / -15.07%</div>
+                            </div>
+                            <!-- 预警卡片 -->
+                            <div class="card">
+                                <h3><i class="fas fa-exclamation-triangle"></i> 预警</h3>
+                                <div>超过7天未跟进：<span id="warn7">0</span></div>
+                                <div>预计30天内签单：0</div>
+                                <div>7天内需回款：0</div>
+                                <div>30天内到期合同：0</div>
+                            </div>
+                            <!-- 个人目标完成度 -->
+                            <div class="card">
+                                <h3><i class="fas fa-bullseye"></i> 个人目标</h3>
+                                <div>完成度：<span id="targetCompleted">0</span>/<span id="targetTotal">0</span></div>
+                                <div>拜访计划本月：0</div>
+                            </div>
+                            <!-- 我的业绩统计 -->
+                            <div class="card">
+                                <h3><i class="fas fa-coins"></i> 我的业绩统计</h3>
+                                <div>本月业绩：¥<span id="monthlyRevenue">0</span></div>
+                                <div>本月目标：¥<span id="monthlyTarget">0</span></div>
+                                <div>完成率：<span id="monthlyRate">0%</span></div>
+                                <div style="background:#e2e8f0; height:8px; border-radius:4px; margin-top:8px;">
+                                    <div id="monthlyBar" style="width:0%; height:8px; background:#3b82f6; border-radius:4px;"></div>
+                                </div>
+                            </div>
+                            <!-- 部门荣誉榜 -->
+                            <div class="card">
+                                <h3><i class="fas fa-trophy"></i> 部门荣誉榜</h3>
+                                <ul style="list-style:none; padding:0;" id="rankList">
+                                    <li>张三 +124</li>
+                                    <li>李四 +89</li>
+                                    <li>王五 +45</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 客户管理子面板 -->
+                    <div id="subpanel-customer" class="sub-panel">
+                        <!-- 筛选栏 -->
+                        <div class="filter-bar">
+                            <select id="filterStatus"><option value="all">全部跟进状态</option></select>
+                            <select id="filterDept"><option value="all">全部部门</option></select>
+                            <select id="filterOwner"><option value="all">全部负责人</option></select>
+                            <input type="text" id="searchCustomer" placeholder="请输入搜索内容">
+                        </div>
+                        <!-- 批量操作 -->
+                        <div class="batch-bar">
+                            <span><span id="selectedCount">0</span> 已选</span>
+                            <button id="batchEdit">编辑</button>
+                            <button id="batchTransfer">转移</button>
+                            <button id="batchSms">发送短信</button>
+                            <button id="batchMore">更多操作 <i class="fas fa-chevron-down"></i></button>
+                        </div>
+                        <!-- 表格 -->
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:30px;"><input type="checkbox" id="selectAll"></th>
+                                    <th>客户名称</th>
+                                    <th>审批状态</th>
+                                    <th>联系人</th>
+                                    <th>跟进状态</th>
+                                    <th>手机</th>
+                                    <th>创建时间</th>
+                                    <th>负责人</th>
+                                    <th>最新跟进记录</th>
+                                    <th>实际跟进时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerTableBody"></tbody>
+                        </table>
+                        <!-- 分页 -->
+                        <div class="pagination">
+                            <button>《</button>
+                            <button class="current">1</button>
+                            <button>2</button>
+                            <button>3</button>
+                            <button>4</button>
+                            <button>5</button>
+                            <button>》</button>
+                            <span>共 <span id="totalCount">0</span> 条</span>
+                        </div>
+                    </div>
+
+                    <!-- 公海池子面板 -->
+                    <div id="subpanel-pool" class="sub-panel">
+                        <table class="data-table">
+                            <thead><tr><th>客户名称</th><th>手机号</th><th>操作</th></tr></thead>
+                            <tbody id="poolTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- 成交客户子面板 -->
+                    <div id="subpanel-closed" class="sub-panel">
+                        <button class="quick-btn" style="width:auto; margin-bottom:16px;" id="addClosedBtn">新增成交</button>
+                        <table class="data-table">
+                            <thead><tr><th>客户名称</th><th>手机号</th><th>物流单号</th><th>物流状态</th><th>操作</th></tr></thead>
+                            <tbody id="closedTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- 我的子面板 -->
+                    <div id="subpanel-profile" class="sub-panel">
+                        <h3>绑定手机号</h3>
+                        <div id="phoneList"></div>
+                        <button class="quick-btn" style="width:auto;" id="addPhoneBtn">+ 添加手机号</button>
+                        <hr style="margin:20px 0;">
+                        <h3>跟进记录</h3>
+                        <div id="followList"></div>
+                        <hr style="margin:20px 0;">
+                        <h3>短信模板</h3>
+                        <div id="smsTplList"></div>
+                        <button class="quick-btn" style="width:auto;" id="addSmsTplBtn">+ 新建模板</button>
+                    </div>
+                </div>
+
+                <!-- 顶层面板：报表中心 -->
+                <div id="report-panel" class="top-panel">
+                    <div style="padding:40px; text-align:center; color:#64748b;">
+                        <i class="fas fa-chart-pie" style="font-size:48px; margin-bottom:20px;"></i>
+                        <h2>报表中心开发中，敬请期待</h2>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 各种弹窗（与之前相同） -->
+<!-- 各种弹窗 -->
 <div id="customerModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建客户</h3><input id="custName" placeholder="客户姓名"><input id="custPhone" placeholder="手机号"><button id="saveCustomerBtn">保存</button></div></div>
+<div id="importModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>导入客户</h3><p>请准备好Excel文件，点击下方上传（开发中）。</p><button>上传</button></div></div>
+<div id="duplicateModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>客户查重</h3><p>查重功能开发中。</p></div></div>
+<div id="followHistoryAllModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>所有跟进记录</h3><div id="allFollowList"></div></div></div>
 <div id="closedModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建成交客户</h3><input id="closedName" placeholder="客户姓名"><input id="closedPhone" placeholder="手机号"><button id="saveClosedBtn">保存</button></div></div>
 <div id="closedDetailModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>成交客户详情</h3><input type="hidden" id="detailClosedId"><div>姓名：<span id="detailClosedName"></span> 手机：<span id="detailClosedPhone"></span></div><label>物流单号</label><input id="detailTrackingNumber"><button id="updateTrackingBtn">更新</button><button id="refreshTrackingBtn">刷新物流</button><div id="trackingInfo" style="margin-top:12px;"></div></div></div>
 <div id="moveModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>移动客户</h3><button id="moveToPoolBtn">移入公海</button><button id="moveToClosedBtn">移入成交客户</button></div></div>
 <div id="phoneModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>绑定手机号</h3><input id="phoneNumber" placeholder="手机号"><input id="phoneDesc" placeholder="备注（卡1/卡2）"><button id="savePhoneBtn">保存</button></div></div>
-<div id="followHistoryModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>跟进历史</h3><div id="followHistoryList"></div></div></div>
+<div id="followHistoryModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>客户跟进历史</h3><div id="followHistoryList"></div></div></div>
 <div id="followModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>记录跟进</h3><input type="hidden" id="followCustomerId"><input id="followContent" placeholder="跟进内容"><button id="saveFollowBtn">保存</button></div></div>
 <div id="smsModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>发送短信</h3><select id="smsPhoneSelect"></select><select id="smsTemplateSelect"></select><textarea id="smsContent" placeholder="短信内容，可用{尊称}"></textarea><button id="saveSmsBtn">发送</button></div></div>
 <div id="smsTplModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>编辑短信模板</h3><input id="tplName" placeholder="模板名称"><textarea id="tplContent" placeholder="模板内容，可用{尊称}"></textarea><button id="saveTplBtn">保存</button></div></div>
-<div id="userMgmtModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>员工权限管理</h3><div id="userList"></div><button id="addUserBtn">+ 添加员工</button></div></div>
+<div id="userMgmtModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>员工权限管理</h3>
+    <div style="margin-bottom:16px;">
+        <input type="text" id="newUserName" placeholder="姓名">
+        <input type="text" id="newUserAccount" placeholder="账号">
+        <input type="password" id="newUserPassword" placeholder="密码">
+        <select id="newUserRole">
+            <option value="staff">业务员</option>
+            <option value="leader">组长</option>
+            <option value="manager">经理</option>
+        </select>
+        <input type="text" id="newUserDept" placeholder="部门（如销售一部）">
+        <button id="addUserBtn">添加</button>
+    </div>
+    <div id="userList"></div>
+</div></div>
 
 <div id="toast" class="toast"></div>
 
@@ -510,10 +575,12 @@
             { id: 2, name: '跟进', content: '{尊称}上次沟通的产品还有印象吗？' }
         ],
         users: [
-            { id: 1, name: '邹裕', role: 'admin', perms: { customer:true, pool:true, closed:true, sms:true, userMgmt:true } },
-            { id: 2, name: '张三', role: 'staff', perms: { customer:true, pool:true, closed:false, sms:true, userMgmt:false } }
+            { id: 1, name: '邹裕', account: 'admin', password: '123456', role: 'admin', dept: '管理部' },
+            { id: 2, name: '张三', account: 'zhangsan', password: '123456', role: 'staff', dept: '销售一部' },
+            { id: 3, name: '李四', account: 'lisi', password: '123456', role: 'leader', dept: '销售一部' },
+            { id: 4, name: '王五', account: 'wangwu', password: '123456', role: 'manager', dept: '销售部' }
         ],
-        currentUser: { id:1, name:'邹裕', role:'admin', perms: { customer:true, pool:true, closed:true, sms:true, userMgmt:true } },
+        currentUser: null,
         selectedCustomers: [],
         movingCustomerId: null
     };
@@ -525,10 +592,38 @@
         setTimeout(() => toast.style.display = 'none', 2000);
     }
 
+    // 根据当前用户权限过滤数据
+    function filterData() {
+        if (!state.currentUser) return;
+        const user = state.currentUser;
+        let filteredCustomers = state.customers;
+        let filteredPool = state.pool;
+        let filteredClosed = state.closedCustomers;
+        let filteredFollowups = state.followups;
+
+        if (user.role === 'staff') {
+            // 业务员只看自己
+            filteredCustomers = state.customers.filter(c => c.ownerId === user.id);
+            filteredPool = state.pool; // 公海所有人可见
+            filteredClosed = state.closedCustomers.filter(c => c.ownerId === user.id);
+            filteredFollowups = state.followups.filter(f => f.userId === user.id);
+        } else if (user.role === 'leader') {
+            // 组长看本部门所有人
+            const memberIds = state.users.filter(u => u.dept === user.dept).map(u => u.id);
+            filteredCustomers = state.customers.filter(c => memberIds.includes(c.ownerId));
+            filteredClosed = state.closedCustomers.filter(c => memberIds.includes(c.ownerId));
+            filteredFollowups = state.followups.filter(f => memberIds.includes(f.userId));
+        }
+        // 经理和admin看全部
+        return { customers: filteredCustomers, pool: filteredPool, closed: filteredClosed, followups: filteredFollowups };
+    }
+
     async function loadFromCloud() {
         try {
             const { data, error } = await supabaseClient.from('crm_data').select('*').single();
-            if (!error && data) state = { ...state, ...data.data };
+            if (!error && data) {
+                state = { ...state, ...data.data };
+            }
         } catch (e) { console.warn(e); }
         renderAll();
     }
@@ -543,16 +638,23 @@
     }
 
     function renderAll() {
+        if (!state.currentUser) return;
+
+        const filtered = filterData();
+        const userCustomers = filtered.customers;
+        const userFollowups = filtered.followups;
+        const userClosed = filtered.closed;
+
         // 工作台数字
-        document.getElementById('dashCust').innerText = state.customers.length;
-        document.getElementById('dashContact').innerText = state.customers.reduce((a,c)=>a+(c.contact?1:0),0);
-        document.getElementById('dashFollow').innerText = state.followups.length;
-        document.getElementById('overdueTask').innerText = state.followups.filter(f => (new Date() - new Date(f.time))>7*24*3600*1000).length;
-        document.getElementById('todayNew').innerText = state.customers.filter(c => new Date(c.createdAt||Date.now()).toDateString()===new Date().toDateString()).length;
-        document.getElementById('followTotal').innerText = state.followups.length;
-        document.getElementById('followObj').innerText = new Set(state.followups.map(f=>f.customerId)).size;
-        document.getElementById('warn7').innerText = state.customers.filter(c => {
-            const last = state.followups.filter(f=>f.customerId===c.id).sort((a,b)=>new Date(b.time)-new Date(a.time))[0];
+        document.getElementById('dashCust').innerText = userCustomers.length;
+        document.getElementById('dashContact').innerText = userCustomers.reduce((a,c)=>a+(c.contact?1:0),0);
+        document.getElementById('dashFollow').innerText = userFollowups.length;
+        document.getElementById('overdueTask').innerText = userFollowups.filter(f => (new Date() - new Date(f.time))>7*24*3600*1000).length;
+        document.getElementById('todayNew').innerText = userCustomers.filter(c => new Date(c.createdAt||Date.now()).toDateString()===new Date().toDateString()).length;
+        document.getElementById('followTotal').innerText = userFollowups.length;
+        document.getElementById('followObj').innerText = new Set(userFollowups.map(f=>f.customerId)).size;
+        document.getElementById('warn7').innerText = userCustomers.filter(c => {
+            const last = userFollowups.filter(f=>f.customerId===c.id).sort((a,b)=>new Date(b.time)-new Date(a.time))[0];
             return !last || (new Date() - new Date(last.time)) > 7*24*3600*1000;
         }).length;
         // 业绩统计（示例）
@@ -567,7 +669,7 @@
         // 客户表格
         const tbody = document.getElementById('customerTableBody');
         if (tbody) {
-            tbody.innerHTML = state.customers.map(c => `
+            tbody.innerHTML = userCustomers.map(c => `
                 <tr>
                     <td><input type="checkbox" value="${c.id}" onchange="updateSelected(${c.id}, this.checked)"></td>
                     <td><span class="customer-name" onclick="showFollowHistory(${c.id})">${c.name}</span></td>
@@ -576,7 +678,7 @@
                     <td>${c.status || '有意向'}</td>
                     <td>${maskPhone(c.phone)}</td>
                     <td>${c.createdAt || '2026/03/03 09:35'}</td>
-                    <td>邹裕</td>
+                    <td>${state.users.find(u=>u.id===c.ownerId)?.name || '未知'}</td>
                     <td>${c.lastFollow || '-'}</td>
                     <td>${c.lastFollowTime || '-'}</td>
                     <td class="action-buttons">
@@ -595,18 +697,18 @@
         // 成交客户
         const closedTbody = document.getElementById('closedTableBody');
         if (closedTbody) {
-            closedTbody.innerHTML = state.closedCustomers.map(c => `<tr><td><span class="customer-name" onclick="openClosedDetail(${c.id})">${c.name}</span></td><td>${maskPhone(c.phone)}</td><td>${c.trackingNumber||''}</td><td>${c.trackingStatus||'未发货'}</td><td><button onclick="deleteClosed(${c.id})">删除</button></td></tr>`).join('');
+            closedTbody.innerHTML = userClosed.map(c => `<tr><td><span class="customer-name" onclick="openClosedDetail(${c.id})">${c.name}</span></td><td>${maskPhone(c.phone)}</td><td>${c.trackingNumber||''}</td><td>${c.trackingStatus||'未发货'}</td><td><button onclick="deleteClosed(${c.id})">删除</button></td></tr>`).join('');
         }
         // 手机号列表
         const phoneDiv = document.getElementById('phoneList');
         if (phoneDiv) {
             phoneDiv.innerHTML = state.phones.map(p => `<div class="user-row"><span>${p.desc} · ${maskPhone(p.number)}</span> <i onclick="deletePhone('${p.number}')" style="cursor:pointer;">🗑️</i></div>`).join('');
         }
-        // 跟进记录
+        // 跟进记录（我的面板）
         const followDiv = document.getElementById('followList');
         if (followDiv) {
-            followDiv.innerHTML = state.followups.slice(-10).reverse().map(f => {
-                const cust = state.customers.find(c=>c.id===f.customerId) || {name:'未知'};
+            followDiv.innerHTML = userFollowups.slice(-10).reverse().map(f => {
+                const cust = userCustomers.find(c=>c.id===f.customerId) || {name:'未知'};
                 return `<div class="user-row"><span>${cust.name} · ${f.content} · ${new Date(f.time).toLocaleString()}</span></div>`;
             }).join('');
         }
@@ -618,8 +720,33 @@
         // 管理员权限按钮
         if (state.currentUser.role === 'admin') {
             document.getElementById('quickUserMgmt').style.display = 'block';
+        } else {
+            document.getElementById('quickUserMgmt').style.display = 'none';
         }
+        document.getElementById('currentUserName').innerText = state.currentUser.name;
     }
+
+    // 登录
+    document.getElementById('loginBtn').onclick = () => {
+        const acc = document.getElementById('loginUsername').value;
+        const pwd = document.getElementById('loginPassword').value;
+        const user = state.users.find(u => u.account === acc && u.password === pwd);
+        if (user) {
+            state.currentUser = user;
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('appView').style.display = 'block';
+            loadFromCloud();
+        } else {
+            alert('账号或密码错误');
+        }
+    };
+
+    // 退出登录
+    document.getElementById('logoutBtn').onclick = () => {
+        state.currentUser = null;
+        document.getElementById('appView').style.display = 'none';
+        document.getElementById('loginView').style.display = 'block';
+    };
 
     // 顶部导航切换
     document.querySelectorAll('.nav-menu .nav-item').forEach(item => {
@@ -632,7 +759,7 @@
         });
     });
 
-    // 二级标签页切换（工作台内）
+    // 二级标签页切换
     document.querySelectorAll('.sub-tab').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
@@ -643,11 +770,67 @@
         });
     });
 
-    // 各种交互函数
+    // 左侧快捷按钮
+    document.getElementById('quickAddCustomer').onclick = () => customerModal.style.display = 'flex';
+    document.getElementById('quickImport').onclick = () => importModal.style.display = 'flex';
+    document.getElementById('quickDuplicate').onclick = () => duplicateModal.style.display = 'flex';
+    document.getElementById('quickFollow').onclick = () => {
+        // 显示所有跟进记录
+        const list = state.followups.map(f => {
+            const cust = state.customers.find(c=>c.id===f.customerId) || {name:'未知'};
+            return `<div>${cust.name} · ${f.content} · ${new Date(f.time).toLocaleString()}</div>`;
+        }).join('');
+        document.getElementById('allFollowList').innerHTML = list || '无记录';
+        followHistoryAllModal.style.display = 'flex';
+    };
+    document.getElementById('quickSmsTpl').onclick = () => smsTplModal.style.display = 'flex';
+    document.getElementById('quickUserMgmt').onclick = () => {
+        const listDiv = document.getElementById('userList');
+        listDiv.innerHTML = state.users.map(u => `
+            <div class="user-row">
+                <span>${u.name} (${u.account})</span>
+                <span>${u.role === 'admin' ? '管理员' : u.role === 'leader' ? '组长' : u.role === 'manager' ? '经理' : '业务员'}</span>
+                <span>${u.dept}</span>
+                ${u.role !== 'admin' ? '<button onclick="deleteUser('+u.id+')">删除</button>' : ''}
+            </div>
+        `).join('');
+        userMgmtModal.style.display = 'flex';
+    };
+
+    window.deleteUser = (id) => {
+        state.users = state.users.filter(u=>u.id!==id);
+        saveState();
+        userMgmtModal.style.display = 'none';
+    };
+
+    document.getElementById('addUserBtn').onclick = () => {
+        const name = document.getElementById('newUserName').value.trim();
+        const acc = document.getElementById('newUserAccount').value.trim();
+        const pwd = document.getElementById('newUserPassword').value.trim();
+        const role = document.getElementById('newUserRole').value;
+        const dept = document.getElementById('newUserDept').value.trim();
+        if (!name || !acc || !pwd || !dept) {
+            alert('请填写完整');
+            return;
+        }
+        state.users.push({ id: Date.now(), name, account: acc, password: pwd, role, dept });
+        saveState();
+        userMgmtModal.style.display = 'none';
+        document.getElementById('newUserName').value = '';
+        document.getElementById('newUserAccount').value = '';
+        document.getElementById('newUserPassword').value = '';
+        document.getElementById('newUserDept').value = '';
+    };
+
+    // 其他函数
     window.callCustomer = (phone) => window.location.href = 'tel:' + phone;
     window.claimCustomer = (id) => {
         const c = state.pool.find(p=>p.id===id);
-        if (c) { state.pool = state.pool.filter(p=>p.id!==id); state.customers.push(c); saveState(); }
+        if (c) {
+            state.pool = state.pool.filter(p=>p.id!==id);
+            state.customers.push({ ...c, ownerId: state.currentUser.id });
+            saveState();
+        }
     };
     window.deletePhone = (num) => { state.phones = state.phones.filter(p=>p.number!==num); saveState(); };
     window.openMoveModal = (id) => { movingCustomerId = id; moveModal.style.display = 'flex'; };
@@ -696,7 +879,7 @@
         if (!content) return alert('内容不能为空');
         const cust = state.customers.find(c=>c.id===cid);
         if (cust) {
-            state.followups.push({ customerId: cid, customerName: cust.name, content: '短信:'+content, time: new Date().toISOString() });
+            state.followups.push({ userId: state.currentUser.id, customerId: cid, customerName: cust.name, content: '短信:'+content, time: new Date().toISOString() });
             saveState();
             smsModal.style.display = 'none';
             alert('短信已发送（模拟）');
@@ -716,8 +899,6 @@
     document.querySelectorAll('.close').forEach(btn => btn.onclick = () => btn.closest('.modal').style.display = 'none');
     window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 
-    // 快捷按钮
-    document.getElementById('quickAddCustomer').onclick = () => customerModal.style.display = 'flex';
     document.getElementById('saveCustomerBtn').onclick = () => {
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim();
@@ -734,7 +915,7 @@
         const name = document.getElementById('closedName').value.trim();
         const phone = document.getElementById('closedPhone').value.trim();
         if (name && phone) {
-            state.closedCustomers.push({ id: Date.now(), name, phone, trackingNumber: '' });
+            state.closedCustomers.push({ id: Date.now(), name, phone, ownerId: state.currentUser.id, trackingNumber: '' });
             saveState();
             closedModal.style.display = 'none';
             document.getElementById('closedName').value = ''; document.getElementById('closedPhone').value = '';
@@ -816,41 +997,9 @@
         saveState();
     };
 
-    // 员工权限管理
-    document.getElementById('quickUserMgmt').onclick = () => {
-        const listDiv = document.getElementById('userList');
-        listDiv.innerHTML = state.users.map(u => `
-            <div class="user-row">
-                <span>${u.name}</span>
-                <label><input type="checkbox" class="perm-checkbox" data-user="${u.id}" data-perm="customer" ${u.perms.customer?'checked':''}> 客户管理</label>
-                <label><input type="checkbox" class="perm-checkbox" data-user="${u.id}" data-perm="pool" ${u.perms.pool?'checked':''}> 公海</label>
-                <label><input type="checkbox" class="perm-checkbox" data-user="${u.id}" data-perm="closed" ${u.perms.closed?'checked':''}> 成交</label>
-                <label><input type="checkbox" class="perm-checkbox" data-user="${u.id}" data-perm="sms" ${u.perms.sms?'checked':''}> 短信</label>
-                ${u.role==='staff' ? '<button onclick="deleteUser('+u.id+')">删除</button>' : ''}
-            </div>
-        `).join('');
-        userMgmtModal.style.display = 'flex';
-    };
-    document.getElementById('addUserBtn').onclick = () => {
-        const name = prompt('输入员工姓名');
-        if (name) {
-            state.users.push({ id: Date.now(), name, role: 'staff', perms: { customer:true, pool:true, closed:false, sms:true, userMgmt:false } });
-            saveState();
-            userMgmtModal.style.display = 'none';
-        }
-    };
-    window.deleteUser = (id) => {
-        state.users = state.users.filter(u=>u.id!==id);
-        saveState();
-        userMgmtModal.style.display = 'none';
-    };
-
-    // 刷新
-    const refreshBtn = document.querySelector('.refresh-btn button'); // 可能没有这个按钮，我们忽略
-    // 如果有刷新按钮，绑定事件
-    // 如果没有，可忽略
-
-    loadFromCloud();
+    // 初始化
+    document.getElementById('loginView').style.display = 'block';
+    document.getElementById('appView').style.display = 'none';
     setInterval(loadFromCloud, 10000);
 </script>
 </body>
