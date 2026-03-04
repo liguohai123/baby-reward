@@ -7,83 +7,53 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style id="theme-style">
-        /* 默认主题（深蓝） */
+        /* 默认主题（深色） */
         :root {
-            --primary-color: #3b82f6;
-            --primary-hover: #2563eb;
-            --bg-color: #f0f2f5;
-            --card-bg: white;
-            --text-color: #1e293b;
+            --bg-primary: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
             --border-color: #e2e8f0;
-            --sidebar-bg: white;
-            --header-bg: white;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
             --danger-color: #ef4444;
-            --success-color: #10b981;
+            --success-color: #22c55e;
             --warning-color: #f59e0b;
         }
-        /* 浅色主题 */
         .theme-light {
-            --primary-color: #1890ff;
-            --primary-hover: #096dd9;
-            --bg-color: #f5f5f5;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #e8e8e8;
-            --sidebar-bg: #fafafa;
-            --header-bg: #ffffff;
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #334155;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent-color: #0284c7;
+            --accent-hover: #0369a1;
         }
-        /* 深色主题 */
-        .theme-dark {
-            --primary-color: #1677ff;
-            --primary-hover: #4096ff;
-            --bg-color: #141414;
-            --card-bg: #1f1f1f;
-            --text-color: rgba(255,255,255,0.85);
-            --border-color: #434343;
-            --sidebar-bg: #1f1f1f;
-            --header-bg: #1f1f1f;
+        .theme-blue {
+            --bg-primary: #e0f2fe;
+            --bg-card: #ffffff;
+            --text-primary: #0c4a6e;
+            --text-secondary: #0369a1;
+            --border-color: #bae6fd;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
         }
-        /* 自然绿主题 */
         .theme-green {
-            --primary-color: #52c41a;
-            --primary-hover: #389e0d;
-            --bg-color: #f6ffed;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #b7eb8f;
-            --sidebar-bg: #ffffff;
-            --header-bg: #ffffff;
+            --bg-primary: #dcfce7;
+            --bg-card: #ffffff;
+            --text-primary: #14532d;
+            --text-secondary: #166534;
+            --border-color: #bbf7d0;
+            --accent-color: #16a34a;
+            --accent-hover: #15803d;
         }
-        /* 活力橙主题 */
-        .theme-orange {
-            --primary-color: #fa8c16;
-            --primary-hover: #d46b08;
-            --bg-color: #fff7e6;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #ffd591;
-            --sidebar-bg: #ffffff;
-            --header-bg: #ffffff;
-        }
-        /* 梦幻紫主题 */
-        .theme-purple {
-            --primary-color: #722ed1;
-            --primary-hover: #531dab;
-            --bg-color: #f9f0ff;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #d3adf7;
-            --sidebar-bg: #ffffff;
-            --header-bg: #ffffff;
-        }
-    </style>
-    <style>
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            transition: background 0.3s, color 0.3s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.2s, color 0.2s;
         }
         .app { max-width: 1600px; margin: 0 auto; padding: 20px; }
 
@@ -91,12 +61,12 @@
         .login-container {
             max-width: 400px;
             margin: 100px auto;
-            background: var(--card-bg);
+            background: var(--bg-card);
             border-radius: 12px;
             padding: 40px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .login-container h2 { margin-bottom: 24px; text-align: center; color: var(--text-color); }
+        .login-container h2 { margin-bottom: 24px; text-align: center; }
         .login-container input {
             width: 100%;
             padding: 12px;
@@ -104,74 +74,54 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 16px;
-            background: var(--card-bg);
-            color: var(--text-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
         }
         .login-container button {
             width: 100%;
             padding: 12px;
-            background: var(--primary-color);
+            background: var(--accent-color);
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
         }
-        .login-container button:hover { background: var(--primary-hover); }
 
         /* 顶部导航 */
         .top-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--header-bg);
+            background: var(--bg-card);
             padding: 12px 24px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
         .top-nav-left { display: flex; align-items: center; gap: 24px; }
-        .company-name { font-size: 18px; font-weight: 600; color: var(--text-color); }
+        .company-name { font-size: 18px; font-weight: 600; color: var(--text-primary); }
         .nav-menu { display: flex; gap: 16px; }
-        .nav-item { color: #64748b; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
-        .nav-item.active { background: #e6f7ff; color: var(--primary-color); }
+        .nav-item { color: var(--text-secondary); cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+        .nav-item.active { background: #e6f7ff; color: var(--accent-color); }
         .top-nav-right { display: flex; align-items: center; gap: 16px; }
         .search-box { display: flex; align-items: center; background: #f1f5f9; border-radius: 20px; padding: 4px 12px; }
-        .search-box input { border: none; background: transparent; padding: 6px 8px; outline: none; width: 200px; color: var(--text-color); }
-        .icon-btn { background: none; border: none; font-size: 16px; color: #64748b; cursor: pointer; padding: 4px 8px; }
-        .badge { background: var(--primary-color); color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; margin-left: 4px; }
+        .search-box input { border: none; background: transparent; padding: 6px 8px; outline: none; width: 200px; color: var(--text-primary); }
+        .icon-btn { background: none; border: none; font-size: 16px; color: var(--text-secondary); cursor: pointer; padding: 4px 8px; }
+        .badge { background: var(--accent-color); color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; margin-left: 4px; }
         .user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .logout-btn { margin-left: 8px; color: var(--danger-color); cursor: pointer; }
-        .theme-selector {
-            display: flex;
-            gap: 8px;
-            margin-left: 16px;
-        }
-        .theme-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-        .theme-dot.active { border-color: var(--primary-color); }
-        .theme-dot.light { background: #f5f5f5; border: 1px solid #ccc; }
-        .theme-dot.dark { background: #141414; }
-        .theme-dot.green { background: #52c41a; }
-        .theme-dot.orange { background: #fa8c16; }
-        .theme-dot.purple { background: #722ed1; }
-        .theme-dot.blue { background: #3b82f6; }
 
         /* 左侧快捷栏 */
         .main-layout { display: flex; gap: 20px; }
         .left-quick {
             width: 220px;
-            background: var(--sidebar-bg);
+            background: var(--bg-card);
             border-radius: 12px;
             padding: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        .quick-title { font-size: 14px; color: #64748b; margin-bottom: 12px; }
+        .quick-title { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
         .quick-btn {
             display: block;
             width: 100%;
@@ -182,21 +132,21 @@
             border-radius: 8px;
             text-align: left;
             cursor: pointer;
-            color: var(--text-color);
+            color: var(--text-primary);
             font-size: 14px;
         }
-        .quick-btn i { margin-right: 8px; color: var(--primary-color); }
-        .quick-btn:hover { background: #e6f7ff; border-color: var(--primary-color); }
+        .quick-btn i { margin-right: 8px; color: var(--accent-color); }
+        .quick-btn:hover { background: #e6f7ff; border-color: var(--accent-color); }
 
         /* 右侧内容区 */
         .right-content {
             flex: 1;
-            background: var(--card-bg);
+            background: var(--bg-card);
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        /* 顶层面板（工作台/报表） */
+        /* 顶层面板 */
         .top-panel { display: none; }
         .top-panel.active { display: block; }
 
@@ -209,7 +159,7 @@
             padding-bottom: 8px;
         }
         .sub-tab {
-            color: #64748b;
+            color: var(--text-secondary);
             cursor: pointer;
             padding: 8px 0;
             font-size: 16px;
@@ -217,7 +167,7 @@
             border-bottom: 2px solid transparent;
             margin-bottom: -2px;
         }
-        .sub-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .sub-tab.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
 
         /* 子面板 */
         .sub-panel { display: none; }
@@ -237,8 +187,8 @@
             border-radius: 20px;
             font-size: 14px;
             outline: none;
-            background: var(--card-bg);
-            color: var(--text-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
         }
         /* 批量操作 */
         .batch-bar {
@@ -256,7 +206,7 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
-            color: var(--text-color);
+            color: var(--text-primary);
         }
         /* 表格 */
         .data-table {
@@ -268,7 +218,7 @@
             text-align: left;
             padding: 12px 8px;
             background: #f8fafc;
-            color: #475569;
+            color: var(--text-secondary);
             font-weight: 600;
             border-bottom: 1px solid var(--border-color);
         }
@@ -277,12 +227,12 @@
             border-bottom: 1px solid var(--border-color);
         }
         .data-table tr:hover { background: #f8fafc; }
-        .customer-name { color: var(--primary-color); cursor: pointer; font-weight: 500; }
+        .customer-name { color: var(--accent-color); cursor: pointer; font-weight: 500; }
         .action-buttons { display: flex; gap: 6px; }
         .action-buttons button {
-            background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; padding: 4px;
+            background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 4px;
         }
-        .action-buttons button:hover { color: var(--primary-color); }
+        .action-buttons button:hover { color: var(--accent-color); }
 
         /* 分页 */
         .pagination {
@@ -299,7 +249,7 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        .pagination .current { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .pagination .current { background: var(--accent-color); color: white; border-color: var(--accent-color); }
 
         /* 工作台卡片网格 */
         .dashboard-grid {
@@ -316,14 +266,14 @@
         .card h3 {
             font-size: 16px;
             margin-bottom: 16px;
-            color: #475569;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .card h3 i { color: var(--primary-color); }
-        .stat-number { font-size: 28px; font-weight: 700; color: var(--text-color); }
-        .stat-label { font-size: 13px; color: #64748b; }
+        .card h3 i { color: var(--accent-color); }
+        .stat-number { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .stat-label { font-size: 13px; color: var(--text-secondary); }
 
         /* 弹窗 */
         .modal {
@@ -336,16 +286,16 @@
             z-index: 1000;
         }
         .modal-content {
-            background: var(--card-bg);
+            background: var(--bg-card);
             width: 500px;
             max-width: 90%;
             border-radius: 16px;
             padding: 24px;
             max-height: 80vh;
             overflow-y: auto;
-            color: var(--text-color);
+            color: var(--text-primary);
         }
-        .modal-content h3 { margin-bottom: 20px; color: var(--text-color); }
+        .modal-content h3 { margin-bottom: 20px; }
         .modal-content input, .modal-content textarea, .modal-content select {
             width: 100%;
             padding: 10px;
@@ -353,20 +303,19 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 14px;
-            background: var(--card-bg);
-            color: var(--text-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
         }
         .modal-content button {
             padding: 10px 20px;
-            background: var(--primary-color);
+            background: var(--accent-color);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             margin-right: 8px;
         }
-        .modal-content button:hover { background: var(--primary-hover); }
-        .close { float: right; font-size: 24px; cursor: pointer; color: #64748b; }
+        .close { float: right; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
 
         .toast {
             position: fixed;
@@ -390,7 +339,27 @@
             border-bottom: 1px solid var(--border-color);
         }
         .user-row span { flex: 1; }
-        .user-row select { width: 100px; margin-right: 8px; }
+        .user-row select, .user-row input { width: 120px; margin-right: 8px; }
+        .user-row button { margin-left: 8px; }
+
+        /* 主题选择器 */
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            margin: 16px 0;
+        }
+        .theme-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .theme-option.active { border-color: var(--accent-color); }
+        .theme-dark { background: #1e293b; }
+        .theme-light { background: #f8fafc; border: 1px solid #ccc; }
+        .theme-blue { background: #2563eb; }
+        .theme-green { background: #16a34a; }
     </style>
 </head>
 <body>
@@ -428,15 +397,6 @@
                     <i class="fas fa-user-circle"></i> <span id="currentUserName">邹裕</span>
                     <i class="fas fa-sign-out-alt logout-btn" id="logoutBtn" title="退出登录"></i>
                 </span>
-                <!-- 主题切换器 -->
-                <div class="theme-selector">
-                    <div class="theme-dot blue active" data-theme="default" title="默认蓝"></div>
-                    <div class="theme-dot light" data-theme="light" title="极简白"></div>
-                    <div class="theme-dot dark" data-theme="dark" title="深邃黑"></div>
-                    <div class="theme-dot green" data-theme="green" title="自然绿"></div>
-                    <div class="theme-dot orange" data-theme="orange" title="活力橙"></div>
-                    <div class="theme-dot purple" data-theme="purple" title="梦幻紫"></div>
-                </div>
             </div>
         </div>
 
@@ -445,6 +405,7 @@
             <div class="left-quick">
                 <div class="quick-title">快捷新增</div>
                 <button class="quick-btn" id="quickAddCustomer"><i class="fas fa-user-plus"></i> 客户</button>
+                <!-- 导入按钮仅经理及以上可见 -->
                 <button class="quick-btn" id="quickImport" style="display:none;"><i class="fas fa-upload"></i> 导入</button>
                 <button class="quick-btn" id="quickDuplicate"><i class="fas fa-clone"></i> 客户查重</button>
                 <div style="margin-top:24px;">
@@ -460,13 +421,13 @@
             <div class="right-content">
                 <!-- 顶层面板：工作台 -->
                 <div id="workbench-panel" class="top-panel active">
-                    <!-- 二级标签页（增加黑名单） -->
+                    <!-- 二级标签页（增加了黑名单） -->
                     <div class="sub-tabs">
                         <span class="sub-tab active" data-subtab="dashboard">工作台</span>
                         <span class="sub-tab" data-subtab="customer">客户管理</span>
                         <span class="sub-tab" data-subtab="pool">公海池</span>
-                        <span class="sub-tab" data-subtab="blacklist">黑名单</span>
                         <span class="sub-tab" data-subtab="closed">成交客户</span>
+                        <span class="sub-tab" data-subtab="blacklist">黑名单</span>
                         <span class="sub-tab" data-subtab="profile">我的</span>
                     </div>
 
@@ -505,7 +466,7 @@
                                 <div>跟进对象数：<span id="followObj">0</span></div>
                                 <div style="margin-top:8px;">拜访总次数：0</div>
                                 <div>拜访对象数：0</div>
-                                <div style="font-size:12px; color:#64748b;">环比：-17.33% / -15.07%</div>
+                                <div style="font-size:12px; color:var(--text-secondary);">环比：-17.33% / -15.07%</div>
                             </div>
                             <!-- 预警卡片 -->
                             <div class="card">
@@ -528,7 +489,7 @@
                                 <div>本月目标：¥<span id="monthlyTarget">0</span></div>
                                 <div>完成率：<span id="monthlyRate">0%</span></div>
                                 <div style="background:#e2e8f0; height:8px; border-radius:4px; margin-top:8px;">
-                                    <div id="monthlyBar" style="width:0%; height:8px; background:var(--primary-color); border-radius:4px;"></div>
+                                    <div id="monthlyBar" style="width:0%; height:8px; background:var(--accent-color); border-radius:4px;"></div>
                                 </div>
                             </div>
                             <!-- 部门荣誉榜 -->
@@ -600,20 +561,20 @@
                         </table>
                     </div>
 
-                    <!-- 黑名单子面板 -->
-                    <div id="subpanel-blacklist" class="sub-panel">
-                        <table class="data-table">
-                            <thead><tr><th>客户名称</th><th>手机号</th><th>移入理由</th><th>移入人</th><th>移入时间</th><th>操作</th></tr></thead>
-                            <tbody id="blacklistTableBody"></tbody>
-                        </table>
-                    </div>
-
                     <!-- 成交客户子面板 -->
                     <div id="subpanel-closed" class="sub-panel">
                         <button class="quick-btn" style="width:auto; margin-bottom:16px;" id="addClosedBtn">新增成交</button>
                         <table class="data-table">
                             <thead><tr><th>客户名称</th><th>手机号</th><th>客户报价</th><th>平台码结算</th><th>最终出货价</th><th>业绩</th><th>物流单号</th><th>物流状态</th><th>操作</th></tr></thead>
                             <tbody id="closedTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- 黑名单子面板 -->
+                    <div id="subpanel-blacklist" class="sub-panel">
+                        <table class="data-table">
+                            <thead><tr><th>客户名称</th><th>手机号</th><th>移入理由</th><th>操作</th></tr></thead>
+                            <tbody id="blacklistTableBody"></tbody>
                         </table>
                     </div>
 
@@ -629,12 +590,20 @@
                         <h3>短信模板</h3>
                         <div id="smsTplList"></div>
                         <button class="quick-btn" style="width:auto;" id="addSmsTplBtn">+ 新建模板</button>
+                        <hr style="margin:20px 0;">
+                        <h3>主题选择</h3>
+                        <div class="theme-selector">
+                            <div class="theme-option theme-dark" data-theme="dark" title="深色"></div>
+                            <div class="theme-option theme-light" data-theme="light" title="浅色"></div>
+                            <div class="theme-option theme-blue" data-theme="blue" title="蓝色"></div>
+                            <div class="theme-option theme-green" data-theme="green" title="绿色"></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 顶层面板：报表中心 -->
                 <div id="report-panel" class="top-panel">
-                    <div style="padding:40px; text-align:center; color:#64748b;">
+                    <div style="padding:40px; text-align:center; color:var(--text-secondary);">
                         <i class="fas fa-chart-pie" style="font-size:48px; margin-bottom:20px;"></i>
                         <h2>报表中心开发中，敬请期待</h2>
                     </div>
@@ -646,13 +615,32 @@
 
 <!-- 各种弹窗 -->
 <div id="customerModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建客户</h3><input id="custName" placeholder="客户姓名"><input id="custPhone" placeholder="手机号"><button id="saveCustomerBtn">保存</button></div></div>
-<div id="importModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>导入客户</h3>
-    <p>下载模板：<button id="downloadTemplateBtn">下载模板</button></p>
-    <p>上传文件：<input type="file" id="importFile" accept=".xlsx,.xls,.csv"></p>
-    <button id="uploadImportBtn">上传导入</button>
-</div></div>
+
+<!-- 导入弹窗 -->
+<div id="importModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>数据导入</h3>
+        <p><a href="#" id="downloadTemplate">下载导入模板</a></p>
+        <input type="file" id="uploadFile" accept=".xlsx,.xls,.csv">
+        <button id="uploadBtn">上传</button>
+    </div>
+</div>
+
 <div id="duplicateModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>客户查重</h3><p>查重功能开发中。</p></div></div>
 <div id="followHistoryAllModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>所有跟进记录</h3><div id="allFollowList"></div></div></div>
+
+<!-- 黑名单移入弹窗 -->
+<div id="blacklistReasonModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>移入黑名单</h3>
+        <input type="hidden" id="blacklistCustomerId">
+        <textarea id="blacklistReason" placeholder="请输入移入黑名单的理由" rows="3" style="width:100%;"></textarea>
+        <button id="confirmBlacklistBtn">确认移入</button>
+    </div>
+</div>
+
 <div id="closedModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建成交客户</h3>
     <input id="closedName" placeholder="客户姓名">
     <input id="closedPhone" placeholder="手机号">
@@ -660,11 +648,6 @@
     <input id="closedPlatform" placeholder="平台码结算" type="number" value="0">
     <input id="closedFinalPrice" placeholder="最终出货价" type="number">
     <button id="saveClosedBtn">保存</button>
-</div></div>
-<div id="blacklistReasonModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>移入黑名单</h3>
-    <p>客户：<span id="blacklistCustomerName"></span></p>
-    <textarea id="blacklistReason" placeholder="请输入移入理由" rows="4"></textarea>
-    <button id="confirmBlacklistBtn">确认移入</button>
 </div></div>
 <div id="closedDetailModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>成交客户详情</h3>
     <input type="hidden" id="detailClosedId">
@@ -679,31 +662,33 @@
     <button id="refreshTrackingBtn">刷新物流</button>
     <div id="trackingInfo" style="margin-top:12px;"></div>
 </div></div>
-<div id="moveModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>移动客户</h3>
-    <button id="moveToPoolBtn">移入公海</button>
-    <button id="moveToBlacklistBtn">移入黑名单</button>
-    <button id="moveToClosedBtn">移入成交客户</button>
-</div></div>
+<div id="moveModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>移动客户</h3><button id="moveToPoolBtn">移入公海</button><button id="moveToClosedBtn">移入成交客户</button><button id="moveToBlacklistBtn">移入黑名单</button></div></div>
 <div id="phoneModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>绑定手机号</h3><input id="phoneNumber" placeholder="手机号"><input id="phoneDesc" placeholder="备注（卡1/卡2）"><button id="savePhoneBtn">保存</button></div></div>
 <div id="followHistoryModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>客户跟进历史</h3><div id="followHistoryList"></div></div></div>
 <div id="followModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>记录跟进</h3><input type="hidden" id="followCustomerId"><input id="followContent" placeholder="跟进内容"><button id="saveFollowBtn">保存</button></div></div>
 <div id="smsModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>发送短信</h3><select id="smsPhoneSelect"></select><select id="smsTemplateSelect"></select><textarea id="smsContent" placeholder="短信内容，可用{尊称}"></textarea><button id="saveSmsBtn">发送</button></div></div>
 <div id="smsTplModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>编辑短信模板</h3><input id="tplName" placeholder="模板名称"><textarea id="tplContent" placeholder="模板内容，可用{尊称}"></textarea><button id="saveTplBtn">保存</button></div></div>
-<div id="userMgmtModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>员工权限管理</h3>
-    <div style="margin-bottom:16px;">
-        <input type="text" id="newUserName" placeholder="姓名">
-        <input type="text" id="newUserAccount" placeholder="账号">
-        <input type="password" id="newUserPassword" placeholder="密码">
-        <select id="newUserRole">
-            <option value="staff">业务员</option>
-            <option value="leader">组长</option>
-            <option value="manager">经理</option>
-        </select>
-        <input type="text" id="newUserDept" placeholder="部门（如销售一部）">
-        <button id="addUserBtn">添加</button>
+
+<!-- 员工权限管理弹窗（带编辑功能） -->
+<div id="userMgmtModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>员工权限管理</h3>
+        <div style="margin-bottom:16px;">
+            <input type="text" id="newUserName" placeholder="姓名">
+            <input type="text" id="newUserAccount" placeholder="账号">
+            <input type="password" id="newUserPassword" placeholder="密码">
+            <select id="newUserRole">
+                <option value="staff">业务员</option>
+                <option value="leader">组长</option>
+                <option value="manager">经理</option>
+            </select>
+            <input type="text" id="newUserDept" placeholder="部门（如销售一部）">
+            <button id="addUserBtn">添加</button>
+        </div>
+        <div id="userList"></div>
     </div>
-    <div id="userList"></div>
-</div></div>
+</div>
 
 <div id="toast" class="toast"></div>
 
@@ -716,10 +701,10 @@
     let state = {
         customers: [],
         pool: [],
-        blacklist: [],
         phones: [],
         followups: [],
         closedCustomers: [],
+        blacklist: [], // 黑名单 [{ id, name, phone, reason, ownerId? }]
         smsTemplates: [
             { id: 1, name: '初次问候', content: '{尊称}您好，我是瑞喆科技的李四。' },
             { id: 2, name: '跟进', content: '{尊称}上次沟通的产品还有印象吗？' }
@@ -732,7 +717,8 @@
         ],
         currentUser: null,
         selectedCustomers: [],
-        movingCustomerId: null
+        movingCustomerId: null,
+        theme: 'dark' // 默认主题
     };
 
     function showToast(msg) {
@@ -742,34 +728,11 @@
         setTimeout(() => toast.style.display = 'none', 2000);
     }
 
-    // 主题切换
-    function setTheme(themeName) {
-        const body = document.body;
-        body.className = ''; // 移除所有主题类
-        if (themeName !== 'default') {
-            body.classList.add(`theme-${themeName}`);
-        }
-        // 保存到localStorage
-        localStorage.setItem('userTheme', themeName);
-        // 更新主题点激活状态
-        document.querySelectorAll('.theme-dot').forEach(dot => {
-            if (dot.dataset.theme === themeName) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
+    // 应用主题
+    function applyTheme(theme) {
+        document.body.className = 'theme-' + theme;
+        localStorage.setItem('crm_theme', theme);
     }
-
-    // 加载主题
-    const savedTheme = localStorage.getItem('userTheme') || 'default';
-    setTheme(savedTheme);
-
-    document.querySelectorAll('.theme-dot').forEach(dot => {
-        dot.addEventListener('click', () => {
-            setTheme(dot.dataset.theme);
-        });
-    });
 
     // 根据当前用户权限过滤数据
     function filterData() {
@@ -777,14 +740,14 @@
         const user = state.currentUser;
         let filteredCustomers = state.customers;
         let filteredPool = state.pool;
-        let filteredBlacklist = state.blacklist;
         let filteredClosed = state.closedCustomers;
         let filteredFollowups = state.followups;
+        // 黑名单所有人都可见，但删除权限受限制
+        let filteredBlacklist = state.blacklist;
 
         if (user.role === 'staff') {
             filteredCustomers = state.customers.filter(c => c.ownerId === user.id);
-            filteredPool = state.pool; // 公海所有人可见
-            filteredBlacklist = state.blacklist; // 黑名单所有人可见
+            filteredPool = state.pool;
             filteredClosed = state.closedCustomers.filter(c => c.ownerId === user.id);
             filteredFollowups = state.followups.filter(f => f.userId === user.id);
         } else if (user.role === 'leader') {
@@ -793,11 +756,9 @@
             filteredClosed = state.closedCustomers.filter(c => memberIds.includes(c.ownerId));
             filteredFollowups = state.followups.filter(f => memberIds.includes(f.userId));
         }
-        // 经理和admin看全部
-        return { customers: filteredCustomers, pool: filteredPool, blacklist: filteredBlacklist, closed: filteredClosed, followups: filteredFollowups };
+        return { customers: filteredCustomers, pool: filteredPool, closed: filteredClosed, followups: filteredFollowups, blacklist: filteredBlacklist };
     }
 
-    // 计算业绩 = 最终出货价 - 客户报价 + 平台码结算
     function calcPerformance(quote, platform, finalPrice) {
         quote = parseFloat(quote) || 0;
         platform = parseFloat(platform) || 0;
@@ -810,6 +771,7 @@
             const { data, error } = await supabaseClient.from('crm_data').select('*').single();
             if (!error && data) {
                 state = { ...state, ...data.data };
+                if (!state.blacklist) state.blacklist = [];
             }
         } catch (e) { console.warn(e); }
         renderAll();
@@ -833,7 +795,6 @@
         const userClosed = filtered.closed;
         const userBlacklist = filtered.blacklist;
 
-        // 工作台数字
         document.getElementById('dashCust').innerText = userCustomers.length;
         document.getElementById('dashContact').innerText = userCustomers.reduce((a,c)=>a+(c.contact?1:0),0);
         document.getElementById('dashFollow').innerText = userFollowups.length;
@@ -845,9 +806,8 @@
             const last = userFollowups.filter(f=>f.customerId===c.id).sort((a,b)=>new Date(b.time)-new Date(a.time))[0];
             return !last || (new Date() - new Date(last.time)) > 7*24*3600*1000;
         }).length;
-        // 业绩统计（从成交客户中汇总）
         let monthlyRevenue = userClosed.reduce((sum, c) => sum + (c.performance || 0), 0);
-        let monthlyTarget = 20000; // 示例目标，可以动态设置
+        let monthlyTarget = 20000;
         document.getElementById('monthlyRevenue').innerText = monthlyRevenue;
         document.getElementById('monthlyTarget').innerText = monthlyTarget;
         let rate = monthlyTarget > 0 ? (monthlyRevenue/monthlyTarget*100).toFixed(1) : 0;
@@ -882,24 +842,6 @@
         if (poolTbody) {
             poolTbody.innerHTML = state.pool.map(p => `<tr><td>${p.name}</td><td>${maskPhone(p.phone)}</td><td><button onclick="claimCustomer(${p.id})">领取</button></td></tr>`).join('');
         }
-        // 黑名单表格
-        const blacklistTbody = document.getElementById('blacklistTableBody');
-        if (blacklistTbody) {
-            blacklistTbody.innerHTML = userBlacklist.map(b => `
-                <tr>
-                    <td>${b.name}</td>
-                    <td>${maskPhone(b.phone)}</td>
-                    <td>${b.reason || ''}</td>
-                    <td>${state.users.find(u=>u.id===b.movedBy)?.name || '未知'}</td>
-                    <td>${b.movedAt ? new Date(b.movedAt).toLocaleString() : ''}</td>
-                    <td>
-                        ${state.currentUser.role === 'manager' || state.currentUser.role === 'admin' ? 
-                            `<button onclick="deleteBlacklist(${b.id})">删除</button>` : 
-                            `<button onclick="claimBlacklist(${b.id})">领取</button>`}
-                    </td>
-                </tr>
-            `).join('');
-        }
         // 成交客户表格
         const closedTbody = document.getElementById('closedTableBody');
         if (closedTbody) {
@@ -918,12 +860,27 @@
                 </tr>`;
             }).join('');
         }
+        // 黑名单表格
+        const blackTbody = document.getElementById('blacklistTableBody');
+        if (blackTbody) {
+            blackTbody.innerHTML = userBlacklist.map(b => `
+                <tr>
+                    <td>${b.name}</td>
+                    <td>${maskPhone(b.phone)}</td>
+                    <td>${b.reason || ''}</td>
+                    <td>
+                        <button onclick="claimFromBlacklist(${b.id})">领取</button>
+                        ${['admin','manager','leader'].includes(state.currentUser.role) ? `<button onclick="deleteBlacklist(${b.id})">删除</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
         // 手机号列表
         const phoneDiv = document.getElementById('phoneList');
         if (phoneDiv) {
             phoneDiv.innerHTML = state.phones.map(p => `<div class="user-row"><span>${p.desc} · ${maskPhone(p.number)}</span> <i onclick="deletePhone('${p.number}')" style="cursor:pointer;">🗑️</i></div>`).join('');
         }
-        // 跟进记录（我的面板）
+        // 跟进记录
         const followDiv = document.getElementById('followList');
         if (followDiv) {
             followDiv.innerHTML = userFollowups.slice(-10).reverse().map(f => {
@@ -936,16 +893,12 @@
         if (tplDiv) {
             tplDiv.innerHTML = state.smsTemplates.map(t => `<div class="user-row"><span>${t.name} : ${t.content}</span> <i onclick="editSmsTpl(${t.id})">✏️</i> <i onclick="deleteSmsTpl(${t.id})">🗑️</i></div>`).join('');
         }
-        // 管理员权限按钮
-        if (state.currentUser.role === 'admin') {
+        // 管理员/经理权限按钮
+        if (state.currentUser.role === 'admin' || state.currentUser.role === 'manager') {
             document.getElementById('quickUserMgmt').style.display = 'block';
-        } else {
-            document.getElementById('quickUserMgmt').style.display = 'none';
-        }
-        // 导入按钮仅经理以上可见
-        if (state.currentUser.role === 'manager' || state.currentUser.role === 'admin') {
             document.getElementById('quickImport').style.display = 'block';
         } else {
+            document.getElementById('quickUserMgmt').style.display = 'none';
             document.getElementById('quickImport').style.display = 'none';
         }
         document.getElementById('currentUserName').innerText = state.currentUser.name;
@@ -966,12 +919,21 @@
         }
     };
 
-    // 退出登录
     document.getElementById('logoutBtn').onclick = () => {
         state.currentUser = null;
         document.getElementById('appView').style.display = 'none';
         document.getElementById('loginView').style.display = 'block';
     };
+
+    // 主题切换
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.addEventListener('click', function() {
+            const theme = this.classList[1].replace('theme-', '');
+            applyTheme(theme);
+            state.theme = theme;
+            saveState();
+        });
+    });
 
     // 顶部导航切换
     document.querySelectorAll('.nav-menu .nav-item').forEach(item => {
@@ -1012,12 +974,32 @@
         const listDiv = document.getElementById('userList');
         listDiv.innerHTML = state.users.map(u => `
             <div class="user-row">
-                <span>${u.name} (${u.account})</span>
-                <span>${u.role === 'admin' ? '管理员' : u.role === 'leader' ? '组长' : u.role === 'manager' ? '经理' : '业务员'}</span>
-                <span>${u.dept}</span>
+                <input type="text" value="${u.name}" data-id="${u.id}" data-field="name" class="edit-user">
+                <input type="text" value="${u.account}" data-id="${u.id}" data-field="account" class="edit-user">
+                <input type="password" value="${u.password}" data-id="${u.id}" data-field="password" class="edit-user">
+                <select data-id="${u.id}" data-field="role" class="edit-user">
+                    <option value="staff" ${u.role==='staff'?'selected':''}>业务员</option>
+                    <option value="leader" ${u.role==='leader'?'selected':''}>组长</option>
+                    <option value="manager" ${u.role==='manager'?'selected':''}>经理</option>
+                    <option value="admin" ${u.role==='admin'?'selected':''}>管理员</option>
+                </select>
+                <input type="text" value="${u.dept}" data-id="${u.id}" data-field="dept" class="edit-user">
                 ${u.role !== 'admin' ? '<button onclick="deleteUser('+u.id+')">删除</button>' : ''}
             </div>
         `).join('');
+        // 绑定编辑事件
+        document.querySelectorAll('.edit-user').forEach(el => {
+            el.addEventListener('change', function() {
+                const id = parseInt(this.dataset.id);
+                const field = this.dataset.field;
+                const value = this.value;
+                const user = state.users.find(u => u.id === id);
+                if (user) {
+                    user[field] = value;
+                    saveState();
+                }
+            });
+        });
         userMgmtModal.style.display = 'flex';
     };
 
@@ -1047,54 +1029,66 @@
     };
 
     // 导入功能
-    document.getElementById('downloadTemplateBtn').onclick = () => {
-        // 生成模板CSV
-        const headers = ['客户名称', '手机号', '跟进状态', '联系人', '备注'];
-        const csvContent = headers.join(',') + '\n示例客户,13800138000,有意向,张三,示例';
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = '导入模板.csv';
-        link.click();
+    document.getElementById('downloadTemplate').onclick = (e) => {
+        e.preventDefault();
+        // 模拟下载模板
+        alert('模板下载功能模拟，实际应生成Excel文件');
+    };
+    document.getElementById('uploadBtn').onclick = () => {
+        alert('上传功能模拟，实际应处理文件');
+        importModal.style.display = 'none';
     };
 
-    document.getElementById('uploadImportBtn').onclick = () => {
-        const fileInput = document.getElementById('importFile');
-        if (fileInput.files.length === 0) {
-            alert('请选择文件');
+    // 黑名单相关
+    window.openMoveModal = (id) => {
+        movingCustomerId = id;
+        moveModal.style.display = 'flex';
+    };
+    document.getElementById('moveToBlacklistBtn').onclick = () => {
+        if (movingCustomerId) {
+            document.getElementById('blacklistCustomerId').value = movingCustomerId;
+            blacklistReasonModal.style.display = 'flex';
+            moveModal.style.display = 'none';
+        }
+    };
+    document.getElementById('confirmBlacklistBtn').onclick = () => {
+        const id = parseInt(document.getElementById('blacklistCustomerId').value);
+        const reason = document.getElementById('blacklistReason').value.trim();
+        if (!reason) {
+            alert('请输入移入黑名单的理由');
             return;
         }
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const content = e.target.result;
-            // 简单解析CSV（实际应用需完善）
-            const lines = content.split('\n');
-            const headers = lines[0].split(',');
-            const customers = [];
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                const values = lines[i].split(',');
-                if (values.length >= 2) {
-                    customers.push({
-                        name: values[0].trim(),
-                        phone: values[1].trim(),
-                        status: values[2]?.trim() || '有意向',
-                        contact: values[3]?.trim() || '',
-                        ownerId: state.currentUser.id,
-                        createdAt: new Date().toISOString()
-                    });
-                }
-            }
-            state.customers.push(...customers);
+        const customer = state.customers.find(c => c.id === id);
+        if (customer) {
+            state.customers = state.customers.filter(c => c.id !== id);
+            state.blacklist.push({ ...customer, reason, ownerId: null }); // 黑名单公共
             saveState();
-            showToast(`成功导入 ${customers.length} 条客户`);
-            importModal.style.display = 'none';
-        };
-        reader.readAsText(file, 'UTF-8');
+            blacklistReasonModal.style.display = 'none';
+            document.getElementById('blacklistReason').value = '';
+            showToast('已移入黑名单');
+        }
+    };
+    window.claimFromBlacklist = (id) => {
+        const item = state.blacklist.find(b => b.id === id);
+        if (item) {
+            state.blacklist = state.blacklist.filter(b => b.id !== id);
+            state.customers.push({ ...item, ownerId: state.currentUser.id });
+            saveState();
+            showToast('已从黑名单领回');
+        }
+    };
+    window.deleteBlacklist = (id) => {
+        if (!['admin','manager','leader'].includes(state.currentUser.role)) {
+            alert('无权限删除');
+            return;
+        }
+        if (confirm('确定永久删除此黑名单客户？')) {
+            state.blacklist = state.blacklist.filter(b => b.id !== id);
+            saveState();
+        }
     };
 
-    // 其他函数
+    // 原有函数...
     window.callCustomer = (phone) => window.location.href = 'tel:' + phone;
     window.claimCustomer = (id) => {
         const c = state.pool.find(p=>p.id===id);
@@ -1104,72 +1098,18 @@
             saveState();
         }
     };
-    window.claimBlacklist = (id) => {
-        const b = state.blacklist.find(b=>b.id===id);
-        if (b) {
-            state.blacklist = state.blacklist.filter(b=>b.id!==id);
-            state.customers.push({ ...b, ownerId: state.currentUser.id });
-            saveState();
-            showToast('客户已从黑名单移出至客户列表');
-        }
-    };
-    window.deleteBlacklist = (id) => {
-        if (state.currentUser.role === 'manager' || state.currentUser.role === 'admin') {
-            state.blacklist = state.blacklist.filter(b=>b.id!==id);
-            saveState();
-            showToast('黑名单客户已删除');
-        } else {
-            alert('只有经理以上才能删除黑名单客户');
-        }
-    };
     window.deletePhone = (num) => { state.phones = state.phones.filter(p=>p.number!==num); saveState(); };
-    window.openMoveModal = (id) => { movingCustomerId = id; moveModal.style.display = 'flex'; };
     document.getElementById('moveToPoolBtn').onclick = () => {
         if (movingCustomerId) {
             const c = state.customers.find(c=>c.id===movingCustomerId);
-            if (c) {
-                state.customers = state.customers.filter(c=>c.id!==movingCustomerId);
-                state.pool.push(c);
-                saveState();
-            }
+            if (c) { state.customers = state.customers.filter(c=>c.id!==movingCustomerId); state.pool.push(c); saveState(); }
             moveModal.style.display = 'none';
-        }
-    };
-    document.getElementById('moveToBlacklistBtn').onclick = () => {
-        if (movingCustomerId) {
-            const c = state.customers.find(c=>c.id===movingCustomerId);
-            if (c) {
-                // 打开理由输入弹窗
-                document.getElementById('blacklistCustomerName').innerText = c.name;
-                document.getElementById('confirmBlacklistBtn').onclick = () => {
-                    const reason = document.getElementById('blacklistReason').value.trim();
-                    if (!reason) {
-                        alert('请输入移入理由');
-                        return;
-                    }
-                    state.customers = state.customers.filter(c=>c.id!==movingCustomerId);
-                    state.blacklist.push({
-                        ...c,
-                        reason,
-                        movedBy: state.currentUser.id,
-                        movedAt: new Date().toISOString()
-                    });
-                    saveState();
-                    blacklistReasonModal.style.display = 'none';
-                    moveModal.style.display = 'none';
-                };
-                blacklistReasonModal.style.display = 'flex';
-            }
         }
     };
     document.getElementById('moveToClosedBtn').onclick = () => {
         if (movingCustomerId) {
             const c = state.customers.find(c=>c.id===movingCustomerId);
-            if (c) {
-                state.customers = state.customers.filter(c=>c.id!==movingCustomerId);
-                state.closedCustomers.push({...c, quote: 0, platform: 0, finalPrice: 0, trackingNumber: '', trackingStatus: ''});
-                saveState();
-            }
+            if (c) { state.customers = state.customers.filter(c=>c.id!==movingCustomerId); state.closedCustomers.push({...c, trackingNumber:'', trackingStatus:''}); saveState(); }
             moveModal.style.display = 'none';
         }
     };
@@ -1242,7 +1182,6 @@
         const quote = parseFloat(document.getElementById('closedQuote').value) || 0;
         const platform = parseFloat(document.getElementById('closedPlatform').value) || 0;
         const finalPrice = parseFloat(document.getElementById('closedFinalPrice').value) || 0;
-        const performance = calcPerformance(quote, platform, finalPrice);
         if (name && phone) {
             state.closedCustomers.push({
                 id: Date.now(),
@@ -1251,10 +1190,9 @@
                 quote,
                 platform,
                 finalPrice,
-                performance,
+                performance: calcPerformance(quote, platform, finalPrice),
                 ownerId: state.currentUser.id,
-                trackingNumber: '',
-                trackingStatus: ''
+                trackingNumber: ''
             });
             saveState();
             closedModal.style.display = 'none';
@@ -1275,8 +1213,8 @@
         document.getElementById('detailQuote').value = c.quote || 0;
         document.getElementById('detailPlatform').value = c.platform || 0;
         document.getElementById('detailFinalPrice').value = c.finalPrice || 0;
-        document.getElementById('detailPerformance').innerText = c.performance || 0;
         document.getElementById('detailTrackingNumber').value = c.trackingNumber || '';
+        document.getElementById('detailPerformance').innerText = c.performance || calcPerformance(c.quote, c.platform, c.finalPrice);
         closedDetailModal.style.display = 'flex';
     };
     document.getElementById('updateClosedBtn').onclick = () => {
@@ -1288,7 +1226,7 @@
             c.finalPrice = parseFloat(document.getElementById('detailFinalPrice').value) || 0;
             c.performance = calcPerformance(c.quote, c.platform, c.finalPrice);
             c.trackingNumber = document.getElementById('detailTrackingNumber').value.trim();
-            c.trackingStatus = '已揽件';
+            c.trackingStatus = '已更新';
             saveState();
             closedDetailModal.style.display = 'none';
         }
@@ -1352,6 +1290,9 @@
     // 初始化
     document.getElementById('loginView').style.display = 'block';
     document.getElementById('appView').style.display = 'none';
+    // 加载主题
+    const savedTheme = localStorage.getItem('crm_theme') || 'dark';
+    applyTheme(savedTheme);
     setInterval(loadFromCloud, 10000);
 </script>
 </body>
