@@ -98,19 +98,62 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 20px;
+            position: relative;
         }
         .top-nav-left { display: flex; align-items: center; gap: 24px; }
         .company-name { font-size: 18px; font-weight: 600; color: var(--text-primary); }
         .nav-menu { display: flex; gap: 16px; }
         .nav-item { color: var(--text-secondary); cursor: pointer; padding: 4px 8px; border-radius: 6px; }
         .nav-item.active { background: #e6f7ff; color: var(--accent-color); }
-        .top-nav-right { display: flex; align-items: center; gap: 16px; }
+        .top-nav-right { display: flex; align-items: center; gap: 16px; position: relative; }
         .search-box { display: flex; align-items: center; background: #f1f5f9; border-radius: 20px; padding: 4px 12px; }
         .search-box input { border: none; background: transparent; padding: 6px 8px; outline: none; width: 200px; color: var(--text-primary); }
         .icon-btn { background: none; border: none; font-size: 16px; color: var(--text-secondary); cursor: pointer; padding: 4px 8px; }
         .badge { background: var(--accent-color); color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; margin-left: 4px; }
         .user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .logout-btn { margin-left: 8px; color: var(--danger-color); cursor: pointer; }
+
+        /* 设置下拉菜单 */
+        .settings-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 280px;
+            padding: 16px;
+            z-index: 100;
+            display: none;
+        }
+        .settings-dropdown.show { display: block; }
+        .settings-section { margin-bottom: 20px; }
+        .settings-section h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+        .settings-section .phone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .settings-section .phone-item:last-child { border-bottom: none; }
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .theme-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .theme-option.active { border-color: var(--accent-color); }
+        .theme-dark { background: #1e293b; }
+        .theme-light { background: #f8fafc; border: 1px solid #ccc; }
+        .theme-blue { background: #2563eb; }
+        .theme-green { background: #16a34a; }
 
         /* 左侧快捷栏 */
         .main-layout { display: flex; gap: 20px; }
@@ -146,11 +189,9 @@
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        /* 顶层面板 */
         .top-panel { display: none; }
         .top-panel.active { display: block; }
 
-        /* 二级导航 */
         .sub-tabs {
             display: flex;
             gap: 16px;
@@ -169,11 +210,9 @@
         }
         .sub-tab.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
 
-        /* 子面板 */
         .sub-panel { display: none; }
         .sub-panel.active { display: block; }
 
-        /* 筛选栏 */
         .filter-bar {
             display: flex;
             gap: 12px;
@@ -190,7 +229,6 @@
             background: var(--bg-card);
             color: var(--text-primary);
         }
-        /* 批量操作 */
         .batch-bar {
             display: flex;
             gap: 12px;
@@ -208,7 +246,6 @@
             font-size: 14px;
             color: var(--text-primary);
         }
-        /* 表格 */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -234,7 +271,6 @@
         }
         .action-buttons button:hover { color: var(--accent-color); }
 
-        /* 分页 */
         .pagination {
             display: flex;
             justify-content: flex-end;
@@ -251,7 +287,6 @@
         }
         .pagination .current { background: var(--accent-color); color: white; border-color: var(--accent-color); }
 
-        /* 工作台卡片网格 */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -275,7 +310,6 @@
         .stat-number { font-size: 28px; font-weight: 700; color: var(--text-primary); }
         .stat-label { font-size: 13px; color: var(--text-secondary); }
 
-        /* 弹窗 */
         .modal {
             display: none;
             position: fixed;
@@ -329,8 +363,6 @@
             z-index: 2000;
             display: none;
         }
-
-        /* 权限管理 */
         .user-list { margin-top: 20px; }
         .user-row {
             display: flex;
@@ -341,25 +373,6 @@
         .user-row span { flex: 1; }
         .user-row select, .user-row input { width: 120px; margin-right: 8px; }
         .user-row button { margin-left: 8px; }
-
-        /* 主题选择器 */
-        .theme-selector {
-            display: flex;
-            gap: 10px;
-            margin: 16px 0;
-        }
-        .theme-option {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-        .theme-option.active { border-color: var(--accent-color); }
-        .theme-dark { background: #1e293b; }
-        .theme-light { background: #f8fafc; border: 1px solid #ccc; }
-        .theme-blue { background: #2563eb; }
-        .theme-green { background: #16a34a; }
     </style>
 </head>
 <body>
@@ -392,11 +405,33 @@
                 </div>
                 <span class="icon-btn"><i class="far fa-bell"></i> 提醒 <span class="badge">NEW</span></span>
                 <span class="icon-btn"><i class="far fa-question-circle"></i> 帮助</span>
-                <span class="icon-btn"><i class="fas fa-cog"></i> 设置</span>
+                <span class="icon-btn" id="settingsBtn"><i class="fas fa-cog"></i> 设置</span>
                 <span class="user-info" id="userMenu">
                     <i class="fas fa-user-circle"></i> <span id="currentUserName">邹裕</span>
                     <i class="fas fa-sign-out-alt logout-btn" id="logoutBtn" title="退出登录"></i>
                 </span>
+                <!-- 设置下拉菜单 -->
+                <div class="settings-dropdown" id="settingsDropdown">
+                    <div class="settings-section">
+                        <h4>绑定手机号</h4>
+                        <div id="dropdownPhoneList"></div>
+                        <button class="quick-btn" style="margin-top:8px;" id="dropdownAddPhone">+ 添加手机号</button>
+                    </div>
+                    <div class="settings-section">
+                        <h4>短信模板</h4>
+                        <div id="dropdownSmsTplList"></div>
+                        <button class="quick-btn" style="margin-top:8px;" id="dropdownAddSmsTpl">+ 新建模板</button>
+                    </div>
+                    <div class="settings-section">
+                        <h4>主题选择</h4>
+                        <div class="theme-selector">
+                            <div class="theme-option theme-dark" data-theme="dark" title="深色"></div>
+                            <div class="theme-option theme-light" data-theme="light" title="浅色"></div>
+                            <div class="theme-option theme-blue" data-theme="blue" title="蓝色"></div>
+                            <div class="theme-option theme-green" data-theme="green" title="绿色"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -405,14 +440,11 @@
             <div class="left-quick">
                 <div class="quick-title">快捷新增</div>
                 <button class="quick-btn" id="quickAddCustomer"><i class="fas fa-user-plus"></i> 客户</button>
-                <!-- 导入按钮仅经理及以上可见 -->
                 <button class="quick-btn" id="quickImport" style="display:none;"><i class="fas fa-upload"></i> 导入</button>
-                <button class="quick-btn" id="quickDuplicate"><i class="fas fa-clone"></i> 客户查重</button>
+                <button class="quick-btn" id="quickDuplicate" style="display:none;">查重</button> <!-- 查重已合并到导入，可隐藏 -->
                 <div style="margin-top:24px;">
                     <div class="quick-title">常用</div>
                     <button class="quick-btn" id="quickFollow"><i class="fas fa-tasks"></i> 跟进记录</button>
-                    <button class="quick-btn" id="quickSmsTpl"><i class="fas fa-envelope"></i> 短信模板</button>
-                    <!-- 主账号可见的权限管理 -->
                     <button class="quick-btn" id="quickUserMgmt" style="display:none;"><i class="fas fa-users-cog"></i> 员工权限</button>
                 </div>
             </div>
@@ -421,20 +453,19 @@
             <div class="right-content">
                 <!-- 顶层面板：工作台 -->
                 <div id="workbench-panel" class="top-panel active">
-                    <!-- 二级标签页（增加了黑名单） -->
                     <div class="sub-tabs">
                         <span class="sub-tab active" data-subtab="dashboard">工作台</span>
                         <span class="sub-tab" data-subtab="customer">客户管理</span>
                         <span class="sub-tab" data-subtab="pool">公海池</span>
                         <span class="sub-tab" data-subtab="closed">成交客户</span>
                         <span class="sub-tab" data-subtab="blacklist">黑名单</span>
-                        <span class="sub-tab" data-subtab="profile">我的</span>
+                        <span class="sub-tab" data-subtab="recent">近期跟进记录</span> <!-- 原“我的”改为近期跟进记录 -->
                     </div>
 
                     <!-- 二级内容面板 -->
                     <div id="subpanel-dashboard" class="sub-panel active">
+                        <!-- 工作台内容不变 -->
                         <div class="dashboard-grid">
-                            <!-- 销售简报 -->
                             <div class="card">
                                 <h3><i class="fas fa-chart-line"></i> 销售简报</h3>
                                 <div style="display:flex; justify-content:space-around;">
@@ -443,7 +474,6 @@
                                     <div><span class="stat-number" id="dashFollow">0</span><div class="stat-label">跟进</div></div>
                                 </div>
                             </div>
-                            <!-- 日历 -->
                             <div class="card">
                                 <h3><i class="far fa-calendar-alt"></i> 2026.03月</h3>
                                 <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:13px;">
@@ -459,7 +489,6 @@
                                     <div>今日新增：<span id="todayNew">0</span></div>
                                 </div>
                             </div>
-                            <!-- 跟进行为分析 -->
                             <div class="card">
                                 <h3><i class="fas fa-chart-bar"></i> 跟进行为</h3>
                                 <div>跟进总次数：<span id="followTotal">0</span></div>
@@ -468,7 +497,6 @@
                                 <div>拜访对象数：0</div>
                                 <div style="font-size:12px; color:var(--text-secondary);">环比：-17.33% / -15.07%</div>
                             </div>
-                            <!-- 预警卡片 -->
                             <div class="card">
                                 <h3><i class="fas fa-exclamation-triangle"></i> 预警</h3>
                                 <div>超过7天未跟进：<span id="warn7">0</span></div>
@@ -476,13 +504,11 @@
                                 <div>7天内需回款：0</div>
                                 <div>30天内到期合同：0</div>
                             </div>
-                            <!-- 个人目标完成度 -->
                             <div class="card">
                                 <h3><i class="fas fa-bullseye"></i> 个人目标</h3>
                                 <div>完成度：<span id="targetCompleted">0</span>/<span id="targetTotal">0</span></div>
                                 <div>拜访计划本月：0</div>
                             </div>
-                            <!-- 我的业绩统计 -->
                             <div class="card">
                                 <h3><i class="fas fa-coins"></i> 我的业绩统计</h3>
                                 <div>本月业绩：¥<span id="monthlyRevenue">0</span></div>
@@ -492,7 +518,6 @@
                                     <div id="monthlyBar" style="width:0%; height:8px; background:var(--accent-color); border-radius:4px;"></div>
                                 </div>
                             </div>
-                            <!-- 部门荣誉榜 -->
                             <div class="card">
                                 <h3><i class="fas fa-trophy"></i> 部门荣誉榜</h3>
                                 <ul style="list-style:none; padding:0;" id="rankList">
@@ -504,16 +529,14 @@
                         </div>
                     </div>
 
-                    <!-- 客户管理子面板 -->
+                    <!-- 客户管理面板 (保持不变) -->
                     <div id="subpanel-customer" class="sub-panel">
-                        <!-- 筛选栏 -->
                         <div class="filter-bar">
                             <select id="filterStatus"><option value="all">全部跟进状态</option></select>
                             <select id="filterDept"><option value="all">全部部门</option></select>
                             <select id="filterOwner"><option value="all">全部负责人</option></select>
                             <input type="text" id="searchCustomer" placeholder="请输入搜索内容">
                         </div>
-                        <!-- 批量操作 -->
                         <div class="batch-bar">
                             <span><span id="selectedCount">0</span> 已选</span>
                             <button id="batchEdit">编辑</button>
@@ -521,7 +544,6 @@
                             <button id="batchSms">发送短信</button>
                             <button id="batchMore">更多操作 <i class="fas fa-chevron-down"></i></button>
                         </div>
-                        <!-- 表格 -->
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -540,7 +562,6 @@
                             </thead>
                             <tbody id="customerTableBody"></tbody>
                         </table>
-                        <!-- 分页 -->
                         <div class="pagination">
                             <button>《</button>
                             <button class="current">1</button>
@@ -553,7 +574,7 @@
                         </div>
                     </div>
 
-                    <!-- 公海池子面板 -->
+                    <!-- 公海池面板 -->
                     <div id="subpanel-pool" class="sub-panel">
                         <table class="data-table">
                             <thead><tr><th>客户名称</th><th>手机号</th><th>操作</th></tr></thead>
@@ -561,7 +582,7 @@
                         </table>
                     </div>
 
-                    <!-- 成交客户子面板 -->
+                    <!-- 成交客户面板 -->
                     <div id="subpanel-closed" class="sub-panel">
                         <button class="quick-btn" style="width:auto; margin-bottom:16px;" id="addClosedBtn">新增成交</button>
                         <table class="data-table">
@@ -570,7 +591,7 @@
                         </table>
                     </div>
 
-                    <!-- 黑名单子面板 -->
+                    <!-- 黑名单面板 -->
                     <div id="subpanel-blacklist" class="sub-panel">
                         <table class="data-table">
                             <thead><tr><th>客户名称</th><th>手机号</th><th>移入理由</th><th>操作</th></tr></thead>
@@ -578,30 +599,14 @@
                         </table>
                     </div>
 
-                    <!-- 我的子面板 -->
-                    <div id="subpanel-profile" class="sub-panel">
-                        <h3>绑定手机号</h3>
-                        <div id="phoneList"></div>
-                        <button class="quick-btn" style="width:auto;" id="addPhoneBtn">+ 添加手机号</button>
-                        <hr style="margin:20px 0;">
-                        <h3>跟进记录</h3>
-                        <div id="followList"></div>
-                        <hr style="margin:20px 0;">
-                        <h3>短信模板</h3>
-                        <div id="smsTplList"></div>
-                        <button class="quick-btn" style="width:auto;" id="addSmsTplBtn">+ 新建模板</button>
-                        <hr style="margin:20px 0;">
-                        <h3>主题选择</h3>
-                        <div class="theme-selector">
-                            <div class="theme-option theme-dark" data-theme="dark" title="深色"></div>
-                            <div class="theme-option theme-light" data-theme="light" title="浅色"></div>
-                            <div class="theme-option theme-blue" data-theme="blue" title="蓝色"></div>
-                            <div class="theme-option theme-green" data-theme="green" title="绿色"></div>
-                        </div>
+                    <!-- 近期跟进记录面板（原“我的”） -->
+                    <div id="subpanel-recent" class="sub-panel">
+                        <h3>近期跟进记录</h3>
+                        <div id="recentFollowList" class="history-list"></div>
                     </div>
                 </div>
 
-                <!-- 顶层面板：报表中心 -->
+                <!-- 报表中心面板（占位） -->
                 <div id="report-panel" class="top-panel">
                     <div style="padding:40px; text-align:center; color:var(--text-secondary);">
                         <i class="fas fa-chart-pie" style="font-size:48px; margin-bottom:20px;"></i>
@@ -616,31 +621,21 @@
 <!-- 各种弹窗 -->
 <div id="customerModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建客户</h3><input id="custName" placeholder="客户姓名"><input id="custPhone" placeholder="手机号"><button id="saveCustomerBtn">保存</button></div></div>
 
-<!-- 导入弹窗 -->
+<!-- 导入弹窗（增强） -->
 <div id="importModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
         <h3>数据导入</h3>
         <p><a href="#" id="downloadTemplate">下载导入模板</a></p>
         <input type="file" id="uploadFile" accept=".xlsx,.xls,.csv">
-        <button id="uploadBtn">上传</button>
+        <button id="uploadBtn">上传并查重</button>
+        <div id="importResult" style="margin-top:16px;"></div>
     </div>
 </div>
 
-<div id="duplicateModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>客户查重</h3><p>查重功能开发中。</p></div></div>
+<div id="duplicateModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>客户查重</h3><p>查重功能已合并至导入。</p></div></div>
 <div id="followHistoryAllModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>所有跟进记录</h3><div id="allFollowList"></div></div></div>
-
-<!-- 黑名单移入弹窗 -->
-<div id="blacklistReasonModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>移入黑名单</h3>
-        <input type="hidden" id="blacklistCustomerId">
-        <textarea id="blacklistReason" placeholder="请输入移入黑名单的理由" rows="3" style="width:100%;"></textarea>
-        <button id="confirmBlacklistBtn">确认移入</button>
-    </div>
-</div>
-
+<div id="blacklistReasonModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>移入黑名单</h3><input type="hidden" id="blacklistCustomerId"><textarea id="blacklistReason" placeholder="请输入移入黑名单的理由" rows="3"></textarea><button id="confirmBlacklistBtn">确认移入</button></div></div>
 <div id="closedModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>新建成交客户</h3>
     <input id="closedName" placeholder="客户姓名">
     <input id="closedPhone" placeholder="手机号">
@@ -668,27 +663,21 @@
 <div id="followModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>记录跟进</h3><input type="hidden" id="followCustomerId"><input id="followContent" placeholder="跟进内容"><button id="saveFollowBtn">保存</button></div></div>
 <div id="smsModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>发送短信</h3><select id="smsPhoneSelect"></select><select id="smsTemplateSelect"></select><textarea id="smsContent" placeholder="短信内容，可用{尊称}"></textarea><button id="saveSmsBtn">发送</button></div></div>
 <div id="smsTplModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>编辑短信模板</h3><input id="tplName" placeholder="模板名称"><textarea id="tplContent" placeholder="模板内容，可用{尊称}"></textarea><button id="saveTplBtn">保存</button></div></div>
-
-<!-- 员工权限管理弹窗（带编辑功能） -->
-<div id="userMgmtModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>员工权限管理</h3>
-        <div style="margin-bottom:16px;">
-            <input type="text" id="newUserName" placeholder="姓名">
-            <input type="text" id="newUserAccount" placeholder="账号">
-            <input type="password" id="newUserPassword" placeholder="密码">
-            <select id="newUserRole">
-                <option value="staff">业务员</option>
-                <option value="leader">组长</option>
-                <option value="manager">经理</option>
-            </select>
-            <input type="text" id="newUserDept" placeholder="部门（如销售一部）">
-            <button id="addUserBtn">添加</button>
-        </div>
-        <div id="userList"></div>
+<div id="userMgmtModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>员工权限管理</h3>
+    <div style="margin-bottom:16px;">
+        <input type="text" id="newUserName" placeholder="姓名">
+        <input type="text" id="newUserAccount" placeholder="账号">
+        <input type="password" id="newUserPassword" placeholder="密码">
+        <select id="newUserRole">
+            <option value="staff">业务员</option>
+            <option value="leader">组长</option>
+            <option value="manager">经理</option>
+        </select>
+        <input type="text" id="newUserDept" placeholder="部门（如销售一部）">
+        <button id="addUserBtn">添加</button>
     </div>
-</div>
+    <div id="userList"></div>
+</div></div>
 
 <div id="toast" class="toast"></div>
 
@@ -704,7 +693,7 @@
         phones: [],
         followups: [],
         closedCustomers: [],
-        blacklist: [], // 黑名单 [{ id, name, phone, reason, ownerId? }]
+        blacklist: [],
         smsTemplates: [
             { id: 1, name: '初次问候', content: '{尊称}您好，我是瑞喆科技的李四。' },
             { id: 2, name: '跟进', content: '{尊称}上次沟通的产品还有印象吗？' }
@@ -718,7 +707,7 @@
         currentUser: null,
         selectedCustomers: [],
         movingCustomerId: null,
-        theme: 'dark' // 默认主题
+        theme: 'dark'
     };
 
     function showToast(msg) {
@@ -728,13 +717,11 @@
         setTimeout(() => toast.style.display = 'none', 2000);
     }
 
-    // 应用主题
     function applyTheme(theme) {
         document.body.className = 'theme-' + theme;
         localStorage.setItem('crm_theme', theme);
     }
 
-    // 根据当前用户权限过滤数据
     function filterData() {
         if (!state.currentUser) return;
         const user = state.currentUser;
@@ -742,12 +729,10 @@
         let filteredPool = state.pool;
         let filteredClosed = state.closedCustomers;
         let filteredFollowups = state.followups;
-        // 黑名单所有人都可见，但删除权限受限制
         let filteredBlacklist = state.blacklist;
 
         if (user.role === 'staff') {
             filteredCustomers = state.customers.filter(c => c.ownerId === user.id);
-            filteredPool = state.pool;
             filteredClosed = state.closedCustomers.filter(c => c.ownerId === user.id);
             filteredFollowups = state.followups.filter(f => f.userId === user.id);
         } else if (user.role === 'leader') {
@@ -795,6 +780,7 @@
         const userClosed = filtered.closed;
         const userBlacklist = filtered.blacklist;
 
+        // 工作台
         document.getElementById('dashCust').innerText = userCustomers.length;
         document.getElementById('dashContact').innerText = userCustomers.reduce((a,c)=>a+(c.contact?1:0),0);
         document.getElementById('dashFollow').innerText = userFollowups.length;
@@ -837,12 +823,12 @@
                 </tr>
             `).join('');
         }
-        // 公海表格
+        // 公海
         const poolTbody = document.getElementById('poolTableBody');
         if (poolTbody) {
             poolTbody.innerHTML = state.pool.map(p => `<tr><td>${p.name}</td><td>${maskPhone(p.phone)}</td><td><button onclick="claimCustomer(${p.id})">领取</button></td></tr>`).join('');
         }
-        // 成交客户表格
+        // 成交客户
         const closedTbody = document.getElementById('closedTableBody');
         if (closedTbody) {
             closedTbody.innerHTML = userClosed.map(c => {
@@ -860,7 +846,7 @@
                 </tr>`;
             }).join('');
         }
-        // 黑名单表格
+        // 黑名单
         const blackTbody = document.getElementById('blacklistTableBody');
         if (blackTbody) {
             blackTbody.innerHTML = userBlacklist.map(b => `
@@ -875,24 +861,18 @@
                 </tr>
             `).join('');
         }
-        // 手机号列表
-        const phoneDiv = document.getElementById('phoneList');
-        if (phoneDiv) {
-            phoneDiv.innerHTML = state.phones.map(p => `<div class="user-row"><span>${p.desc} · ${maskPhone(p.number)}</span> <i onclick="deletePhone('${p.number}')" style="cursor:pointer;">🗑️</i></div>`).join('');
-        }
-        // 跟进记录
-        const followDiv = document.getElementById('followList');
-        if (followDiv) {
-            followDiv.innerHTML = userFollowups.slice(-10).reverse().map(f => {
+        // 近期跟进记录（原“我的”）
+        const recentDiv = document.getElementById('recentFollowList');
+        if (recentDiv) {
+            recentDiv.innerHTML = userFollowups.slice(-20).reverse().map(f => {
                 const cust = userCustomers.find(c=>c.id===f.customerId) || {name:'未知'};
                 return `<div class="user-row"><span>${cust.name} · ${f.content} · ${new Date(f.time).toLocaleString()}</span></div>`;
             }).join('');
         }
-        // 短信模板列表
-        const tplDiv = document.getElementById('smsTplList');
-        if (tplDiv) {
-            tplDiv.innerHTML = state.smsTemplates.map(t => `<div class="user-row"><span>${t.name} : ${t.content}</span> <i onclick="editSmsTpl(${t.id})">✏️</i> <i onclick="deleteSmsTpl(${t.id})">🗑️</i></div>`).join('');
-        }
+        // 手机号列表（用于设置下拉）
+        renderDropdownPhones();
+        // 短信模板列表（用于设置下拉）
+        renderDropdownTemplates();
         // 管理员/经理权限按钮
         if (state.currentUser.role === 'admin' || state.currentUser.role === 'manager') {
             document.getElementById('quickUserMgmt').style.display = 'block';
@@ -902,6 +882,31 @@
             document.getElementById('quickImport').style.display = 'none';
         }
         document.getElementById('currentUserName').innerText = state.currentUser.name;
+    }
+
+    function renderDropdownPhones() {
+        const list = document.getElementById('dropdownPhoneList');
+        if (!list) return;
+        list.innerHTML = state.phones.map(p => `
+            <div class="phone-item">
+                <span>${p.desc} · ${maskPhone(p.number)}</span>
+                <i onclick="deletePhone('${p.number}')" style="cursor:pointer;">🗑️</i>
+            </div>
+        `).join('');
+    }
+
+    function renderDropdownTemplates() {
+        const list = document.getElementById('dropdownSmsTplList');
+        if (!list) return;
+        list.innerHTML = state.smsTemplates.map(t => `
+            <div class="phone-item">
+                <span>${t.name} : ${t.content}</span>
+                <span>
+                    <i onclick="editSmsTpl(${t.id})" style="cursor:pointer;">✏️</i>
+                    <i onclick="deleteSmsTpl(${t.id})" style="cursor:pointer;">🗑️</i>
+                </span>
+            </div>
+        `).join('');
     }
 
     // 登录
@@ -925,6 +930,18 @@
         document.getElementById('loginView').style.display = 'block';
     };
 
+    // 设置下拉菜单
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsDropdown = document.getElementById('settingsDropdown');
+    settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', () => {
+        settingsDropdown.classList.remove('show');
+    });
+    settingsDropdown.addEventListener('click', (e) => e.stopPropagation());
+
     // 主题切换
     document.querySelectorAll('.theme-option').forEach(opt => {
         opt.addEventListener('click', function() {
@@ -935,7 +952,7 @@
         });
     });
 
-    // 顶部导航切换
+    // 顶部导航
     document.querySelectorAll('.nav-menu .nav-item').forEach(item => {
         item.addEventListener('click', function() {
             document.querySelectorAll('.nav-menu .nav-item').forEach(i => i.classList.remove('active'));
@@ -946,7 +963,7 @@
         });
     });
 
-    // 二级标签页切换
+    // 二级标签
     document.querySelectorAll('.sub-tab').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
@@ -957,10 +974,9 @@
         });
     });
 
-    // 左侧快捷按钮
+    // 快捷按钮
     document.getElementById('quickAddCustomer').onclick = () => customerModal.style.display = 'flex';
     document.getElementById('quickImport').onclick = () => importModal.style.display = 'flex';
-    document.getElementById('quickDuplicate').onclick = () => duplicateModal.style.display = 'flex';
     document.getElementById('quickFollow').onclick = () => {
         const list = state.followups.map(f => {
             const cust = state.customers.find(c=>c.id===f.customerId) || {name:'未知'};
@@ -969,7 +985,6 @@
         document.getElementById('allFollowList').innerHTML = list || '无记录';
         followHistoryAllModal.style.display = 'flex';
     };
-    document.getElementById('quickSmsTpl').onclick = () => smsTplModal.style.display = 'flex';
     document.getElementById('quickUserMgmt').onclick = () => {
         const listDiv = document.getElementById('userList');
         listDiv.innerHTML = state.users.map(u => `
@@ -987,7 +1002,6 @@
                 ${u.role !== 'admin' ? '<button onclick="deleteUser('+u.id+')">删除</button>' : ''}
             </div>
         `).join('');
-        // 绑定编辑事件
         document.querySelectorAll('.edit-user').forEach(el => {
             el.addEventListener('change', function() {
                 const id = parseInt(this.dataset.id);
@@ -1032,11 +1046,55 @@
     document.getElementById('downloadTemplate').onclick = (e) => {
         e.preventDefault();
         // 模拟下载模板
-        alert('模板下载功能模拟，实际应生成Excel文件');
+        const csv = '姓名,手机号\n示例客户,13800138000';
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '导入模板.csv';
+        a.click();
     };
     document.getElementById('uploadBtn').onclick = () => {
-        alert('上传功能模拟，实际应处理文件');
-        importModal.style.display = 'none';
+        const fileInput = document.getElementById('uploadFile');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert('请选择文件');
+            return;
+        }
+        // 模拟读取文件内容（假设为CSV，此处模拟数据）
+        // 实际应解析文件，这里使用模拟数据
+        const mockNewCustomers = [
+            { name: '赵六', phone: '13912345678' },
+            { name: '钱七', phone: '13800138000' }, // 假设此号码可能已存在
+            { name: '孙八', phone: '13712345678' },
+        ];
+        // 去重逻辑
+        const allPhones = [...state.customers, ...state.pool].map(c => c.phone);
+        const unique = [];
+        const duplicate = [];
+        mockNewCustomers.forEach(c => {
+            if (allPhones.includes(c.phone)) {
+                duplicate.push(c);
+            } else {
+                unique.push(c);
+            }
+        });
+        // 将unique加入公海池
+        unique.forEach(c => {
+            state.pool.push({ ...c, id: Date.now() + Math.random(), createdAt: new Date().toISOString() });
+        });
+        saveState();
+
+        let resultHtml = `<p>导入完成：成功 ${unique.length} 条，重复 ${duplicate.length} 条。</p>`;
+        if (duplicate.length > 0) {
+            // 生成重复名单下载链接
+            const duplicateCsv = '姓名,手机号\n' + duplicate.map(d => `${d.name},${d.phone}`).join('\n');
+            const blob = new Blob([duplicateCsv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            resultHtml += `<p><a href="${url}" download="重复客户.csv">下载重复客户名单</a></p>`;
+        }
+        document.getElementById('importResult').innerHTML = resultHtml;
+        fileInput.value = '';
     };
 
     // 黑名单相关
@@ -1061,7 +1119,7 @@
         const customer = state.customers.find(c => c.id === id);
         if (customer) {
             state.customers = state.customers.filter(c => c.id !== id);
-            state.blacklist.push({ ...customer, reason, ownerId: null }); // 黑名单公共
+            state.blacklist.push({ ...customer, reason, ownerId: null });
             saveState();
             blacklistReasonModal.style.display = 'none';
             document.getElementById('blacklistReason').value = '';
@@ -1088,7 +1146,7 @@
         }
     };
 
-    // 原有函数...
+    // 其他函数
     window.callCustomer = (phone) => window.location.href = 'tel:' + phone;
     window.claimCustomer = (id) => {
         const c = state.pool.find(p=>p.id===id);
@@ -1160,7 +1218,6 @@
         document.getElementById('selectedCount').innerText = state.selectedCustomers.length;
     }
 
-    // 弹窗关闭
     document.querySelectorAll('.close').forEach(btn => btn.onclick = () => btn.closest('.modal').style.display = 'none');
     window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 
@@ -1246,6 +1303,10 @@
         saveState();
     };
 
+    // 添加手机号（通过设置下拉）
+    document.getElementById('dropdownAddPhone').onclick = () => {
+        phoneModal.style.display = 'flex';
+    };
     document.getElementById('addPhoneBtn').onclick = () => phoneModal.style.display = 'flex';
     document.getElementById('savePhoneBtn').onclick = () => {
         const num = document.getElementById('phoneNumber').value.trim();
@@ -1258,10 +1319,11 @@
         } else alert('请输入手机号');
     };
 
-    // 短信模板管理
+    // 短信模板管理（通过设置下拉）
+    document.getElementById('dropdownAddSmsTpl').onclick = () => {
+        smsTplModal.style.display = 'flex';
+    };
     document.getElementById('addSmsTplBtn').onclick = () => {
-        document.getElementById('tplName').value = '';
-        document.getElementById('tplContent').value = '';
         smsTplModal.style.display = 'flex';
     };
     document.getElementById('saveTplBtn').onclick = () => {
@@ -1290,7 +1352,6 @@
     // 初始化
     document.getElementById('loginView').style.display = 'block';
     document.getElementById('appView').style.display = 'none';
-    // 加载主题
     const savedTheme = localStorage.getItem('crm_theme') || 'dark';
     applyTheme(savedTheme);
     setInterval(loadFromCloud, 10000);
