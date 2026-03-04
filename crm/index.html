@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>瑞喆科技 CRM · 主题演示</title>
+    <title>瑞喆科技 CRM · 全功能演示</title>
     <style>
         /* ========== 全局样式 ========== */
         * {
@@ -18,37 +18,13 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* 主题切换按钮组 */
-        .theme-switcher {
-            position: fixed;
-            top: 10px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            gap: 8px;
-        }
-        .theme-btn {
-            padding: 6px 12px;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            backdrop-filter: blur(4px);
-            transition: 0.2s;
-        }
-        .theme-btn:hover {
-            background: rgba(0,0,0,0.7);
-        }
-
         /* ========== 主布局 ========== */
         .app {
             display: flex;
             height: 100vh;
             overflow: hidden;
             position: relative;
-            z-index: 10;  /* 确保内容在装饰层之上 */
+            z-index: 10;
         }
 
         /* 左侧边栏 */
@@ -95,6 +71,7 @@
             overflow-y: auto;
             padding: 20px;
             color: var(--text-primary);
+            position: relative;
         }
 
         /* 顶部工具栏 */
@@ -125,6 +102,9 @@
             padding: 2px 8px;
             font-size: 12px;
             margin-left: 4px;
+        }
+        .clickable {
+            cursor: pointer;
         }
 
         /* 卡片样式 */
@@ -267,6 +247,44 @@
             gap: 12px;
         }
 
+        /* 主题选择浮层 (点击设置按钮显示) */
+        .theme-popup {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            width: 160px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        .theme-popup.show {
+            display: block;
+        }
+        .theme-option {
+            padding: 8px 12px;
+            margin: 4px 0;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .theme-option:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* 页面容器 (用于切换不同内容) */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+
         /* ========== 主题定义 ========== */
         /* 科技黑 (默认) */
         .theme-tech {
@@ -298,7 +316,6 @@
 
             position: relative;
             background: 
-                /* 随机散布的桃花 (10处) */
                 radial-gradient(circle at 12% 18%, #ffb7c5 4px, transparent 4px),
                 radial-gradient(circle at 43% 67%, #ff9eb5 6px, transparent 6px),
                 radial-gradient(circle at 78% 33%, #ff85a2 5px, transparent 5px),
@@ -309,9 +326,7 @@
                 radial-gradient(circle at 8% 51%, #ffd1dc 4px, transparent 4px),
                 radial-gradient(circle at 34% 28%, #ffb7c5 5px, transparent 5px),
                 radial-gradient(circle at 72% 9%, #ffc0cb 6px, transparent 6px),
-                /* 粉色遮罩 */
                 linear-gradient(rgba(255, 228, 225, 0.9), rgba(255, 228, 225, 0.9)),
-                /* 背景图 */
                 url('https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?q=80&w=1974&auto=format&fit=crop');
             background-size: auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, cover;
             background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
@@ -363,7 +378,6 @@
 
             position: relative;
             background: 
-                /* 随机散布的竹叶 (绿色小点) */
                 radial-gradient(circle at 15% 22%, #6a9a6a 4px, transparent 4px),
                 radial-gradient(circle at 67% 48%, #4f7a4f 6px, transparent 6px),
                 radial-gradient(circle at 33% 71%, #3b6e3b 5px, transparent 5px),
@@ -374,9 +388,7 @@
                 radial-gradient(circle at 55% 34%, #81c784 4px, transparent 4px),
                 radial-gradient(circle at 26% 63%, #66bb6a 5px, transparent 5px),
                 radial-gradient(circle at 74% 88%, #2e7d32 6px, transparent 6px),
-                /* 绿色遮罩 */
                 linear-gradient(rgba(232, 245, 232, 0.9), rgba(232, 245, 232, 0.9)),
-                /* 背景竹林图 */
                 url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?q=80&w=1974&auto=format&fit=crop');
             background-size: auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, cover;
             background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
@@ -415,37 +427,30 @@
     </style>
 </head>
 <body class="theme-tech" id="appBody">
-    <!-- 主题切换器 -->
-    <div class="theme-switcher">
-        <div class="theme-btn" onclick="setTheme('tech')">⚙️ 科技黑</div>
-        <div class="theme-btn" onclick="setTheme('pink')">🌸 桃花粉</div>
-        <div class="theme-btn" onclick="setTheme('bamboo')">🎋 翠竹绿</div>
-    </div>
-
     <!-- 主应用布局 -->
     <div class="app">
-        <!-- 左侧边栏 (常用栏) -->
+        <!-- 左侧边栏 -->
         <div class="sidebar">
             <div class="logo">瑞喆科技</div>
-            <div class="nav-item active" id="menuWorkbench">工作台</div>
-            <div class="nav-item" id="menuReport">报表中心</div>
-            <div class="nav-item" id="menuFollowUp">跟进记录</div>
-            <div class="nav-item" id="menuEmployee">员工权限</div>
-            <div class="nav-item" id="menuSms">短信模板</div>
+            <div class="nav-item active" data-page="workbench">工作台</div>
+            <div class="nav-item" data-page="report">报表中心</div>
+            <div class="nav-item" data-page="followup">跟进记录</div>
+            <div class="nav-item" data-page="employee">员工权限</div>
+            <div class="nav-item" data-page="sms">短信模板</div>
             <div style="flex:1"></div>
-            <div class="nav-item" id="menuUser">邹裕 ⚙️</div>
+            <div class="nav-item" data-page="user">邹裕 ⚙️</div>
         </div>
 
-        <!-- 主内容区域 -->
+        <!-- 右侧主内容区 -->
         <div class="main">
-            <!-- 顶部栏 -->
+            <!-- 顶部工具栏 -->
             <div class="top-bar">
                 <div class="search-area">
                     <input class="search-box" placeholder="Q 搜索" />
                     <span class="badge">NEW</span>
-                    <span>提醒</span>
-                    <span>帮助</span>
-                    <span>设置</span>
+                    <span class="clickable" id="remindBtn">提醒</span>
+                    <span class="clickable" id="helpBtn">帮助</span>
+                    <span class="clickable" id="settingsBtn">设置</span>
                 </div>
                 <div class="quick-actions">
                     <button class="quick-btn" id="addUserBtn">+ 快捷新增</button>
@@ -454,76 +459,149 @@
                 </div>
             </div>
 
-            <!-- 标签页 (顶部选项卡) -->
-            <div class="tabs" id="topTabs">
-                <div class="tab active" data-tab="customer">客户管理</div>
-                <div class="tab" data-tab="public">公海池</div>
-                <div class="tab" data-tab="deal">成交客户</div>
-                <div class="tab" data-tab="blacklist">黑名单</div>
-                <div class="tab" data-tab="recent">近期跟进记录</div>
+            <!-- 主题选择浮层 (点击设置显示) -->
+            <div class="theme-popup" id="themePopup">
+                <div class="theme-option" data-theme="tech">⚙️ 科技黑</div>
+                <div class="theme-option" data-theme="pink">🌸 桃花粉</div>
+                <div class="theme-option" data-theme="bamboo">🎋 翠竹绿</div>
             </div>
 
-            <!-- 销售简报 -->
-            <div class="card">
-                <div class="card-title">销售简报 · 2026.03</div>
-                <div class="stats-row">
-                    <div class="stat-item"><span class="stat-num">15</span><div>客户数</div></div>
-                    <div class="stat-item"><span class="stat-num">22</span><div>联系人</div></div>
-                    <div class="stat-item"><span class="stat-num">29</span><div>跟进</div></div>
+            <!-- 页面容器：工作台 (默认显示) -->
+            <div id="page-workbench" class="page active">
+                <!-- 标签页 (顶部选项卡) 仅在工作台页面显示，但为了简单，我们保留在所有页面，但可通过JS隐藏？实际产品中不同页面有不同标签。这里简化：所有页面都显示同一组标签，点击标签切换下方内容。但为了演示，我们让标签页也切换页面内容。所以标签也作为导航的一部分。 -->
+                <div class="tabs">
+                    <div class="tab active" data-tab="customer">客户管理</div>
+                    <div class="tab" data-tab="public">公海池</div>
+                    <div class="tab" data-tab="deal">成交客户</div>
+                    <div class="tab" data-tab="blacklist">黑名单</div>
+                    <div class="tab" data-tab="recent">近期跟进记录</div>
                 </div>
-                <!-- 日历 (简单示例) -->
-                <div class="calendar-grid">
-                    <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
-                    <div class="cal-day">1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
-                    <div>8</div><div>9</div><div class="today">10</div><div>11</div><div>12</div><div>13</div><div>14</div>
-                    <div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div>
-                    <div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div>
+
+                <!-- 工作台具体内容 (原卡片) -->
+                <div class="card">
+                    <div class="card-title">销售简报 · 2026.03</div>
+                    <div class="stats-row">
+                        <div class="stat-item"><span class="stat-num">15</span><div>客户数</div></div>
+                        <div class="stat-item"><span class="stat-num">22</span><div>联系人</div></div>
+                        <div class="stat-item"><span class="stat-num">29</span><div>跟进</div></div>
+                    </div>
+                    <div class="calendar-grid">
+                        <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
+                        <div class="cal-day">1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
+                        <div>8</div><div>9</div><div class="today">10</div><div>11</div><div>12</div><div>13</div><div>14</div>
+                        <div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div>
+                        <div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div>
+                    </div>
+                    <div class="metric-row">
+                        <div><span class="metric-label">跟进总次数：</span><span class="metric-value">1</span></div>
+                        <div><span class="metric-label">跟进对象数：</span><span class="metric-value">1</span></div>
+                        <div><span class="metric-label">拜访总次数：</span><span class="metric-value">0</span></div>
+                        <div><span class="metric-label">拜访对象数：</span><span class="metric-value">0</span></div>
+                        <div><span class="metric-label">环比：</span><span class="metric-value">-17.33%/-15.07%</span></div>
+                    </div>
                 </div>
-                <div class="metric-row">
-                    <div><span class="metric-label">跟进总次数：</span><span class="metric-value">1</span></div>
-                    <div><span class="metric-label">跟进对象数：</span><span class="metric-value">1</span></div>
-                    <div><span class="metric-label">拜访总次数：</span><span class="metric-value">0</span></div>
-                    <div><span class="metric-label">拜访对象数：</span><span class="metric-value">0</span></div>
-                    <div><span class="metric-label">环比：</span><span class="metric-value">-17.33%/-15.07%</span></div>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div class="card" style="flex:1">
+                        <div class="card-title">数据导入</div>
+                        <div>过期任务：0</div>
+                        <div>今日新增：1</div>
+                        <div style="margin-top: 12px;">选择文件 未选择任何文件</div>
+                        <button class="quick-btn" style="margin-top: 8px;" id="uploadBtn">上传并查重</button>
+                    </div>
+                    <div class="card" style="flex:1">
+                        <div class="card-title">预警</div>
+                        <div>超过7天未跟进：0</div>
+                        <div>预计30天内签单：0</div>
+                        <div>拜访计划未执行：0</div>
+                        <div>7天内需回款：0</div>
+                        <div>30天内到期合同：0</div>
+                    </div>
+                    <div class="card" style="flex:1">
+                        <div class="card-title">我的业绩统计</div>
+                        <div>本月业绩：￥0</div>
+                        <div>本月目标：￥20000</div>
+                        <div>完成率：0.0%</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">部门荣誉榜</div>
+                    <div class="rank-item"><span>张三</span><span>+124</span></div>
+                    <div class="rank-item"><span>李四</span><span>+89</span></div>
+                    <div class="rank-item"><span>王五</span><span>+45</span></div>
                 </div>
             </div>
 
-            <!-- 数据导入 & 预警 & 业绩统计 -->
-            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <div class="card" style="flex:1">
-                    <div class="card-title">数据导入</div>
-                    <div>过期任务：0</div>
-                    <div>今日新增：1</div>
-                    <div style="margin-top: 12px;">选择文件 未选择任何文件</div>
-                    <button class="quick-btn" style="margin-top: 8px;" id="uploadBtn">上传并查重</button>
+            <!-- 其他页面占位 (隐藏) -->
+            <div id="page-report" class="page">
+                <div class="card">
+                    <div class="card-title">报表中心</div>
+                    <p>这里是报表统计页面，可展示各类图表。</p>
                 </div>
-                <div class="card" style="flex:1">
-                    <div class="card-title">预警</div>
-                    <div>超过7天未跟进：0</div>
-                    <div>预计30天内签单：0</div>
-                    <div>拜访计划未执行：0</div>
-                    <div>7天内需回款：0</div>
-                    <div>30天内到期合同：0</div>
+            </div>
+            <div id="page-followup" class="page">
+                <div class="card">
+                    <div class="card-title">跟进记录</div>
+                    <p>显示所有客户的跟进历史。</p>
                 </div>
-                <div class="card" style="flex:1">
-                    <div class="card-title">我的业绩统计</div>
-                    <div>本月业绩：￥0</div>
-                    <div>本月目标：￥20000</div>
-                    <div>完成率：0.0%</div>
+            </div>
+            <div id="page-employee" class="page">
+                <div class="card">
+                    <div class="card-title">员工权限管理</div>
+                    <p>配置员工角色和访问权限。</p>
+                </div>
+            </div>
+            <div id="page-sms" class="page">
+                <div class="card">
+                    <div class="card-title">短信模板</div>
+                    <p>管理短信通知模板。</p>
+                </div>
+            </div>
+            <div id="page-user" class="page">
+                <div class="card">
+                    <div class="card-title">个人中心</div>
+                    <p>邹裕的个人设置和账号信息。</p>
                 </div>
             </div>
 
-            <!-- 部门荣誉榜 -->
-            <div class="card">
-                <div class="card-title">部门荣誉榜</div>
-                <div class="rank-item"><span>张三</span><span>+124</span></div>
-                <div class="rank-item"><span>李四</span><span>+89</span></div>
-                <div class="rank-item"><span>王五</span><span>+45</span></div>
+            <!-- 标签页对应的子页面容器 (为了简化，我们将标签页切换也映射到同一个page区域，但这样会和左侧菜单冲突。更好的做法是标签页切换下方内容，但为了演示，我们让标签页也切换整个页面？不，产品逻辑是左侧菜单切换大模块，顶部标签切换子视图。这里我们实现为：左侧菜单切换页面，顶部标签在当前页内切换下方卡片。为了不过度复杂，我们暂不实现标签页内部切换，仅让它们也切换page（即点击标签也切换整个页面），这样每个标签对应一个独立页面，但会与左侧菜单重叠。我们可以在左侧菜单点击时保留标签页，但为了演示清晰，我们让标签页也作为导航的一种：点击客户管理显示客户管理页面，等等。这样每个菜单和标签都对应一个page。我们需要增加对应的page。 -->
+
+            <!-- 为顶部标签添加对应的页面 (隐藏) -->
+            <div id="page-customer" class="page">
+                <div class="card">
+                    <div class="card-title">客户管理</div>
+                    <p>客户列表、筛选、操作。</p>
+                </div>
+            </div>
+            <div id="page-public" class="page">
+                <div class="card">
+                    <div class="card-title">公海池</div>
+                    <p>公共客户资源池。</p>
+                </div>
+            </div>
+            <div id="page-deal" class="page">
+                <div class="card">
+                    <div class="card-title">成交客户</div>
+                    <p>已成交客户列表。</p>
+                </div>
+            </div>
+            <div id="page-blacklist" class="page">
+                <div class="card">
+                    <div class="card-title">黑名单</div>
+                    <p>禁止合作的客户。</p>
+                </div>
+            </div>
+            <div id="page-recent" class="page">
+                <div class="card">
+                    <div class="card-title">近期跟进记录</div>
+                    <p>最近一周的跟进活动。</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 用户管理模态框 (用于演示添加用户) -->
+    <!-- 用户管理模态框 -->
     <div class="modal" id="userMgmtModal">
         <div class="modal-content">
             <h3>新建用户</h3>
@@ -543,13 +621,8 @@
     </div>
 
     <script>
-        // ========== 修复: 移除全局 top 覆盖代码 ==========
-        // (原错误代码已被删除)
-
         // ========== 初始化状态 ==========
-        let state = {
-            users: []   // 用户列表
-        };
+        let state = { users: [] };
 
         // ========== DOM 元素加载完成后执行 ==========
         document.addEventListener('DOMContentLoaded', function() {
@@ -561,40 +634,80 @@
             const downloadBtn = document.getElementById('downloadTemplateBtn');
             const importBtn = document.getElementById('importBtn');
             const uploadBtn = document.getElementById('uploadBtn');
+            const remindBtn = document.getElementById('remindBtn');
+            const helpBtn = document.getElementById('helpBtn');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const themePopup = document.getElementById('themePopup');
+            const themeOptions = document.querySelectorAll('.theme-option');
 
-            // 左侧菜单元素
-            const menuWorkbench = document.getElementById('menuWorkbench');
-            const menuReport = document.getElementById('menuReport');
-            const menuFollowUp = document.getElementById('menuFollowUp');
-            const menuEmployee = document.getElementById('menuEmployee');
-            const menuSms = document.getElementById('menuSms');
-            const menuUser = document.getElementById('menuUser');
+            // 左侧菜单项
+            const navItems = document.querySelectorAll('.nav-item');
+            // 顶部标签
+            const tabs = document.querySelectorAll('.tab');
+            // 所有页面
+            const pages = document.querySelectorAll('.page');
 
-            // 顶部标签页
-            const topTabs = document.querySelectorAll('.tab');
-
-            // 辅助函数：保存状态 (模拟)
-            function saveState() {
-                console.log('状态已保存', state);
+            // 辅助函数：切换页面
+            function showPage(pageId) {
+                pages.forEach(page => page.classList.remove('active'));
+                const targetPage = document.getElementById('page-' + pageId);
+                if (targetPage) targetPage.classList.add('active');
             }
 
-            // ----- 1. 修复添加用户按钮事件 (原 ent.getElementById 错误) -----
+            // 辅助：更新左侧菜单激活状态
+            function setActiveNav(navElement) {
+                navItems.forEach(item => item.classList.remove('active'));
+                navElement.classList.add('active');
+            }
+
+            // 辅助：更新顶部标签激活状态
+            function setActiveTab(tabElement) {
+                tabs.forEach(tab => tab.classList.remove('active'));
+                tabElement.classList.add('active');
+            }
+
+            // ----- 左侧菜单点击事件 -----
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.dataset.page;
+                    if (page) {
+                        setActiveNav(this);
+                        showPage(page);
+                        // 同时也要同步顶部标签？不同页面可能有不同标签，这里简单处理：不处理顶部标签，让它保留原样。但为了视觉一致，我们可以让标签页也跟随？暂时不处理。
+                    }
+                });
+            });
+
+            // ----- 顶部标签点击事件 -----
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.dataset.tab; // 需要在HTML中添加data-tab属性
+                    if (tabName) {
+                        setActiveTab(this);
+                        showPage(tabName);
+                        // 同时取消左侧菜单的激活状态（可选）
+                        navItems.forEach(item => item.classList.remove('active'));
+                    }
+                });
+            });
+
+            // 为标签添加 data-tab 属性（已在HTML中预先添加）
+
+            // ----- 按钮点击事件 (模拟功能，无弹窗) -----
             if (addUserBtn) {
                 addUserBtn.onclick = function() {
                     userMgmtModal.style.display = 'flex';
                 };
-            } else {
-                console.warn('addUserBtn 未找到');
             }
 
-            // 模态框取消
             if (modalCancel) {
                 modalCancel.onclick = function() {
                     userMgmtModal.style.display = 'none';
                 };
             }
 
-            // 模态框保存 (修正了之前的错误逻辑)
             if (modalSave) {
                 modalSave.onclick = function() {
                     const name = document.getElementById('newUserName').value.trim();
@@ -608,118 +721,67 @@
                         return;
                     }
 
-                    // 添加到状态
-                    state.users.push({ 
-                        id: Date.now(), 
-                        name, 
-                        account: acc, 
-                        password: pwd, 
-                        role, 
-                        dept 
-                    });
-                    saveState();
-
-                    // 关闭模态框
+                    state.users.push({ id: Date.now(), name, account: acc, password: pwd, role, dept });
                     userMgmtModal.style.display = 'none';
-
-                    // 清空输入框
                     document.getElementById('newUserName').value = '';
                     document.getElementById('newUserAccount').value = '';
                     document.getElementById('newUserPassword').value = '';
                     document.getElementById('newUserDept').value = '';
-
                     alert('用户添加成功（模拟）');
                 };
             }
 
-            // ----- 2. 修复下载模板、导入等按钮无响应问题 -----
             if (downloadBtn) {
                 downloadBtn.onclick = function() {
-                    alert('下载模板功能（模拟）\n实际开发中请对接后端接口');
+                    alert('下载模板（模拟）');
                 };
             }
-
             if (importBtn) {
                 importBtn.onclick = function() {
                     alert('导入功能（模拟）');
                 };
             }
-
             if (uploadBtn) {
                 uploadBtn.onclick = function() {
                     alert('上传查重（模拟）');
                 };
             }
-
-            // ----- 3. 左侧菜单点击事件修复 (所有导航项均添加响应) -----
-            // 工作台
-            if (menuWorkbench) {
-                menuWorkbench.onclick = function(e) {
-                    e.preventDefault();
-                    // 移除其他激活状态，添加自身激活
-                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-                    menuWorkbench.classList.add('active');
-                    alert('工作台 - 功能开发中');
+            if (remindBtn) {
+                remindBtn.onclick = function() {
+                    alert('提醒功能（模拟）');
                 };
             }
-            // 报表中心
-            if (menuReport) {
-                menuReport.onclick = function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-                    menuReport.classList.add('active');
-                    alert('报表中心 - 功能开发中');
-                };
-            }
-            // 跟进记录
-            if (menuFollowUp) {
-                menuFollowUp.onclick = function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-                    menuFollowUp.classList.add('active');
-                    alert('跟进记录 - 功能开发中');
-                };
-            }
-            // 员工权限
-            if (menuEmployee) {
-                menuEmployee.onclick = function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-                    menuEmployee.classList.add('active');
-                    alert('员工权限 - 功能开发中');
-                };
-            }
-            // 短信模板
-            if (menuSms) {
-                menuSms.onclick = function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-                    menuSms.classList.add('active');
-                    alert('短信模板 - 功能开发中');
-                };
-            }
-            // 邹裕 (个人中心)
-            if (menuUser) {
-                menuUser.onclick = function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-                    menuUser.classList.add('active');
-                    alert('个人设置 - 功能开发中');
+            if (helpBtn) {
+                helpBtn.onclick = function() {
+                    alert('帮助文档（模拟）');
                 };
             }
 
-            // ----- 4. 顶部标签页点击事件 (切换active并弹出提示) -----
-            topTabs.forEach(tab => {
-                tab.onclick = function(e) {
-                    e.preventDefault();
-                    // 移除所有tab的active类
-                    topTabs.forEach(t => t.classList.remove('active'));
-                    // 给当前点击的tab添加active类
-                    this.classList.add('active');
-                    // 弹出对应提示
-                    const tabName = this.innerText;
-                    alert(`${tabName} - 功能开发中`);
+            // ----- 设置按钮：显示/隐藏主题浮层 -----
+            if (settingsBtn) {
+                settingsBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    themePopup.classList.toggle('show');
                 };
+            }
+
+            // 点击浮层内的主题选项
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const theme = this.dataset.theme;
+                    setTheme(theme);
+                    themePopup.classList.remove('show');
+                });
+            });
+
+            // 点击页面其他地方关闭浮层
+            document.addEventListener('click', function() {
+                themePopup.classList.remove('show');
+            });
+            // 阻止浮层自身点击关闭
+            themePopup.addEventListener('click', function(e) {
+                e.stopPropagation();
             });
 
             // 关闭模态框如果点击背景
@@ -733,14 +795,10 @@
         // ========== 主题切换函数 ==========
         function setTheme(theme) {
             const body = document.getElementById('appBody');
-            body.className = ''; // 清除所有主题类
-            if (theme === 'tech') {
-                body.classList.add('theme-tech');
-            } else if (theme === 'pink') {
-                body.classList.add('theme-pink');
-            } else if (theme === 'bamboo') {
-                body.classList.add('theme-bamboo');
-            }
+            body.className = '';
+            if (theme === 'tech') body.classList.add('theme-tech');
+            else if (theme === 'pink') body.classList.add('theme-pink');
+            else if (theme === 'bamboo') body.classList.add('theme-bamboo');
         }
 
         // 默认激活科技黑 (已在body上)
