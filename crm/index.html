@@ -3,805 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>瑞喆科技 CRM · 全功能演示</title>
+    <title>工作台 · 复刻版 (五主题)</title>
+    <!-- 核心图标样式 -->
+    <style data-rc-order="prepend" rc-util-key="@ant-design-icons">
+        .anticon { display: inline-block; color: inherit; font-style: normal; line-height: 0; text-align: center; text-transform: none; vertical-align: -0.125em; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .anticon > * { line-height: 1; }
+        .anticon svg { display: inline-block; }
+        .anticon::before { display: none; }
+        .anticon .anticon-icon { display: block; }
+        .anticon[tabindex] { cursor: pointer; }
+        .anticon-spin::before, .anticon-spin { display: inline-block; animation: loadingCircle 1s infinite linear; }
+        @keyframes loadingCircle { 100% { transform: rotate(360deg); } }
+    </style>
     <style>
-        /* ========== 全局样式 ========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
+        /* 全局重置 & 基础 (来自原文件) */
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #f0f2f5; transition: background-color 0.3s; }
+        input::-ms-clear, input::-ms-reveal { display: none; }
+        *, *::before, *::after { box-sizing: border-box; }
+        html { font-family: sans-serif; line-height: 1.15; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -ms-overflow-style: scrollbar; -webkit-tap-highlight-color: rgba(0,0,0,0); }
+        body { margin: 0; color: rgba(0,0,0,0.65); font-size: 14px; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif; font-variant: tabular-nums; line-height: 1.5; background-color: #f0f2f5; font-feature-settings: 'tnum'; }
+        /* 主题切换容器 */
+        .theme-switcher { position: fixed; top: 10px; right: 20px; z-index: 1000; display: flex; gap: 12px; background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); backdrop-filter: blur(4px); }
+        .theme-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .theme-dot:hover { transform: scale(1.15); border-color: #fff; }
+        .theme-dot.orange { background: #FC8352; }
+        .theme-dot.blue { background: #41A5EE; }
+        .theme-dot.green { background: #52C41A; }
+        .theme-dot.black { background: #2C3E50; }
+        .theme-dot.pink { background: #FF85B3; }
 
-        body {
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
+        /* ---------- 五套主题定义 ---------- */
+        /* 橙色主题 (默认) */
+        :root {
+            --primary: #FC8352;
+            --primary-light: #FFF2EA;
+            --primary-hover: #ffaf7a;
+            --primary-shadow: rgba(255,175,122,0.15);
+            --primary-shadow-border: rgba(255,144,82,0.4);
+            --antd-wave-shadow-color: #FC8352;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: rgba(0,0,0,0.65);
+            --text-secondary: rgba(0,0,0,0.45);
+            --border-color: #e8e8e8;
         }
-
-        /* ========== 主布局 ========== */
-        .app {
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-            z-index: 10;
+        /* 蓝色主题 */
+        .theme-blue {
+            --primary: #41A5EE;
+            --primary-light: #E6F2FF;
+            --primary-hover: #79BDFF;
+            --primary-shadow: rgba(65,165,238,0.15);
+            --primary-shadow-border: rgba(65,165,238,0.4);
+            --antd-wave-shadow-color: #41A5EE;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: rgba(0,0,0,0.65);
+            --text-secondary: rgba(0,0,0,0.45);
+            --border-color: #e8e8e8;
         }
-
-        /* 左侧边栏 */
-        .sidebar {
-            width: 220px;
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid var(--border-color);
-            padding: 20px 0;
-            display: flex;
-            flex-direction: column;
-            color: var(--text-primary);
+        /* 绿色主题 */
+        .theme-green {
+            --primary: #52C41A;
+            --primary-light: #F6FFED;
+            --primary-hover: #7ADB4C;
+            --primary-shadow: rgba(82,196,26,0.15);
+            --primary-shadow-border: rgba(82,196,26,0.4);
+            --antd-wave-shadow-color: #52C41A;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: rgba(0,0,0,0.65);
+            --text-secondary: rgba(0,0,0,0.45);
+            --border-color: #e8e8e8;
         }
-        .logo {
-            font-size: 18px;
-            font-weight: bold;
-            padding: 0 20px 20px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-        .nav-item {
-            padding: 12px 20px;
-            margin: 4px 0;
-            cursor: pointer;
-            transition: 0.2s;
-            border-left: 3px solid transparent;
-        }
-        .nav-item:hover {
-            background: var(--accent-color);
-            color: white;
-            border-left-color: white;
-        }
-        .nav-item.active {
-            background: var(--accent-color);
-            color: white;
-            border-left-color: white;
-        }
-
-        /* 右侧主内容区 */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            padding: 20px;
-            color: var(--text-primary);
-            position: relative;
-        }
-
-        /* 顶部工具栏 */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-        .search-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .search-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 8px 16px;
-            color: var(--text-primary);
-            width: 240px;
-        }
-        .badge {
-            background: #ff4d4f;
-            color: white;
-            border-radius: 12px;
-            padding: 2px 8px;
-            font-size: 12px;
-            margin-left: 4px;
-        }
-        .clickable {
-            cursor: pointer;
-        }
-
-        /* 卡片样式 */
-        .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        /* 快捷新增栏 */
-        .quick-actions {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .quick-btn {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        /* 标签页 (顶部选项卡) */
-        .tabs {
-            display: flex;
-            gap: 20px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-        .tab {
-            padding: 8px 0;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: 0.2s;
-        }
-        .tab.active {
-            border-bottom-color: var(--accent-color);
-            color: var(--accent-color);
-            font-weight: 500;
-        }
-
-        /* 销售简报数字 */
-        .stats-row {
-            display: flex;
-            gap: 30px;
-            margin: 20px 0;
-        }
-        .stat-item {
-            text-align: center;
-        }
-        .stat-num {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-
-        /* 日历网格 */
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            text-align: center;
-        }
-        .cal-day {
-            padding: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-        }
-        .cal-day.today {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        /* 进度条 & 预警 */
-        .metric-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            margin: 16px 0;
-        }
-        .metric-label {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-        .metric-value {
-            font-size: 22px;
-            font-weight: 600;
-        }
-
-        /* 部门荣誉榜 */
-        .rank-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed var(--border-color);
-        }
-
-        /* 用户管理模态框 (简单示例) */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 20000;
-        }
-        .modal-content {
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            padding: 30px;
-            border-radius: 24px;
-            width: 400px;
-            color: var(--text-primary);
-        }
-        .modal-content input, .modal-content select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0 16px;
-            background: rgba(255,255,255,0.2);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-        }
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        /* 主题选择浮层 (点击设置按钮显示) */
-        .theme-popup {
-            display: none;
-            position: absolute;
-            top: 50px;
-            right: 20px;
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            width: 160px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            z-index: 1000;
-        }
-        .theme-popup.show {
-            display: block;
-        }
-        .theme-option {
-            padding: 8px 12px;
-            margin: 4px 0;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-        .theme-option:hover {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        /* 页面容器 (用于切换不同内容) */
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
-
-        /* ========== 主题定义 ========== */
-        /* 科技黑 (默认) */
-        .theme-tech {
-            --bg-primary: #0a0a0a;
-            --bg-card: rgba(30,30,30,0.9);
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
+        /* 黑色主题 (深色模式) */
+        .theme-black {
+            --primary: #FF9800;  /* 深色背景下用亮橙色点缀，主色仍可辨识 */
+            --primary-light: #42362A;
+            --primary-hover: #FFB74D;
+            --primary-shadow: rgba(255,152,0,0.25);
+            --primary-shadow-border: rgba(255,152,0,0.5);
+            --antd-wave-shadow-color: #FF9800;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --text-color: #E0E0E0;
+            --text-secondary: #909090;
             --border-color: #333333;
-            --accent-color: #00aaff;
-            --accent-hover: #0088cc;
-            --danger-color: #ff4444;
-            --success-color: #44ff44;
-            --warning-color: #ffaa00;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1974&auto=format&fit=crop') center/cover fixed;
+            /* 覆盖全局背景 */
+            background-color: #121212 !important;
+            color: #E0E0E0;
         }
-
-        /* 桃花粉主题 (升级版) */
+        .theme-black body {
+            background-color: #121212;
+            color: #E0E0E0;
+        }
+        /* 粉色主题 */
         .theme-pink {
-            --bg-primary: #ffe4e1;
-            --bg-card: rgba(255,240,245,0.9);
-            --text-primary: #5a3e3e;
-            --text-secondary: #7a5a5a;
-            --border-color: #ffb6c1;
-            --accent-color: #ff69b4;
-            --accent-hover: #ff1493;
-            --danger-color: #ff4444;
-            --success-color: #44ff44;
-            --warning-color: #ffaa00;
-
-            position: relative;
-            background: 
-                radial-gradient(circle at 12% 18%, #ffb7c5 4px, transparent 4px),
-                radial-gradient(circle at 43% 67%, #ff9eb5 6px, transparent 6px),
-                radial-gradient(circle at 78% 33%, #ff85a2 5px, transparent 5px),
-                radial-gradient(circle at 91% 82%, #ffc0cb 7px, transparent 7px),
-                radial-gradient(circle at 24% 94%, #ffaab9 4px, transparent 4px),
-                radial-gradient(circle at 55% 41%, #ffb3c6 5px, transparent 5px),
-                radial-gradient(circle at 67% 73%, #ff9fae 6px, transparent 6px),
-                radial-gradient(circle at 8% 51%, #ffd1dc 4px, transparent 4px),
-                radial-gradient(circle at 34% 28%, #ffb7c5 5px, transparent 5px),
-                radial-gradient(circle at 72% 9%, #ffc0cb 6px, transparent 6px),
-                linear-gradient(rgba(255, 228, 225, 0.9), rgba(255, 228, 225, 0.9)),
-                url('https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?q=80&w=1974&auto=format&fit=crop');
-            background-size: auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, cover;
-            background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
-            background-attachment: fixed;
-        }
-        /* 左侧桃树 */
-        .theme-pink::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 280px;
-            height: 100vh;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 1000" preserveAspectRatio="xMidYMid meet"><rect x="120" y="400" width="40" height="500" fill="%238B4513" /><line x1="140" y1="500" x2="60" y2="350" stroke="%238B4513" stroke-width="12" /><line x1="140" y1="550" x2="220" y2="380" stroke="%238B4513" stroke-width="10" /><line x1="140" y1="600" x2="40" y2="550" stroke="%238B4513" stroke-width="8" /><line x1="140" y1="650" x2="240" y2="580" stroke="%238B4513" stroke-width="9" /><circle cx="50" cy="310" r="20" fill="%23ff69b4" opacity="0.8" /><circle cx="210" cy="340" r="24" fill="%23ff69b4" opacity="0.8" /><circle cx="30" cy="480" r="16" fill="%23ff69b4" opacity="0.8" /><circle cx="250" cy="500" r="22" fill="%23ff69b4" opacity="0.8" /><circle cx="80" cy="220" r="14" fill="%23ff69b4" opacity="0.8" /><circle cx="200" cy="200" r="18" fill="%23ff69b4" opacity="0.8" /><circle cx="110" cy="150" r="12" fill="%23ff69b4" opacity="0.8" /><circle cx="170" cy="130" r="15" fill="%23ff69b4" opacity="0.8" /><circle cx="140" cy="80" r="25" fill="%23ff69b4" opacity="0.8" /><circle cx="40" cy="750" r="8" fill="%23ffb6c1" opacity="0.6" /><circle cx="200" cy="820" r="10" fill="%23ffb6c1" opacity="0.6" /><circle cx="90" cy="910" r="7" fill="%23ffb6c1" opacity="0.6" /><circle cx="230" cy="670" r="9" fill="%23ffb6c1" opacity="0.6" /></svg>');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: left bottom;
-            pointer-events: none;
-            z-index: 1;
-        }
-        /* 右侧桃树 */
-        .theme-pink::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 280px;
-            height: 100vh;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 1000" preserveAspectRatio="xMidYMid meet"><rect x="120" y="400" width="40" height="500" fill="%238B4513" /><line x1="140" y1="500" x2="220" y2="350" stroke="%238B4513" stroke-width="12" /><line x1="140" y1="550" x2="60" y2="380" stroke="%238B4513" stroke-width="10" /><line x1="140" y1="600" x2="240" y2="550" stroke="%238B4513" stroke-width="8" /><line x1="140" y1="650" x2="40" y2="580" stroke="%238B4513" stroke-width="9" /><circle cx="230" cy="310" r="20" fill="%23ff69b4" opacity="0.8" /><circle cx="70" cy="340" r="24" fill="%23ff69b4" opacity="0.8" /><circle cx="250" cy="480" r="16" fill="%23ff69b4" opacity="0.8" /><circle cx="30" cy="500" r="22" fill="%23ff69b4" opacity="0.8" /><circle cx="200" cy="220" r="14" fill="%23ff69b4" opacity="0.8" /><circle cx="80" cy="200" r="18" fill="%23ff69b4" opacity="0.8" /><circle cx="170" cy="150" r="12" fill="%23ff69b4" opacity="0.8" /><circle cx="110" cy="130" r="15" fill="%23ff69b4" opacity="0.8" /><circle cx="140" cy="80" r="25" fill="%23ff69b4" opacity="0.8" /><circle cx="240" cy="750" r="8" fill="%23ffb6c1" opacity="0.6" /><circle cx="80" cy="820" r="10" fill="%23ffb6c1" opacity="0.6" /><circle cx="190" cy="910" r="7" fill="%23ffb6c1" opacity="0.6" /><circle cx="50" cy="670" r="9" fill="%23ffb6c1" opacity="0.6" /></svg>');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: right bottom;
-            pointer-events: none;
-            z-index: 1;
+            --primary: #FF85B3;
+            --primary-light: #FFF0F5;
+            --primary-hover: #FFB0CC;
+            --primary-shadow: rgba(255,133,179,0.15);
+            --primary-shadow-border: rgba(255,133,179,0.4);
+            --antd-wave-shadow-color: #FF85B3;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: rgba(0,0,0,0.65);
+            --text-secondary: rgba(0,0,0,0.45);
+            --border-color: #e8e8e8;
         }
 
-        /* 翠竹绿主题 (升级版) */
-        .theme-bamboo {
-            --bg-primary: #e8f5e8;
-            --bg-card: rgba(240,255,240,0.9);
-            --text-primary: #2c5e2c;
-            --text-secondary: #3e6b3e;
-            --border-color: #a5d6a5;
-            --accent-color: #4caf50;
-            --accent-hover: #388e3c;
-            --danger-color: #ff4444;
-            --success-color: #44ff44;
-            --warning-color: #ffaa00;
+        /* 应用变量到元素 */
+        body { background-color: var(--bg-color); color: var(--text-color); transition: all 0.3s; }
+        .card, .ant-card, .dashboard-card, .stat-card, .table-container, .workbench-content > div {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        a { color: var(--primary); }
+        a:hover { color: var(--primary-hover); }
+        .ant-btn-primary { background-color: var(--primary); border-color: var(--primary); }
+        .ant-btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); }
+        .ant-table-thead > tr > th { background-color: var(--primary-light); color: var(--text-color); }
+        .ant-menu-item-selected { color: var(--primary); }
+        .ant-menu-item-selected::after { border-right-color: var(--primary); }
+        .ant-tabs-ink-bar { background-color: var(--primary); }
+        .ant-tabs-tab-active { color: var(--primary); }
 
-            position: relative;
-            background: 
-                radial-gradient(circle at 15% 22%, #6a9a6a 4px, transparent 4px),
-                radial-gradient(circle at 67% 48%, #4f7a4f 6px, transparent 6px),
-                radial-gradient(circle at 33% 71%, #3b6e3b 5px, transparent 5px),
-                radial-gradient(circle at 82% 13%, #5f8b5f 7px, transparent 7px),
-                radial-gradient(circle at 48% 91%, #4caf50 4px, transparent 4px),
-                radial-gradient(circle at 93% 56%, #2e7d32 5px, transparent 5px),
-                radial-gradient(circle at 7% 77%, #6b8e6b 6px, transparent 6px),
-                radial-gradient(circle at 55% 34%, #81c784 4px, transparent 4px),
-                radial-gradient(circle at 26% 63%, #66bb6a 5px, transparent 5px),
-                radial-gradient(circle at 74% 88%, #2e7d32 6px, transparent 6px),
-                linear-gradient(rgba(232, 245, 232, 0.9), rgba(232, 245, 232, 0.9)),
-                url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?q=80&w=1974&auto=format&fit=crop');
-            background-size: auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, cover;
-            background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
-            background-attachment: fixed;
-        }
-        /* 左侧竹子 */
-        .theme-bamboo::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 220px;
-            height: 100vh;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 1000" preserveAspectRatio="xMidYMid meet"><path d="M80 0 L80 1000" stroke="%232e7d32" stroke-width="12" stroke-dasharray="30 25"/><path d="M120 100 L150 200" stroke="%232e7d32" stroke-width="8"/><path d="M50 300 L90 400" stroke="%232e7d32" stroke-width="8"/><path d="M130 500 L100 600" stroke="%232e7d32" stroke-width="8"/><path d="M60 700 L110 800" stroke="%232e7d32" stroke-width="8"/><path d="M140 850 L100 950" stroke="%232e7d32" stroke-width="8"/><circle cx="140" cy="150" r="12" fill="%23388e3c" opacity="0.7"/><circle cx="40" cy="250" r="10" fill="%23388e3c" opacity="0.7"/><circle cx="160" cy="420" r="14" fill="%23388e3c" opacity="0.7"/><circle cx="70" cy="550" r="9" fill="%23388e3c" opacity="0.7"/><circle cx="130" cy="720" r="11" fill="%23388e3c" opacity="0.7"/></svg>');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: left bottom;
-            pointer-events: none;
-            z-index: 1;
-        }
-        /* 右侧竹子 */
-        .theme-bamboo::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 220px;
-            height: 100vh;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 1000" preserveAspectRatio="xMidYMid meet"><path d="M120 0 L120 1000" stroke="%232e7d32" stroke-width="12" stroke-dasharray="30 25"/><path d="M80 100 L50 200" stroke="%232e7d32" stroke-width="8"/><path d="M150 300 L110 400" stroke="%232e7d32" stroke-width="8"/><path d="M70 500 L100 600" stroke="%232e7d32" stroke-width="8"/><path d="M140 700 L90 800" stroke="%232e7d32" stroke-width="8"/><path d="M60 850 L100 950" stroke="%232e7d32" stroke-width="8"/><circle cx="60" cy="150" r="12" fill="%23388e3c" opacity="0.7"/><circle cx="160" cy="250" r="10" fill="%23388e3c" opacity="0.7"/><circle cx="40" cy="420" r="14" fill="%23388e3c" opacity="0.7"/><circle cx="130" cy="550" r="9" fill="%23388e3c" opacity="0.7"/><circle cx="70" cy="720" r="11" fill="%23388e3c" opacity="0.7"/></svg>');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: right bottom;
-            pointer-events: none;
-            z-index: 1;
-        }
+        /* ---------- 以下为复刻的布局样式 (来自原CRM工作台) ---------- */
+        .app { display: flex; height: 100vh; }
+        /* 侧边菜单 */
+        .ant-layout-sider { background-color: #001529; color: #fff; width: 200px; flex-shrink: 0; transition: all 0.3s; }
+        .theme-black .ant-layout-sider { background-color: #1a1a1a; }
+        .logo { height: 64px; line-height: 64px; text-align: center; font-size: 18px; font-weight: bold; background: #002140; color: white; overflow: hidden; white-space: nowrap; }
+        .ant-menu-dark { background: #001529; color: rgba(255,255,255,0.65); }
+        .ant-menu-dark .ant-menu-item-selected { background-color: var(--primary); }
+        .ant-menu-item { line-height: 40px; height: 40px; padding-left: 24px; cursor: pointer; }
+        .ant-menu-item:hover { color: var(--primary); }
+        /* 右侧主区 */
+        .ant-layout { flex: 1; display: flex; flex-direction: column; background: var(--bg-color); }
+        .ant-layout-header { background: var(--card-bg); padding: 0 24px; height: 64px; line-height: 64px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .ant-layout-content { margin: 24px; overflow: auto; }
+        .workbench-content { display: flex; flex-direction: column; gap: 20px; }
+        /* 统计卡片 */
+        .stat-row { display: flex; gap: 20px; flex-wrap: wrap; }
+        .stat-card { flex: 1; min-width: 180px; background: var(--card-bg); border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid var(--border-color); }
+        .stat-title { color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
+        .stat-number { font-size: 28px; font-weight: 600; color: var(--primary); }
+        .stat-footer { color: var(--text-secondary); font-size: 12px; margin-top: 12px; }
+        /* 表格 & 图表占位 */
+        .section-title { font-size: 18px; font-weight: 500; margin-bottom: 16px; color: var(--text-color); }
+        .table-container { background: var(--card-bg); border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); }
+        .ant-table { width: 100%; border-collapse: collapse; }
+        .ant-table th, .ant-table td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: left; }
+        .ant-table th { background-color: var(--primary-light); font-weight: 500; color: var(--text-color); }
+        .chart-placeholder { height: 200px; background: var(--primary-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 500; margin-top: 20px; }
+        /* 待办卡片 */
+        .todo-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .todo-item:last-child { border-bottom: none; }
+        .todo-check { margin-right: 12px; }
+        .todo-title { flex: 1; }
+        .todo-time { color: var(--text-secondary); font-size: 12px; }
+        /* 双栏布局 */
+        .row-2col { display: flex; gap: 20px; }
+        .col { flex: 1; }
+        /* 按钮 */
+        .ant-btn { line-height: 1.499; position: relative; display: inline-block; font-weight: 400; white-space: nowrap; text-align: center; background-image: none; border: 1px solid transparent; box-shadow: 0 2px 0 rgba(0,0,0,0.015); cursor: pointer; transition: all 0.3s; height: 32px; padding: 0 15px; font-size: 14px; border-radius: 4px; color: var(--text-color); background-color: var(--card-bg); border-color: var(--border-color); }
+        .ant-btn-primary { color: #fff; background-color: var(--primary); border-color: var(--primary); text-shadow: 0 -1px 0 rgba(0,0,0,0.12); box-shadow: 0 2px 0 rgba(0,0,0,0.045); }
+        .ant-btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); }
     </style>
 </head>
-<body class="theme-tech" id="appBody">
-    <!-- 主应用布局 -->
-    <div class="app">
-        <!-- 左侧边栏 -->
-        <div class="sidebar">
-            <div class="logo">瑞喆科技</div>
-            <div class="nav-item active" data-page="workbench">工作台</div>
-            <div class="nav-item" data-page="report">报表中心</div>
-            <div class="nav-item" data-page="followup">跟进记录</div>
-            <div class="nav-item" data-page="employee">员工权限</div>
-            <div class="nav-item" data-page="sms">短信模板</div>
-            <div style="flex:1"></div>
-            <div class="nav-item" data-page="user">邹裕 ⚙️</div>
-        </div>
-
-        <!-- 右侧主内容区 -->
-        <div class="main">
-            <!-- 顶部工具栏 -->
-            <div class="top-bar">
-                <div class="search-area">
-                    <input class="search-box" placeholder="Q 搜索" />
-                    <span class="badge">NEW</span>
-                    <span class="clickable" id="remindBtn">提醒</span>
-                    <span class="clickable" id="helpBtn">帮助</span>
-                    <span class="clickable" id="settingsBtn">设置</span>
-                </div>
-                <div class="quick-actions">
-                    <button class="quick-btn" id="addUserBtn">+ 快捷新增</button>
-                    <button class="quick-btn" id="importBtn">导入</button>
-                    <button class="quick-btn" id="downloadTemplateBtn">下载导入模板</button>
-                </div>
-            </div>
-
-            <!-- 主题选择浮层 (点击设置显示) -->
-            <div class="theme-popup" id="themePopup">
-                <div class="theme-option" data-theme="tech">⚙️ 科技黑</div>
-                <div class="theme-option" data-theme="pink">🌸 桃花粉</div>
-                <div class="theme-option" data-theme="bamboo">🎋 翠竹绿</div>
-            </div>
-
-            <!-- 页面容器：工作台 (默认显示) -->
-            <div id="page-workbench" class="page active">
-                <!-- 标签页 (顶部选项卡) 仅在工作台页面显示，但为了简单，我们保留在所有页面，但可通过JS隐藏？实际产品中不同页面有不同标签。这里简化：所有页面都显示同一组标签，点击标签切换下方内容。但为了演示，我们让标签页也切换页面内容。所以标签也作为导航的一部分。 -->
-                <div class="tabs">
-                    <div class="tab active" data-tab="customer">客户管理</div>
-                    <div class="tab" data-tab="public">公海池</div>
-                    <div class="tab" data-tab="deal">成交客户</div>
-                    <div class="tab" data-tab="blacklist">黑名单</div>
-                    <div class="tab" data-tab="recent">近期跟进记录</div>
-                </div>
-
-                <!-- 工作台具体内容 (原卡片) -->
-                <div class="card">
-                    <div class="card-title">销售简报 · 2026.03</div>
-                    <div class="stats-row">
-                        <div class="stat-item"><span class="stat-num">15</span><div>客户数</div></div>
-                        <div class="stat-item"><span class="stat-num">22</span><div>联系人</div></div>
-                        <div class="stat-item"><span class="stat-num">29</span><div>跟进</div></div>
-                    </div>
-                    <div class="calendar-grid">
-                        <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
-                        <div class="cal-day">1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
-                        <div>8</div><div>9</div><div class="today">10</div><div>11</div><div>12</div><div>13</div><div>14</div>
-                        <div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div>
-                        <div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div>
-                    </div>
-                    <div class="metric-row">
-                        <div><span class="metric-label">跟进总次数：</span><span class="metric-value">1</span></div>
-                        <div><span class="metric-label">跟进对象数：</span><span class="metric-value">1</span></div>
-                        <div><span class="metric-label">拜访总次数：</span><span class="metric-value">0</span></div>
-                        <div><span class="metric-label">拜访对象数：</span><span class="metric-value">0</span></div>
-                        <div><span class="metric-label">环比：</span><span class="metric-value">-17.33%/-15.07%</span></div>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                    <div class="card" style="flex:1">
-                        <div class="card-title">数据导入</div>
-                        <div>过期任务：0</div>
-                        <div>今日新增：1</div>
-                        <div style="margin-top: 12px;">选择文件 未选择任何文件</div>
-                        <button class="quick-btn" style="margin-top: 8px;" id="uploadBtn">上传并查重</button>
-                    </div>
-                    <div class="card" style="flex:1">
-                        <div class="card-title">预警</div>
-                        <div>超过7天未跟进：0</div>
-                        <div>预计30天内签单：0</div>
-                        <div>拜访计划未执行：0</div>
-                        <div>7天内需回款：0</div>
-                        <div>30天内到期合同：0</div>
-                    </div>
-                    <div class="card" style="flex:1">
-                        <div class="card-title">我的业绩统计</div>
-                        <div>本月业绩：￥0</div>
-                        <div>本月目标：￥20000</div>
-                        <div>完成率：0.0%</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">部门荣誉榜</div>
-                    <div class="rank-item"><span>张三</span><span>+124</span></div>
-                    <div class="rank-item"><span>李四</span><span>+89</span></div>
-                    <div class="rank-item"><span>王五</span><span>+45</span></div>
-                </div>
-            </div>
-
-            <!-- 其他页面占位 (隐藏) -->
-            <div id="page-report" class="page">
-                <div class="card">
-                    <div class="card-title">报表中心</div>
-                    <p>这里是报表统计页面，可展示各类图表。</p>
-                </div>
-            </div>
-            <div id="page-followup" class="page">
-                <div class="card">
-                    <div class="card-title">跟进记录</div>
-                    <p>显示所有客户的跟进历史。</p>
-                </div>
-            </div>
-            <div id="page-employee" class="page">
-                <div class="card">
-                    <div class="card-title">员工权限管理</div>
-                    <p>配置员工角色和访问权限。</p>
-                </div>
-            </div>
-            <div id="page-sms" class="page">
-                <div class="card">
-                    <div class="card-title">短信模板</div>
-                    <p>管理短信通知模板。</p>
-                </div>
-            </div>
-            <div id="page-user" class="page">
-                <div class="card">
-                    <div class="card-title">个人中心</div>
-                    <p>邹裕的个人设置和账号信息。</p>
-                </div>
-            </div>
-
-            <!-- 标签页对应的子页面容器 (为了简化，我们将标签页切换也映射到同一个page区域，但这样会和左侧菜单冲突。更好的做法是标签页切换下方内容，但为了演示，我们让标签页也切换整个页面？不，产品逻辑是左侧菜单切换大模块，顶部标签切换子视图。这里我们实现为：左侧菜单切换页面，顶部标签在当前页内切换下方卡片。为了不过度复杂，我们暂不实现标签页内部切换，仅让它们也切换page（即点击标签也切换整个页面），这样每个标签对应一个独立页面，但会与左侧菜单重叠。我们可以在左侧菜单点击时保留标签页，但为了演示清晰，我们让标签页也作为导航的一种：点击客户管理显示客户管理页面，等等。这样每个菜单和标签都对应一个page。我们需要增加对应的page。 -->
-
-            <!-- 为顶部标签添加对应的页面 (隐藏) -->
-            <div id="page-customer" class="page">
-                <div class="card">
-                    <div class="card-title">客户管理</div>
-                    <p>客户列表、筛选、操作。</p>
-                </div>
-            </div>
-            <div id="page-public" class="page">
-                <div class="card">
-                    <div class="card-title">公海池</div>
-                    <p>公共客户资源池。</p>
-                </div>
-            </div>
-            <div id="page-deal" class="page">
-                <div class="card">
-                    <div class="card-title">成交客户</div>
-                    <p>已成交客户列表。</p>
-                </div>
-            </div>
-            <div id="page-blacklist" class="page">
-                <div class="card">
-                    <div class="card-title">黑名单</div>
-                    <p>禁止合作的客户。</p>
-                </div>
-            </div>
-            <div id="page-recent" class="page">
-                <div class="card">
-                    <div class="card-title">近期跟进记录</div>
-                    <p>最近一周的跟进活动。</p>
-                </div>
-            </div>
-        </div>
+<body>
+    <!-- 主题切换按钮 (五色) -->
+    <div class="theme-switcher">
+        <div class="theme-dot orange" onclick="setTheme('orange')" title="橙色主题"></div>
+        <div class="theme-dot blue" onclick="setTheme('blue')" title="蓝色主题"></div>
+        <div class="theme-dot green" onclick="setTheme('green')" title="绿色主题"></div>
+        <div class="theme-dot black" onclick="setTheme('black')" title="黑色主题 (深色)"></div>
+        <div class="theme-dot pink" onclick="setTheme('pink')" title="粉色主题"></div>
     </div>
 
-    <!-- 用户管理模态框 -->
-    <div class="modal" id="userMgmtModal">
-        <div class="modal-content">
-            <h3>新建用户</h3>
-            <input type="text" id="newUserName" placeholder="姓名" />
-            <input type="text" id="newUserAccount" placeholder="账号" />
-            <input type="password" id="newUserPassword" placeholder="密码" />
-            <select id="newUserRole">
-                <option value="admin">管理员</option>
-                <option value="staff">普通员工</option>
-            </select>
-            <input type="text" id="newUserDept" placeholder="部门" />
-            <div class="modal-actions">
-                <button class="quick-btn" id="modalCancel">取消</button>
-                <button class="quick-btn" id="modalSave">保存</button>
+    <!-- 复刻的工作台布局 (基于励销CRM) -->
+    <div class="app">
+        <!-- 侧边栏 -->
+        <div class="ant-layout-sider">
+            <div class="logo">励销CRM · 工作台</div>
+            <div class="ant-menu-dark" style="padding-top: 16px;">
+                <div class="ant-menu-item">工作台</div>
+                <div class="ant-menu-item">客户管理</div>
+                <div class="ant-menu-item">商机管理</div>
+                <div class="ant-menu-item">合同管理</div>
+                <div class="ant-menu-item">统计分析</div>
+                <div class="ant-menu-item">设置</div>
+            </div>
+        </div>
+        <!-- 右侧内容区 -->
+        <div class="ant-layout">
+            <div class="ant-layout-header">
+                <div style="font-size: 20px; font-weight: 500;">工作台</div>
+                <div class="header-right">
+                    <span>欢迎, 邹裕</span>
+                    <div class="avatar">ZY</div>
+                </div>
+            </div>
+            <div class="ant-layout-content">
+                <div class="workbench-content">
+                    <!-- 统计卡片行 -->
+                    <div class="stat-row">
+                        <div class="stat-card">
+                            <div class="stat-title">累计客户</div>
+                            <div class="stat-number">1,286</div>
+                            <div class="stat-footer">较上月 ↑ 12.5%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">跟进中商机</div>
+                            <div class="stat-number">24</div>
+                            <div class="stat-footer">金额 ￥1,280,000</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">待办合同</div>
+                            <div class="stat-number">8</div>
+                            <div class="stat-footer">本周到期 3</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">回款计划</div>
+                            <div class="stat-number">￥568,200</div>
+                            <div class="stat-footer">本月已回款 32%</div>
+                        </div>
+                    </div>
+
+                    <!-- 双栏布局：待办事项 + 图表 -->
+                    <div class="row-2col">
+                        <div class="col">
+                            <div class="table-container">
+                                <div class="section-title">待办事项</div>
+                                <div class="todo-item">
+                                    <div class="todo-check"><input type="checkbox"></div>
+                                    <div class="todo-title">与张总讨论合作细节</div>
+                                    <div class="todo-time">今天 15:00</div>
+                                </div>
+                                <div class="todo-item">
+                                    <div class="todo-check"><input type="checkbox"></div>
+                                    <div class="todo-title">审核合同 #CT20240301</div>
+                                    <div class="todo-time">明天 10:30</div>
+                                </div>
+                                <div class="todo-item">
+                                    <div class="todo-check"><input type="checkbox"></div>
+                                    <div class="todo-title">回访VIP客户 李强</div>
+                                    <div class="todo-time">3月6日</div>
+                                </div>
+                                <div class="todo-item">
+                                    <div class="todo-check"><input type="checkbox"></div>
+                                    <div class="todo-title">更新季度销售预测</div>
+                                    <div class="todo-time">3月7日</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="table-container">
+                                <div class="section-title">销售漏斗 (快速预览)</div>
+                                <div class="chart-placeholder">
+                                    <span>📊 商机阶段分布图</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最近跟进记录表格 -->
+                    <div class="table-container">
+                        <div class="section-title">最近跟进记录</div>
+                        <table class="ant-table">
+                            <thead>
+                                <tr><th>客户</th><th>跟进内容</th><th>下次联系</th><th>跟进人</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>宁波悦达科技</td><td>演示产品，确认需求</td><td>3月8日</td><td>邹裕</td></tr>
+                                <tr><td>上海恒通电子</td><td>发送报价单</td><td>3月9日</td><td>张敏</td></tr>
+                                <tr><td>深圳华讯网络</td><td>初步沟通，有意向</td><td>3月10日</td><td>李雷</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 底部快速操作 -->
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button class="ant-btn">取消</button>
+                        <button class="ant-btn ant-btn-primary">新建跟进</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ========== 初始化状态 ==========
-        let state = { users: [] };
-
-        // ========== DOM 元素加载完成后执行 ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            // 获取元素
-            const addUserBtn = document.getElementById('addUserBtn');
-            const userMgmtModal = document.getElementById('userMgmtModal');
-            const modalCancel = document.getElementById('modalCancel');
-            const modalSave = document.getElementById('modalSave');
-            const downloadBtn = document.getElementById('downloadTemplateBtn');
-            const importBtn = document.getElementById('importBtn');
-            const uploadBtn = document.getElementById('uploadBtn');
-            const remindBtn = document.getElementById('remindBtn');
-            const helpBtn = document.getElementById('helpBtn');
-            const settingsBtn = document.getElementById('settingsBtn');
-            const themePopup = document.getElementById('themePopup');
-            const themeOptions = document.querySelectorAll('.theme-option');
-
-            // 左侧菜单项
-            const navItems = document.querySelectorAll('.nav-item');
-            // 顶部标签
-            const tabs = document.querySelectorAll('.tab');
-            // 所有页面
-            const pages = document.querySelectorAll('.page');
-
-            // 辅助函数：切换页面
-            function showPage(pageId) {
-                pages.forEach(page => page.classList.remove('active'));
-                const targetPage = document.getElementById('page-' + pageId);
-                if (targetPage) targetPage.classList.add('active');
-            }
-
-            // 辅助：更新左侧菜单激活状态
-            function setActiveNav(navElement) {
-                navItems.forEach(item => item.classList.remove('active'));
-                navElement.classList.add('active');
-            }
-
-            // 辅助：更新顶部标签激活状态
-            function setActiveTab(tabElement) {
-                tabs.forEach(tab => tab.classList.remove('active'));
-                tabElement.classList.add('active');
-            }
-
-            // ----- 左侧菜单点击事件 -----
-            navItems.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = this.dataset.page;
-                    if (page) {
-                        setActiveNav(this);
-                        showPage(page);
-                        // 同时也要同步顶部标签？不同页面可能有不同标签，这里简单处理：不处理顶部标签，让它保留原样。但为了视觉一致，我们可以让标签页也跟随？暂时不处理。
-                    }
-                });
-            });
-
-            // ----- 顶部标签点击事件 -----
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const tabName = this.dataset.tab; // 需要在HTML中添加data-tab属性
-                    if (tabName) {
-                        setActiveTab(this);
-                        showPage(tabName);
-                        // 同时取消左侧菜单的激活状态（可选）
-                        navItems.forEach(item => item.classList.remove('active'));
-                    }
-                });
-            });
-
-            // 为标签添加 data-tab 属性（已在HTML中预先添加）
-
-            // ----- 按钮点击事件 (模拟功能，无弹窗) -----
-            if (addUserBtn) {
-                addUserBtn.onclick = function() {
-                    userMgmtModal.style.display = 'flex';
-                };
-            }
-
-            if (modalCancel) {
-                modalCancel.onclick = function() {
-                    userMgmtModal.style.display = 'none';
-                };
-            }
-
-            if (modalSave) {
-                modalSave.onclick = function() {
-                    const name = document.getElementById('newUserName').value.trim();
-                    const acc = document.getElementById('newUserAccount').value.trim();
-                    const pwd = document.getElementById('newUserPassword').value.trim();
-                    const role = document.getElementById('newUserRole').value;
-                    const dept = document.getElementById('newUserDept').value.trim();
-
-                    if (!name || !acc || !pwd || !dept) {
-                        alert('请填写完整');
-                        return;
-                    }
-
-                    state.users.push({ id: Date.now(), name, account: acc, password: pwd, role, dept });
-                    userMgmtModal.style.display = 'none';
-                    document.getElementById('newUserName').value = '';
-                    document.getElementById('newUserAccount').value = '';
-                    document.getElementById('newUserPassword').value = '';
-                    document.getElementById('newUserDept').value = '';
-                    alert('用户添加成功（模拟）');
-                };
-            }
-
-            if (downloadBtn) {
-                downloadBtn.onclick = function() {
-                    alert('下载模板（模拟）');
-                };
-            }
-            if (importBtn) {
-                importBtn.onclick = function() {
-                    alert('导入功能（模拟）');
-                };
-            }
-            if (uploadBtn) {
-                uploadBtn.onclick = function() {
-                    alert('上传查重（模拟）');
-                };
-            }
-            if (remindBtn) {
-                remindBtn.onclick = function() {
-                    alert('提醒功能（模拟）');
-                };
-            }
-            if (helpBtn) {
-                helpBtn.onclick = function() {
-                    alert('帮助文档（模拟）');
-                };
-            }
-
-            // ----- 设置按钮：显示/隐藏主题浮层 -----
-            if (settingsBtn) {
-                settingsBtn.onclick = function(e) {
-                    e.stopPropagation();
-                    themePopup.classList.toggle('show');
-                };
-            }
-
-            // 点击浮层内的主题选项
-            themeOptions.forEach(option => {
-                option.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const theme = this.dataset.theme;
-                    setTheme(theme);
-                    themePopup.classList.remove('show');
-                });
-            });
-
-            // 点击页面其他地方关闭浮层
-            document.addEventListener('click', function() {
-                themePopup.classList.remove('show');
-            });
-            // 阻止浮层自身点击关闭
-            themePopup.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-
-            // 关闭模态框如果点击背景
-            window.onclick = function(event) {
-                if (event.target === userMgmtModal) {
-                    userMgmtModal.style.display = 'none';
-                }
-            };
-        });
-
-        // ========== 主题切换函数 ==========
+        // 主题切换函数
         function setTheme(theme) {
-            const body = document.getElementById('appBody');
-            body.className = '';
-            if (theme === 'tech') body.classList.add('theme-tech');
-            else if (theme === 'pink') body.classList.add('theme-pink');
-            else if (theme === 'bamboo') body.classList.add('theme-bamboo');
+            // 移除所有主题类
+            document.body.classList.remove('theme-blue', 'theme-green', 'theme-black', 'theme-pink');
+            // 如果是橙色，不加类（默认）
+            if (theme !== 'orange') {
+                document.body.classList.add('theme-' + theme);
+            }
+            // 黑色主题特殊处理：深色背景已经通过body上的类控制
         }
 
-        // 默认激活科技黑 (已在body上)
+        // 默认激活橙色 (可自行选择)
+        setTheme('orange');
     </script>
+
+    <!-- 附加说明：所有主题均基于原始CRM样式复刻，黑色采用深色模式 -->
 </body>
 </html>
