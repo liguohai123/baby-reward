@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工作台 · 复刻版 (五主题)</title>
-    <!-- 核心图标样式 -->
+    <title>励销CRM · 模拟系统 (可登录)</title>
+    <!-- 原文件中的所有核心样式 (已精简) -->
     <style data-rc-order="prepend" rc-util-key="@ant-design-icons">
         .anticon { display: inline-block; color: inherit; font-style: normal; line-height: 0; text-align: center; text-transform: none; vertical-align: -0.125em; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         .anticon > * { line-height: 1; }
@@ -16,129 +16,47 @@
         @keyframes loadingCircle { 100% { transform: rotate(360deg); } }
     </style>
     <style>
-        /* 全局重置 & 基础 (来自原文件) */
-        html, body { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #f0f2f5; transition: background-color 0.3s; }
-        input::-ms-clear, input::-ms-reveal { display: none; }
-        *, *::before, *::after { box-sizing: border-box; }
+        /* ===== 重置 & 基础变量 (从原文件复制) ===== */
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+        * , *::before, *::after { box-sizing: border-box; }
         html { font-family: sans-serif; line-height: 1.15; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -ms-overflow-style: scrollbar; -webkit-tap-highlight-color: rgba(0,0,0,0); }
         body { margin: 0; color: rgba(0,0,0,0.65); font-size: 14px; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif; font-variant: tabular-nums; line-height: 1.5; background-color: #f0f2f5; font-feature-settings: 'tnum'; }
-        /* 主题切换容器 */
-        .theme-switcher { position: fixed; top: 10px; right: 20px; z-index: 1000; display: flex; gap: 12px; background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); backdrop-filter: blur(4px); }
-        .theme-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .theme-dot:hover { transform: scale(1.15); border-color: #fff; }
-        .theme-dot.orange { background: #FC8352; }
-        .theme-dot.blue { background: #41A5EE; }
-        .theme-dot.green { background: #52C41A; }
-        .theme-dot.black { background: #2C3E50; }
-        .theme-dot.pink { background: #FF85B3; }
-
-        /* ---------- 五套主题定义 ---------- */
-        /* 橙色主题 (默认) */
+        a { color: #FC8352; text-decoration: none; background-color: transparent; outline: none; cursor: pointer; transition: color 0.3s; }
+        a:hover { color: #ffa67d; }
+        a:active { color: #d6633c; }
+        /* ===== 主题变量 (橙色为主，可后续扩展) ===== */
         :root {
             --primary: #FC8352;
             --primary-light: #FFF2EA;
             --primary-hover: #ffaf7a;
             --primary-shadow: rgba(255,175,122,0.15);
             --primary-shadow-border: rgba(255,144,82,0.4);
-            --antd-wave-shadow-color: #FC8352;
             --bg-color: #f0f2f5;
             --card-bg: #ffffff;
             --text-color: rgba(0,0,0,0.65);
             --text-secondary: rgba(0,0,0,0.45);
             --border-color: #e8e8e8;
+            --menu-bg: #001529;
+            --menu-text: rgba(255,255,255,0.65);
+            --menu-selected: #fff;
         }
-        /* 蓝色主题 */
-        .theme-blue {
-            --primary: #41A5EE;
-            --primary-light: #E6F2FF;
-            --primary-hover: #79BDFF;
-            --primary-shadow: rgba(65,165,238,0.15);
-            --primary-shadow-border: rgba(65,165,238,0.4);
-            --antd-wave-shadow-color: #41A5EE;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-color: rgba(0,0,0,0.65);
-            --text-secondary: rgba(0,0,0,0.45);
-            --border-color: #e8e8e8;
-        }
-        /* 绿色主题 */
-        .theme-green {
-            --primary: #52C41A;
-            --primary-light: #F6FFED;
-            --primary-hover: #7ADB4C;
-            --primary-shadow: rgba(82,196,26,0.15);
-            --primary-shadow-border: rgba(82,196,26,0.4);
-            --antd-wave-shadow-color: #52C41A;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-color: rgba(0,0,0,0.65);
-            --text-secondary: rgba(0,0,0,0.45);
-            --border-color: #e8e8e8;
-        }
-        /* 黑色主题 (深色模式) */
-        .theme-black {
-            --primary: #FF9800;  /* 深色背景下用亮橙色点缀，主色仍可辨识 */
-            --primary-light: #42362A;
-            --primary-hover: #FFB74D;
-            --primary-shadow: rgba(255,152,0,0.25);
-            --primary-shadow-border: rgba(255,152,0,0.5);
-            --antd-wave-shadow-color: #FF9800;
-            --bg-color: #121212;
-            --card-bg: #1E1E1E;
-            --text-color: #E0E0E0;
-            --text-secondary: #909090;
-            --border-color: #333333;
-            /* 覆盖全局背景 */
-            background-color: #121212 !important;
-            color: #E0E0E0;
-        }
-        .theme-black body {
-            background-color: #121212;
-            color: #E0E0E0;
-        }
-        /* 粉色主题 */
-        .theme-pink {
-            --primary: #FF85B3;
-            --primary-light: #FFF0F5;
-            --primary-hover: #FFB0CC;
-            --primary-shadow: rgba(255,133,179,0.15);
-            --primary-shadow-border: rgba(255,133,179,0.4);
-            --antd-wave-shadow-color: #FF85B3;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-color: rgba(0,0,0,0.65);
-            --text-secondary: rgba(0,0,0,0.45);
-            --border-color: #e8e8e8;
-        }
-
-        /* 应用变量到元素 */
-        body { background-color: var(--bg-color); color: var(--text-color); transition: all 0.3s; }
-        .card, .ant-card, .dashboard-card, .stat-card, .table-container, .workbench-content > div {
-            background-color: var(--card-bg);
-            border-color: var(--border-color);
-            color: var(--text-color);
-        }
-        a { color: var(--primary); }
-        a:hover { color: var(--primary-hover); }
-        .ant-btn-primary { background-color: var(--primary); border-color: var(--primary); }
-        .ant-btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); }
-        .ant-table-thead > tr > th { background-color: var(--primary-light); color: var(--text-color); }
-        .ant-menu-item-selected { color: var(--primary); }
-        .ant-menu-item-selected::after { border-right-color: var(--primary); }
-        .ant-tabs-ink-bar { background-color: var(--primary); }
-        .ant-tabs-tab-active { color: var(--primary); }
-
-        /* ---------- 以下为复刻的布局样式 (来自原CRM工作台) ---------- */
+        body { background-color: var(--bg-color); color: var(--text-color); }
+        /* ===== 登录页样式 ===== */
+        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .login-card { width: 400px; padding: 40px; background: #fff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center; }
+        .login-logo { font-size: 28px; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
+        .login-input { width: 100%; height: 42px; margin-bottom: 16px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .login-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-shadow); }
+        .login-btn { width: 100%; height: 42px; background-color: var(--primary); border: none; border-radius: 6px; color: white; font-size: 16px; font-weight: 500; cursor: pointer; transition: background-color 0.2s; }
+        .login-btn:hover { background-color: var(--primary-hover); }
+        /* ===== 工作台布局 ===== */
         .app { display: flex; height: 100vh; }
-        /* 侧边菜单 */
-        .ant-layout-sider { background-color: #001529; color: #fff; width: 200px; flex-shrink: 0; transition: all 0.3s; }
-        .theme-black .ant-layout-sider { background-color: #1a1a1a; }
+        .ant-layout-sider { background-color: var(--menu-bg); width: 200px; flex-shrink: 0; color: var(--menu-text); transition: all 0.3s; }
         .logo { height: 64px; line-height: 64px; text-align: center; font-size: 18px; font-weight: bold; background: #002140; color: white; overflow: hidden; white-space: nowrap; }
-        .ant-menu-dark { background: #001529; color: rgba(255,255,255,0.65); }
-        .ant-menu-dark .ant-menu-item-selected { background-color: var(--primary); }
-        .ant-menu-item { line-height: 40px; height: 40px; padding-left: 24px; cursor: pointer; }
-        .ant-menu-item:hover { color: var(--primary); }
-        /* 右侧主区 */
+        .ant-menu-dark { background: var(--menu-bg); color: var(--menu-text); padding-top: 8px; }
+        .ant-menu-item { line-height: 40px; height: 40px; padding-left: 24px; cursor: pointer; list-style: none; transition: all 0.2s; }
+        .ant-menu-item:hover { color: var(--primary); background-color: rgba(255,255,255,0.1); }
+        .ant-menu-item-selected { background-color: var(--primary); color: #fff; }
         .ant-layout { flex: 1; display: flex; flex-direction: column; background: var(--bg-color); }
         .ant-layout-header { background: var(--card-bg); padding: 0 24px; height: 64px; line-height: 64px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .header-right { display: flex; align-items: center; gap: 20px; }
@@ -151,165 +69,269 @@
         .stat-title { color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
         .stat-number { font-size: 28px; font-weight: 600; color: var(--primary); }
         .stat-footer { color: var(--text-secondary); font-size: 12px; margin-top: 12px; }
-        /* 表格 & 图表占位 */
         .section-title { font-size: 18px; font-weight: 500; margin-bottom: 16px; color: var(--text-color); }
         .table-container { background: var(--card-bg); border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); }
         .ant-table { width: 100%; border-collapse: collapse; }
         .ant-table th, .ant-table td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: left; }
         .ant-table th { background-color: var(--primary-light); font-weight: 500; color: var(--text-color); }
         .chart-placeholder { height: 200px; background: var(--primary-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 500; margin-top: 20px; }
-        /* 待办卡片 */
         .todo-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .todo-item:last-child { border-bottom: none; }
         .todo-check { margin-right: 12px; }
         .todo-title { flex: 1; }
         .todo-time { color: var(--text-secondary); font-size: 12px; }
-        /* 双栏布局 */
         .row-2col { display: flex; gap: 20px; }
         .col { flex: 1; }
-        /* 按钮 */
-        .ant-btn { line-height: 1.499; position: relative; display: inline-block; font-weight: 400; white-space: nowrap; text-align: center; background-image: none; border: 1px solid transparent; box-shadow: 0 2px 0 rgba(0,0,0,0.015); cursor: pointer; transition: all 0.3s; height: 32px; padding: 0 15px; font-size: 14px; border-radius: 4px; color: var(--text-color); background-color: var(--card-bg); border-color: var(--border-color); }
-        .ant-btn-primary { color: #fff; background-color: var(--primary); border-color: var(--primary); text-shadow: 0 -1px 0 rgba(0,0,0,0.12); box-shadow: 0 2px 0 rgba(0,0,0,0.045); }
+        .ant-btn { line-height: 1.499; display: inline-block; font-weight: 400; white-space: nowrap; text-align: center; border: 1px solid transparent; cursor: pointer; height: 32px; padding: 0 15px; font-size: 14px; border-radius: 4px; color: var(--text-color); background-color: var(--card-bg); border-color: var(--border-color); }
+        .ant-btn-primary { color: #fff; background-color: var(--primary); border-color: var(--primary); }
         .ant-btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); }
+        .hidden { display: none !important; }
+        /* 用户信息行 */
+        .user-info { display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
-    <!-- 主题切换按钮 (五色) -->
-    <div class="theme-switcher">
-        <div class="theme-dot orange" onclick="setTheme('orange')" title="橙色主题"></div>
-        <div class="theme-dot blue" onclick="setTheme('blue')" title="蓝色主题"></div>
-        <div class="theme-dot green" onclick="setTheme('green')" title="绿色主题"></div>
-        <div class="theme-dot black" onclick="setTheme('black')" title="黑色主题 (深色)"></div>
-        <div class="theme-dot pink" onclick="setTheme('pink')" title="粉色主题"></div>
+    <!-- 登录界面 -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">励销CRM</div>
+            <input type="text" id="username" class="login-input" placeholder="用户名" value="admin">
+            <input type="password" id="password" class="login-input" placeholder="密码" value="123456">
+            <button class="login-btn" onclick="doLogin()">登 录</button>
+            <p style="margin-top: 20px; color: #999;">演示账号：任意账号密码均可登录</p>
+        </div>
     </div>
 
-    <!-- 复刻的工作台布局 (基于励销CRM) -->
-    <div class="app">
-        <!-- 侧边栏 -->
+    <!-- 工作台界面 (初始隐藏) -->
+    <div id="workbenchPage" class="app hidden">
+        <!-- 侧边菜单 -->
         <div class="ant-layout-sider">
-            <div class="logo">励销CRM · 工作台</div>
-            <div class="ant-menu-dark" style="padding-top: 16px;">
-                <div class="ant-menu-item">工作台</div>
-                <div class="ant-menu-item">客户管理</div>
-                <div class="ant-menu-item">商机管理</div>
-                <div class="ant-menu-item">合同管理</div>
-                <div class="ant-menu-item">统计分析</div>
-                <div class="ant-menu-item">设置</div>
+            <div class="logo">励销CRM</div>
+            <div class="ant-menu-dark">
+                <div class="ant-menu-item" data-menu="workbench" onclick="switchMenu('workbench')">工作台</div>
+                <div class="ant-menu-item" data-menu="customer" onclick="switchMenu('customer')">客户管理</div>
+                <div class="ant-menu-item" data-menu="opportunity" onclick="switchMenu('opportunity')">商机管理</div>
+                <div class="ant-menu-item" data-menu="contract" onclick="switchMenu('contract')">合同管理</div>
+                <div class="ant-menu-item" data-menu="stats" onclick="switchMenu('stats')">统计分析</div>
+                <div class="ant-menu-item" data-menu="settings" onclick="switchMenu('settings')">设置</div>
             </div>
         </div>
         <!-- 右侧内容区 -->
         <div class="ant-layout">
             <div class="ant-layout-header">
-                <div style="font-size: 20px; font-weight: 500;">工作台</div>
+                <div style="font-size: 20px; font-weight: 500;" id="pageTitle">工作台</div>
                 <div class="header-right">
-                    <span>欢迎, 邹裕</span>
-                    <div class="avatar">ZY</div>
+                    <div class="user-info">
+                        <span id="displayName">邹裕</span>
+                        <span style="color: var(--text-secondary); font-size: 12px;">(宁波悦达信息科技)</span>
+                    </div>
+                    <div class="avatar" id="userAvatar">ZY</div>
                 </div>
             </div>
-            <div class="ant-layout-content">
-                <div class="workbench-content">
-                    <!-- 统计卡片行 -->
-                    <div class="stat-row">
-                        <div class="stat-card">
-                            <div class="stat-title">累计客户</div>
-                            <div class="stat-number">1,286</div>
-                            <div class="stat-footer">较上月 ↑ 12.5%</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-title">跟进中商机</div>
-                            <div class="stat-number">24</div>
-                            <div class="stat-footer">金额 ￥1,280,000</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-title">待办合同</div>
-                            <div class="stat-number">8</div>
-                            <div class="stat-footer">本周到期 3</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-title">回款计划</div>
-                            <div class="stat-number">￥568,200</div>
-                            <div class="stat-footer">本月已回款 32%</div>
-                        </div>
-                    </div>
-
-                    <!-- 双栏布局：待办事项 + 图表 -->
-                    <div class="row-2col">
-                        <div class="col">
-                            <div class="table-container">
-                                <div class="section-title">待办事项</div>
-                                <div class="todo-item">
-                                    <div class="todo-check"><input type="checkbox"></div>
-                                    <div class="todo-title">与张总讨论合作细节</div>
-                                    <div class="todo-time">今天 15:00</div>
-                                </div>
-                                <div class="todo-item">
-                                    <div class="todo-check"><input type="checkbox"></div>
-                                    <div class="todo-title">审核合同 #CT20240301</div>
-                                    <div class="todo-time">明天 10:30</div>
-                                </div>
-                                <div class="todo-item">
-                                    <div class="todo-check"><input type="checkbox"></div>
-                                    <div class="todo-title">回访VIP客户 李强</div>
-                                    <div class="todo-time">3月6日</div>
-                                </div>
-                                <div class="todo-item">
-                                    <div class="todo-check"><input type="checkbox"></div>
-                                    <div class="todo-title">更新季度销售预测</div>
-                                    <div class="todo-time">3月7日</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="table-container">
-                                <div class="section-title">销售漏斗 (快速预览)</div>
-                                <div class="chart-placeholder">
-                                    <span>📊 商机阶段分布图</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 最近跟进记录表格 -->
-                    <div class="table-container">
-                        <div class="section-title">最近跟进记录</div>
-                        <table class="ant-table">
-                            <thead>
-                                <tr><th>客户</th><th>跟进内容</th><th>下次联系</th><th>跟进人</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>宁波悦达科技</td><td>演示产品，确认需求</td><td>3月8日</td><td>邹裕</td></tr>
-                                <tr><td>上海恒通电子</td><td>发送报价单</td><td>3月9日</td><td>张敏</td></tr>
-                                <tr><td>深圳华讯网络</td><td>初步沟通，有意向</td><td>3月10日</td><td>李雷</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- 底部快速操作 -->
-                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                        <button class="ant-btn">取消</button>
-                        <button class="ant-btn ant-btn-primary">新建跟进</button>
-                    </div>
-                </div>
+            <div class="ant-layout-content" id="contentArea">
+                <!-- 动态内容会通过JavaScript填充 -->
             </div>
         </div>
     </div>
 
     <script>
-        // 主题切换函数
-        function setTheme(theme) {
-            // 移除所有主题类
-            document.body.classList.remove('theme-blue', 'theme-green', 'theme-black', 'theme-pink');
-            // 如果是橙色，不加类（默认）
-            if (theme !== 'orange') {
-                document.body.classList.add('theme-' + theme);
-            }
-            // 黑色主题特殊处理：深色背景已经通过body上的类控制
+        // ---------- 模拟用户数据 (取自原文件) ----------
+        const currentUser = {
+            id: 13001002,
+            name: "邹裕",
+            phone: "17682348548",
+            org: "宁波悦达信息科技"
+        };
+
+        // ---------- 登录函数 ----------
+        function doLogin() {
+            // 简单模拟登录，任意账号均可登录
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('workbenchPage').classList.remove('hidden');
+            // 设置用户信息
+            document.getElementById('displayName').innerText = currentUser.name;
+            document.getElementById('userAvatar').innerText = currentUser.name.substring(0,2).toUpperCase();
+            // 默认选中工作台菜单
+            highlightMenu('workbench');
+            renderContent('workbench');
         }
 
-        // 默认激活橙色 (可自行选择)
-        setTheme('orange');
-    </script>
+        // ---------- 菜单切换 ----------
+        function switchMenu(menuId) {
+            highlightMenu(menuId);
+            renderContent(menuId);
+            // 更新标题
+            const titles = {
+                workbench: '工作台',
+                customer: '客户管理',
+                opportunity: '商机管理',
+                contract: '合同管理',
+                stats: '统计分析',
+                settings: '设置'
+            };
+            document.getElementById('pageTitle').innerText = titles[menuId] || '工作台';
+        }
 
-    <!-- 附加说明：所有主题均基于原始CRM样式复刻，黑色采用深色模式 -->
+        function highlightMenu(menuId) {
+            document.querySelectorAll('.ant-menu-item').forEach(item => {
+                item.classList.remove('ant-menu-item-selected');
+                if(item.dataset.menu === menuId) {
+                    item.classList.add('ant-menu-item-selected');
+                }
+            });
+        }
+
+        // ---------- 根据菜单渲染右侧内容 (模拟不同页面) ----------
+        function renderContent(menuId) {
+            const area = document.getElementById('contentArea');
+            if (menuId === 'workbench') {
+                area.innerHTML = getWorkbenchHTML();
+            } else if (menuId === 'customer') {
+                area.innerHTML = getCustomerHTML();
+            } else if (menuId === 'opportunity') {
+                area.innerHTML = getOpportunityHTML();
+            } else if (menuId === 'contract') {
+                area.innerHTML = getContractHTML();
+            } else if (menuId === 'stats') {
+                area.innerHTML = getStatsHTML();
+            } else if (menuId === 'settings') {
+                area.innerHTML = getSettingsHTML();
+            }
+        }
+
+        // ---------- 各个页面的HTML模板 (完全复刻原版风格) ----------
+        function getWorkbenchHTML() {
+            return `
+                <div class="workbench-content">
+                    <div class="stat-row">
+                        <div class="stat-card"><div class="stat-title">累计客户</div><div class="stat-number">1,286</div><div class="stat-footer">较上月 ↑12.5%</div></div>
+                        <div class="stat-card"><div class="stat-title">跟进中商机</div><div class="stat-number">24</div><div class="stat-footer">金额 ￥1,280,000</div></div>
+                        <div class="stat-card"><div class="stat-title">待办合同</div><div class="stat-number">8</div><div class="stat-footer">本周到期 3</div></div>
+                        <div class="stat-card"><div class="stat-title">回款计划</div><div class="stat-number">￥568,200</div><div class="stat-footer">本月已回款 32%</div></div>
+                    </div>
+                    <div class="row-2col">
+                        <div class="col">
+                            <div class="table-container">
+                                <div class="section-title">待办事项</div>
+                                <div class="todo-item"><div class="todo-check"><input type="checkbox"></div><div class="todo-title">与张总讨论合作细节</div><div class="todo-time">今天15:00</div></div>
+                                <div class="todo-item"><div class="todo-check"><input type="checkbox"></div><div class="todo-title">审核合同 #CT20240301</div><div class="todo-time">明天10:30</div></div>
+                                <div class="todo-item"><div class="todo-check"><input type="checkbox"></div><div class="todo-title">回访VIP客户 李强</div><div class="todo-time">3月6日</div></div>
+                                <div class="todo-item"><div class="todo-check"><input type="checkbox"></div><div class="todo-title">更新季度销售预测</div><div class="todo-time">3月7日</div></div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="table-container">
+                                <div class="section-title">销售漏斗</div>
+                                <div class="chart-placeholder">📊 商机阶段分布图</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <div class="section-title">最近跟进记录</div>
+                        <table class="ant-table"><thead><tr><th>客户</th><th>跟进内容</th><th>下次联系</th><th>跟进人</th></tr></thead>
+                        <tbody><tr><td>宁波悦达科技</td><td>演示产品，确认需求</td><td>3月8日</td><td>邹裕</td></tr>
+                        <tr><td>上海恒通电子</td><td>发送报价单</td><td>3月9日</td><td>张敏</td></tr>
+                        <tr><td>深圳华讯网络</td><td>初步沟通，有意向</td><td>3月10日</td><td>李雷</td></tr></tbody></table>
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button class="ant-btn">取消</button>
+                        <button class="ant-btn ant-btn-primary">新建跟进</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getCustomerHTML() {
+            return `
+                <div class="table-container">
+                    <div class="section-title">客户列表</div>
+                    <table class="ant-table">
+                        <thead><tr><th>客户名称</th><th>联系人</th><th>电话</th><th>状态</th></tr></thead>
+                        <tbody>
+                            <tr><td>宁波悦达信息科技</td><td>邹裕</td><td>176****8548</td><td>已合作</td></tr>
+                            <tr><td>上海恒通电子</td><td>张敏</td><td>138****1234</td><td>跟进中</td></tr>
+                            <tr><td>深圳华讯网络</td><td>李雷</td><td>139****5678</td><td>意向客户</td></tr>
+                            <tr><td>北京智联科技</td><td>韩梅梅</td><td>137****9012</td><td>初步接洽</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function getOpportunityHTML() {
+            return `
+                <div class="table-container">
+                    <div class="section-title">商机管理</div>
+                    <table class="ant-table">
+                        <thead><tr><th>商机名称</th><th>客户</th><th>金额</th><th>阶段</th></tr></thead>
+                        <tbody>
+                            <tr><td>年度软件采购</td><td>宁波悦达</td><td>¥560,000</td><td>方案报价</td></tr>
+                            <tr><td>硬件升级项目</td><td>上海恒通</td><td>¥280,000</td><td>需求确认</td></tr>
+                            <tr><td>云服务合作</td><td>深圳华讯</td><td>¥120,000</td><td>初步沟通</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function getContractHTML() {
+            return `
+                <div class="table-container">
+                    <div class="section-title">合同管理</div>
+                    <table class="ant-table">
+                        <thead><tr><th>合同编号</th><th>客户</th><th>金额</th><th>状态</th></tr></thead>
+                        <tbody>
+                            <tr><td>CT20240228</td><td>宁波悦达</td><td>¥230,000</td><td>已签约</td></tr>
+                            <tr><td>CT20240301</td><td>上海恒通</td><td>¥80,000</td><td>审批中</td></tr>
+                            <tr><td>CT20240302</td><td>深圳华讯</td><td>¥45,000</td><td>待盖章</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function getStatsHTML() {
+            return `
+                <div class="workbench-content">
+                    <div class="stat-row">
+                        <div class="stat-card"><div class="stat-title">总销售额</div><div class="stat-number">¥2,580,000</div><div class="stat-footer">同比 ↑18%</div></div>
+                        <div class="stat-card"><div class="stat-title">新增客户</div><div class="stat-number">42</div><div class="stat-footer">环比 ↑5%</div></div>
+                    </div>
+                    <div class="table-container">
+                        <div class="section-title">销售趋势 (近6个月)</div>
+                        <div class="chart-placeholder">📈 折线图占位</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSettingsHTML() {
+            return `
+                <div class="table-container">
+                    <div class="section-title">个人设置</div>
+                    <div style="padding: 20px 0;">用户名：邹裕</div>
+                    <div style="padding: 20px 0;">手机：17682348548</div>
+                    <div style="padding: 20px 0;">组织：宁波悦达信息科技</div>
+                    <button class="ant-btn" onclick="logout()" style="margin-top: 20px;">退出登录</button>
+                </div>
+            `;
+        }
+
+        // 退出登录
+        window.logout = function() {
+            document.getElementById('workbenchPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+        };
+
+        // 默认高亮工作台 (登录后调用)
+        window.highlightMenu = highlightMenu;
+        window.switchMenu = switchMenu;
+        window.renderContent = renderContent;
+
+        // 如果直接访问工作台（调试），可以手动显示，但登录优先
+        // 确保初始状态
+        document.getElementById('loginPage').classList.remove('hidden');
+        document.getElementById('workbenchPage').classList.add('hidden');
+    </script>
 </body>
 </html>
